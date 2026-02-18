@@ -32,7 +32,7 @@
     <section class="content-section" aria-labelledby="map-heading">
       <h2 id="map-heading">Map</h2>
       <p>Tap a marker for details.</p>
-      <div id="wedding-map" class="leaflet-map" data-places-url="data/places.json" role="application" aria-label="Wedding map (church, venue, places to stay)"></div>
+      <div id="wedding-map" class="leaflet-map" data-places-url="../data/places.json" aria-label="Wedding map"></div>
       <p><a class="map-fullscreen" href="#wedding-map">View full screen map</a></p>
       <p class="map-legend">Map legend: ⛪ Ceremony (church) · 🥂 Venue · 🅿️ Parking · 🛏️ Hotels · ⛺ Camping / glamping</p>
     </section>
@@ -218,7 +218,7 @@
     <p class="year">2026</p>
   </footer>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script src="js/map.js"></script>
+  <script src="../js/map.js"></script>
   <script>
     (function(){ if (localStorage.getItem('wedding_role') !== 'admin') return; var ul = document.getElementById('site-nav-list'); if (!ul) return; var li = document.createElement('li'); var a = document.createElement('a'); a.href = 'admin.html'; a.textContent = 'Admin'; li.appendChild(a); ul.appendChild(li); })();
   </script>
