@@ -791,6 +791,12 @@ footer a:focus {
   outline-offset: 2px;
 }
 
+.map-legend {
+  margin: 0.5em 0 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
 .faq-search-wrap {
   padding-bottom: var(--space);
 }
