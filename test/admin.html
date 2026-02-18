@@ -6,6 +6,7 @@
   <meta name="description" content="Admin notes — Jason &amp; Becki. Internal use.">
   <title>Admin notes — Jason &amp; Rebecca (Test)</title>
   <link rel="stylesheet" href="../styles.css">
+  <script src="auth.js"></script>
 </head>
 <body>
   <header class="site-header">
@@ -23,56 +24,46 @@
     <section class="page-heading">
       <h1>Admin notes (Jason &amp; Becki)</h1>
       <p><a href="login.html" id="admin-logout" class="book-link">Log out</a></p>
+      <p class="admin-local-note">Edits are saved only on this device/browser. Use Copy changes to update ITINERARY.md.</p>
     </section>
 
-    <section class="admin-section copy-section" id="section-shopping" data-copy-target="copy-shopping">
+    <section class="admin-section admin-edit-block" id="block-shopping" data-storage-key="admin_edit_shopping">
       <h2>Shopping list</h2>
-      <div id="copy-shopping" class="copy-content">
-        <ul>
-          <li>Biodegradable confetti</li>
-          <li>[VENUE NAME] — confirm final numbers</li>
-          <li>Pizza tokens</li>
-          <li>[Other items TBC]</li>
-        </ul>
+      <textarea id="textarea-shopping" class="admin-textarea" rows="6" aria-label="Shopping list"></textarea>
+      <div class="admin-edit-actions">
+        <button type="button" class="book-link admin-edit-btn" data-action="save">Save</button>
+        <button type="button" class="book-link admin-edit-btn" data-action="reset">Reset</button>
+        <button type="button" class="book-link admin-edit-btn" data-action="show-changes">Show changes</button>
+        <button type="button" class="book-link admin-edit-btn" data-action="copy-changes">Copy changes</button>
+        <button type="button" class="book-link admin-edit-btn" data-action="copy-full">Copy full</button>
       </div>
-      <button type="button" class="book-link copy-btn" data-section="section-shopping" aria-label="Copy shopping list">Copy</button>
+      <div id="changes-shopping" class="admin-changes-output" role="region" aria-live="polite" hidden></div>
     </section>
 
-    <section class="admin-section copy-section" id="section-checklist" data-copy-target="copy-checklist">
+    <section class="admin-section admin-edit-block" id="block-checklist" data-storage-key="admin_edit_checklist">
       <h2>Checklist</h2>
-      <div id="copy-checklist" class="copy-content">
-        <ul>
-          <li>Send invites</li>
-          <li>Confirm [VENUE NAME] booking</li>
-          <li>Book band / DJ — set times [TIME]</li>
-          <li>Order pizza — [TIME]</li>
-          <li>Print run sheet</li>
-        </ul>
+      <textarea id="textarea-checklist" class="admin-textarea" rows="6" aria-label="Checklist"></textarea>
+      <div class="admin-edit-actions">
+        <button type="button" class="book-link admin-edit-btn" data-action="save">Save</button>
+        <button type="button" class="book-link admin-edit-btn" data-action="reset">Reset</button>
+        <button type="button" class="book-link admin-edit-btn" data-action="show-changes">Show changes</button>
+        <button type="button" class="book-link admin-edit-btn" data-action="copy-changes">Copy changes</button>
+        <button type="button" class="book-link admin-edit-btn" data-action="copy-full">Copy full</button>
       </div>
-      <button type="button" class="book-link copy-btn" data-section="section-checklist" aria-label="Copy checklist">Copy</button>
+      <div id="changes-checklist" class="admin-changes-output" role="region" aria-live="polite" hidden></div>
     </section>
 
-    <section class="admin-section copy-section" id="section-runsheet" data-copy-target="copy-runsheet">
+    <section class="admin-section admin-edit-block" id="block-runsheet" data-storage-key="admin_edit_runsheet">
       <h2>Run sheet notes</h2>
-      <div id="copy-runsheet" class="copy-content">
-        <ul>
-          <li>11:40 — Guests arrive at church (doors open in good time).</li>
-          <li>12:00–13:00 — Wedding service at church.</li>
-          <li>13:00–13:30 — Photos. Confetti moment after ceremony — biodegradable only, outside.</li>
-          <li>13:15 — Reception venue access [VENUE NAME]. Aim to have everyone in by 14:00.</li>
-          <li>13:30 — Walk to [VENUE NAME] (5 minutes).</li>
-          <li>13:30–14:30 — Welcome drinks at [VENUE NAME].</li>
-          <li>15:00 — Meal is served.</li>
-          <li>15:30–16:30 — Speeches window (exact order/length TBC if needed).</li>
-          <li>16:30–18:00 — TBC. Options under consideration: games, quiet break, or earlier start for evening. Not final — to be confirmed.</li>
-          <li>18:30 — Live band set ([TIME] / duration TBC if needed).</li>
-          <li>From 19:00 — Evening food (pizza). Token system: tokens to be distributed; one token per slice / per person as agreed.</li>
-          <li>20:30 — DJ set ([TIME] / duration TBC if needed).</li>
-          <li>Celebrations continue until late.</li>
-          <li>Operational notes: Supplier contact [LINK] or [VENUE NAME]. Confetti: we provide; biodegradable, outside only.</li>
-        </ul>
+      <textarea id="textarea-runsheet" class="admin-textarea" rows="18" aria-label="Run sheet notes"></textarea>
+      <div class="admin-edit-actions">
+        <button type="button" class="book-link admin-edit-btn" data-action="save">Save</button>
+        <button type="button" class="book-link admin-edit-btn" data-action="reset">Reset</button>
+        <button type="button" class="book-link admin-edit-btn" data-action="show-changes">Show changes</button>
+        <button type="button" class="book-link admin-edit-btn" data-action="copy-changes">Copy changes</button>
+        <button type="button" class="book-link admin-edit-btn" data-action="copy-full">Copy full</button>
       </div>
-      <button type="button" class="book-link copy-btn" data-section="section-runsheet" aria-label="Copy run sheet notes">Copy</button>
+      <div id="changes-runsheet" class="admin-changes-output" role="region" aria-live="polite" hidden></div>
     </section>
   </main>
 
@@ -83,9 +74,117 @@
 
   <script>
     (function () {
-      if (localStorage.getItem('wedding_role') !== 'admin') {
-        window.location.href = 'login.html';
-        return;
+      var BASELINES = {
+        shopping: 'Biodegradable confetti\n[VENUE NAME] — confirm final numbers\nPizza tokens\n[Other items TBC]',
+        checklist: 'Send invites\nConfirm [VENUE NAME] booking\nBook band / DJ — set times [TIME]\nOrder pizza — [TIME]\nPrint run sheet',
+        runsheet: '11:40 — Guests arrive at church (doors open in good time).\n12:00–13:00 — Wedding service at church.\n13:00–13:30 — Photos. Confetti moment after ceremony — biodegradable only, outside.\n13:15 — Reception venue access [VENUE NAME]. Aim to have everyone in by 14:00.\n13:30 — Walk to [VENUE NAME] (5 minutes).\n13:30–14:30 — Welcome drinks at [VENUE NAME].\n15:00 — Meal is served.\n15:30–16:30 — Speeches window (exact order/length TBC if needed).\n16:30–18:00 — TBC. Options under consideration: games, quiet break, or earlier start for evening. Not final — to be confirmed.\n18:30 — Live band set ([TIME] / duration TBC if needed).\nFrom 19:00 — Evening food (pizza). Token system: tokens to be distributed; one token per slice / per person as agreed.\n20:30 — DJ set ([TIME] / duration TBC if needed).\nCelebrations continue until late.\nOperational notes: Supplier contact [LINK] or [VENUE NAME]. Confetti: we provide; biodegradable, outside only.'
+      };
+
+      function normalizeLine(s) {
+        return (s || '').trim().replace(/\s+/g, ' ');
+      }
+      function toLineSet(text) {
+        var lines = (text || '').split('\n').map(normalizeLine).filter(Boolean);
+        var set = {};
+        lines.forEach(function (l) { set[l] = true; });
+        return { lines: lines, set: set };
+      }
+      function diff(baselineText, currentText) {
+        var base = toLineSet(baselineText);
+        var curr = toLineSet(currentText);
+        var added = curr.lines.filter(function (l) { return !base.set[l]; });
+        var removed = base.lines.filter(function (l) { return !curr.set[l]; });
+        return { added: added, removed: removed };
+      }
+      function formatChangesOutput(diffResult) {
+        var out = [];
+        out.push('Added lines:');
+        if (diffResult.added.length) diffResult.added.forEach(function (l) { out.push('- ' + l); });
+        else out.push('(none)');
+        out.push('');
+        out.push('Removed lines:');
+        if (diffResult.removed.length) diffResult.removed.forEach(function (l) { out.push('- ' + l); });
+        else out.push('(none)');
+        return out.join('\n');
+      }
+
+      var blocks = ['shopping', 'checklist', 'runsheet'];
+      blocks.forEach(function (key) {
+        var block = document.getElementById('block-' + key);
+        var textarea = document.getElementById('textarea-' + key);
+        var changesEl = document.getElementById('changes-' + key);
+        var storageKey = block.getAttribute('data-storage-key');
+        var baseline = BASELINES[key];
+
+        textarea.defaultValue = baseline;
+        try {
+          var saved = localStorage.getItem(storageKey);
+          if (saved !== null) textarea.value = saved;
+          else textarea.value = baseline;
+        } catch (e) {
+          textarea.value = baseline;
+        }
+
+        block.querySelectorAll('.admin-edit-btn').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var action = btn.getAttribute('data-action');
+            var value = textarea.value;
+
+            if (action === 'save') {
+              try { localStorage.setItem(storageKey, value); } catch (e) {}
+              btn.textContent = 'Saved';
+              setTimeout(function () { btn.textContent = 'Save'; }, 1500);
+              return;
+            }
+            if (action === 'reset') {
+              try { localStorage.removeItem(storageKey); } catch (e) {}
+              textarea.value = baseline;
+              if (changesEl) { changesEl.hidden = true; changesEl.textContent = ''; }
+              return;
+            }
+            if (action === 'show-changes') {
+              var d = diff(baseline, value);
+              var html = '';
+              if (d.added.length) {
+                html += '<p><strong>Added lines:</strong></p><ul>';
+                d.added.forEach(function (l) { html += '<li>' + escapeHtml(l) + '</li>'; });
+                html += '</ul>';
+              }
+              if (d.removed.length) {
+                html += '<p><strong>Removed lines:</strong></p><ul>';
+                d.removed.forEach(function (l) { html += '<li>' + escapeHtml(l) + '</li>'; });
+                html += '</ul>';
+              }
+              if (!d.added.length && !d.removed.length) html = '<p>No changes from baseline.</p>';
+              changesEl.innerHTML = html;
+              changesEl.hidden = false;
+              return;
+            }
+            if (action === 'copy-changes') {
+              var text = formatChangesOutput(diff(baseline, value));
+              copyToClipboard(text, btn, 'Copy changes');
+              return;
+            }
+            if (action === 'copy-full') {
+              copyToClipboard(value, btn, 'Copy full');
+            }
+          });
+        });
+      });
+
+      function escapeHtml(s) {
+        var div = document.createElement('div');
+        div.textContent = s;
+        return div.innerHTML;
+      }
+      function copyToClipboard(text, btn, label) {
+        navigator.clipboard.writeText(text).then(function () {
+          btn.textContent = 'Copied!';
+          setTimeout(function () { btn.textContent = label; }, 2000);
+        }).catch(function () {
+          btn.textContent = 'Copy failed';
+          setTimeout(function () { btn.textContent = label; }, 2000);
+        });
       }
 
       document.getElementById('admin-logout').addEventListener('click', function (e) {
@@ -94,43 +193,15 @@
         window.location.href = 'login.html';
       });
 
-      function getSectionText(section) {
-        var targetId = section.getAttribute('data-copy-target');
-        var el = targetId ? document.getElementById(targetId) : null;
-        return el ? el.innerText.trim() : '';
-      }
-
-      document.querySelectorAll('.copy-btn').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          var section = document.getElementById(btn.getAttribute('data-section'));
-          var text = getSectionText(section);
-          if (!text) return;
-          navigator.clipboard.writeText(text).then(function () {
-            var label = btn.getAttribute('aria-label') || 'Copy';
-            btn.textContent = 'Copied!';
-            btn.setAttribute('aria-label', 'Copied');
-            setTimeout(function () {
-              btn.textContent = 'Copy';
-              btn.setAttribute('aria-label', label);
-            }, 2000);
-          }).catch(function () {
-            btn.textContent = 'Copy failed';
-            setTimeout(function () { btn.textContent = 'Copy'; }, 2000);
-          });
-        });
-      });
-
-      if (localStorage.getItem('wedding_role') === 'admin') {
-        var ul = document.getElementById('site-nav-list');
-        if (ul) {
-          var li = document.createElement('li');
-          var a = document.createElement('a');
-          a.href = 'admin.html';
-          a.textContent = 'Admin';
-          a.setAttribute('aria-current', 'page');
-          li.appendChild(a);
-          ul.appendChild(li);
-        }
+      var ul = document.getElementById('site-nav-list');
+      if (ul) {
+        var li = document.createElement('li');
+        var a = document.createElement('a');
+        a.href = 'admin.html';
+        a.textContent = 'Admin';
+        a.setAttribute('aria-current', 'page');
+        li.appendChild(a);
+        ul.appendChild(li);
       }
     })();
   </script>

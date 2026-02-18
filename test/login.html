@@ -18,6 +18,7 @@
       <button type="submit">Enter</button>
     </form>
     <p id="login-error" class="code-error" role="alert" hidden>That phrase wasn’t recognised. Please try again.</p>
+    <p id="login-error-admin" class="code-error" role="alert" hidden>Admin access requires the admin phrase.</p>
     <p class="code-gate-note">This is a light speed bump only; do not rely on it for true access control.</p>
   </main>
 
@@ -28,19 +29,29 @@
       }
 
       var GUEST_PHRASE = normalize('becki jase 2026');
-      var ADMIN_PHRASE = normalize('beck jase 2026 - admin');
+      var ADMIN_PHRASE = normalize('becki jase 2026 - admin');
 
       var form = document.getElementById('login-form');
       var input = document.getElementById('phrase');
       var error = document.getElementById('login-error');
+      var errorAdmin = document.getElementById('login-error-admin');
+
+      var needAdmin = (window.location.search || '').indexOf('need=admin') !== -1;
 
       form.addEventListener('submit', function (e) {
         e.preventDefault();
         var value = normalize(input.value);
         error.hidden = true;
+        errorAdmin.hidden = true;
         input.removeAttribute('aria-invalid');
 
         if (value === GUEST_PHRASE) {
+          if (needAdmin) {
+            errorAdmin.hidden = false;
+            input.setAttribute('aria-invalid', 'true');
+            input.focus();
+            return;
+          }
           try { localStorage.setItem('wedding_role', 'guest'); } catch (err) {}
           window.location.href = 'index.html';
           return;
