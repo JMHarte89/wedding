@@ -6,6 +6,7 @@
   <meta name="description" content="Where to stay — hotels in Kendal and nearby for our wedding. Test site.">
   <title>Travel &amp; stay — Jason &amp; Rebecca (Test)</title>
   <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
   <script src="auth.js"></script>
 </head>
 <body>
@@ -31,16 +32,8 @@
     <section class="content-section" aria-labelledby="map-heading">
       <h2 id="map-heading">Map</h2>
       <p>Tap a marker for details.</p>
-      <div class="map-embed">
-        <iframe
-          src="https://umap.openstreetmap.fr/en/map/untitled-map_1362779?scaleControl=false&miniMap=false&scrollWheelZoom=false&zoomControl=true&editMode=disabled&moreControl=true&searchControl=null&tilelayersControl=null&embedControl=null&datalayersControl=true&onLoadPanel=none&captionBar=false&captionMenus=true"
-          loading="lazy"
-          allowfullscreen
-          allow="geolocation"
-          title="Wedding map (church, venue, places to stay)"
-        ></iframe>
-      </div>
-      <p><a class="map-fullscreen" href="https://umap.openstreetmap.fr/en/map/untitled-map_1362779" target="_blank" rel="noopener">View full screen map</a></p>
+      <div id="wedding-map" class="leaflet-map" data-places-url="data/places.json" role="application" aria-label="Wedding map (church, venue, places to stay)"></div>
+      <p><a class="map-fullscreen" href="#wedding-map">View full screen map</a></p>
       <p class="map-legend">Map legend: ⛪ Ceremony (church) · 🥂 Venue · 🅿️ Parking · 🛏️ Hotels · ⛺ Camping / glamping</p>
     </section>
 
@@ -224,6 +217,8 @@
     <p>More details to follow</p>
     <p class="year">2026</p>
   </footer>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="js/map.js"></script>
   <script>
     (function(){ if (localStorage.getItem('wedding_role') !== 'admin') return; var ul = document.getElementById('site-nav-list'); if (!ul) return; var li = document.createElement('li'); var a = document.createElement('a'); a.href = 'admin.html'; a.textContent = 'Admin'; li.appendChild(a); ul.appendChild(li); })();
   </script>

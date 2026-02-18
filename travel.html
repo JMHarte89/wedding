@@ -6,6 +6,7 @@
   <meta name="description" content="Travel and stay — Kendal and Lake District. Jason Harte &amp; Rebecca Blackshaw wedding, 29 August 2026.">
   <title>Travel &amp; stay — Jason &amp; Rebecca</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
 </head>
 <body>
   <header class="hero">
@@ -18,16 +19,8 @@
     <section class="content-section" aria-labelledby="map-heading">
       <h2 id="map-heading">Map</h2>
       <p>Tap a marker for details.</p>
-      <div class="map-embed">
-        <iframe
-          src="https://umap.openstreetmap.fr/en/map/untitled-map_1362779?scaleControl=false&miniMap=false&scrollWheelZoom=false&zoomControl=true&editMode=disabled&moreControl=true&searchControl=null&tilelayersControl=null&embedControl=null&datalayersControl=true&onLoadPanel=none&captionBar=false&captionMenus=true"
-          loading="lazy"
-          allowfullscreen
-          allow="geolocation"
-          title="Wedding map (church, venue, places to stay)"
-        ></iframe>
-      </div>
-      <p><a class="map-fullscreen" href="https://umap.openstreetmap.fr/en/map/untitled-map_1362779" target="_blank" rel="noopener">View full screen map</a></p>
+      <div id="wedding-map" class="leaflet-map" data-places-url="test/data/places.json" role="application" aria-label="Wedding map (church, venue, places to stay)"></div>
+      <p><a class="map-fullscreen" href="#wedding-map">View full screen map</a></p>
       <p class="map-legend">Map legend: ⛪ Ceremony (church) · 🥂 Venue · 🅿️ Parking · 🛏️ Hotels · ⛺ Camping / glamping</p>
     </section>
 
@@ -211,5 +204,7 @@
     <p><a href="index.html">Back to wedding</a></p>
     <p class="year">2026</p>
   </footer>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="test/js/map.js"></script>
 </body>
 </html>
