@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Wedding party access — enter your phrase to continue.">
+  <title>Wedding party access — Jason &amp; Rebecca (Test)</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <main class="code-gate">
+    <!-- This is not secure — it is only a light speed bump. Do not rely on it for true access control. -->
+    <h1>Wedding party access</h1>
+    <p>Enter your phrase to continue.</p>
+    <form id="login-form">
+      <label for="phrase" class="visually-hidden">Access phrase</label>
+      <input type="text" id="phrase" name="phrase" inputmode="text" autocomplete="off" placeholder="Access phrase" required>
+      <button type="submit">Enter</button>
+    </form>
+    <p id="login-error" class="code-error" role="alert" hidden>That phrase wasn’t recognised. Please try again.</p>
+    <p class="code-gate-note">This is a light speed bump only; do not rely on it for true access control.</p>
+  </main>
+
+  <script>
+    (function () {
+      function normalize(s) {
+        return (s || '').trim().replace(/\s+/g, ' ').toLowerCase();
+      }
+
+      var GUEST_PHRASE = normalize('becki jase 2026');
+      var ADMIN_PHRASE = normalize('beck jase 2026 - admin');
+
+      var form = document.getElementById('login-form');
+      var input = document.getElementById('phrase');
+      var error = document.getElementById('login-error');
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var value = normalize(input.value);
+        error.hidden = true;
+        input.removeAttribute('aria-invalid');
+
+        if (value === GUEST_PHRASE) {
+          try { localStorage.setItem('wedding_role', 'guest'); } catch (err) {}
+          window.location.href = 'index.html';
+          return;
+        }
+        if (value === ADMIN_PHRASE) {
+          try { localStorage.setItem('wedding_role', 'admin'); } catch (err) {}
+          window.location.href = 'admin.html';
+          return;
+        }
+
+        error.hidden = false;
+        input.setAttribute('aria-invalid', 'true');
+        input.focus();
+      });
+    })();
+  </script>
+</body>
+</html>

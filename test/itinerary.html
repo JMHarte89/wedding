@@ -10,7 +10,7 @@
 <body>
   <header class="site-header">
     <nav class="site-nav" aria-label="Main">
-      <ul>
+      <ul id="site-nav-list">
         <li><a href="index.html">Home</a></li>
         <li><a href="itinerary.html" aria-current="page">Itinerary</a></li>
         <li><a href="travel.html">Travel</a></li>
@@ -26,26 +26,35 @@
       <p class="location">Kendal, Cumbria</p>
     </section>
 
-    <section class="timeline-section" aria-labelledby="timeline-heading">
-      <h2 id="timeline-heading" class="visually-hidden">Schedule</h2>
-      <ol class="timeline">
-        <li class="timeline-item">
-          <span class="timeline-time">[TIME]</span>
-          <p class="timeline-detail">Ceremony — [VENUE NAME]</p>
-        </li>
-        <li class="timeline-item">
-          <span class="timeline-time">[TIME]</span>
-          <p class="timeline-detail">Reception / drinks — [VENUE NAME]</p>
-        </li>
-        <li class="timeline-item">
-          <span class="timeline-time">[TIME]</span>
-          <p class="timeline-detail">Wedding breakfast — [VENUE NAME]</p>
-        </li>
-        <li class="timeline-item">
-          <span class="timeline-time">[TIME]</span>
-          <p class="timeline-detail">Evening celebrations — [VENUE NAME]</p>
-        </li>
-      </ol>
+    <section class="content-section" aria-labelledby="glance-heading">
+      <h2 id="glance-heading">Itinerary at a glance</h2>
+      <ul class="content-list">
+        <li>Guests arrive at [VENUE NAME] for the ceremony</li>
+        <li>Ceremony</li>
+        <li>Drinks and canapés</li>
+        <li>Wedding breakfast (seated meal)</li>
+        <li>Speeches</li>
+        <li>Evening celebrations with music</li>
+        <li>Late refreshments</li>
+      </ul>
+    </section>
+
+    <section class="content-section" aria-labelledby="confetti-heading">
+      <h2 id="confetti-heading">Confetti</h2>
+      <ul class="content-list">
+        <li>We’d love a confetti moment after the ceremony — we’ll use biodegradable confetti only.</li>
+        <li>We’ll provide confetti; you don’t need to bring your own.</li>
+      </ul>
+    </section>
+
+    <section class="content-section" aria-labelledby="photos-heading">
+      <h2 id="photos-heading">Photos</h2>
+      <p>There will be a QR code on the day so you can upload your photos to our shared album.</p>
+    </section>
+
+    <section class="content-section" aria-labelledby="food-heading">
+      <h2 id="food-heading">Food and evening</h2>
+      <p>After the wedding breakfast there will be evening food and a bar. The band and DJ will play into the night.</p>
     </section>
 
     <p class="card-actions add-to-calendar-wrap">
@@ -55,7 +64,11 @@
 
   <footer>
     <p>More details to follow</p>
+    <p><a href="login.html">Wedding party access</a></p>
     <p class="year">2026</p>
   </footer>
+  <script>
+    (function(){ if (localStorage.getItem('wedding_role') !== 'admin') return; var ul = document.getElementById('site-nav-list'); if (!ul) return; var li = document.createElement('li'); var a = document.createElement('a'); a.href = 'admin.html'; a.textContent = 'Admin'; li.appendChild(a); ul.appendChild(li); })();
+  </script>
 </body>
 </html>

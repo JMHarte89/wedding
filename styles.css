@@ -288,6 +288,50 @@ footer .year {
   padding: 0 var(--space) var(--space-lg);
 }
 
+.access-code-prompt {
+  padding: 0 var(--space) var(--space-lg);
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.access-code-prompt a {
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.access-code-prompt a:hover {
+  text-decoration: underline;
+}
+
+.access-code-prompt a:focus {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.content-section {
+  padding: 0 var(--space) var(--space-lg);
+}
+
+.content-section h2 {
+  font-size: 1.15rem;
+  margin: 0 0 0.5em;
+}
+
+.content-list {
+  margin: 0;
+  padding-left: 1.25em;
+}
+
+.content-list li {
+  margin-bottom: 0.35em;
+}
+
+.content-section > p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
 .timeline-section {
   padding: 0 var(--space) var(--space-lg);
 }
@@ -449,4 +493,42 @@ footer .year {
   color: #a00;
   font-size: 0.9rem;
   margin: 0;
+}
+
+.code-gate-note {
+  margin: var(--space) 0 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+footer a {
+  color: inherit;
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
+
+footer a:focus {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.admin-section {
+  margin-bottom: var(--space-lg);
+  padding: 0 var(--space);
+}
+
+.admin-section h2 {
+  font-size: 1.15rem;
+  margin: 0 0 0.5em;
+}
+
+.copy-section .copy-content {
+  margin: 0 0 0.5em;
+}
+
+.copy-section .copy-btn {
+  margin-top: 0.25em;
 }

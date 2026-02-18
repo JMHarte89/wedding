@@ -10,7 +10,7 @@
 <body>
   <header class="site-header">
     <nav class="site-nav" aria-label="Main">
-      <ul>
+      <ul id="site-nav-list">
         <li><a href="index.html" aria-current="page">Home</a></li>
         <li><a href="itinerary.html">Itinerary</a></li>
         <li><a href="travel.html">Travel</a></li>
@@ -56,7 +56,11 @@
 
   <footer>
     <p>More details to follow</p>
+    <p><a href="login.html">Wedding party access</a></p>
     <p class="year">2026</p>
   </footer>
+  <script>
+    (function(){ if (localStorage.getItem('wedding_role') !== 'admin') return; var ul = document.getElementById('site-nav-list'); if (!ul) return; var li = document.createElement('li'); var a = document.createElement('a'); a.href = 'admin.html'; a.textContent = 'Admin'; li.appendChild(a); ul.appendChild(li); })();
+  </script>
 </body>
 </html>
