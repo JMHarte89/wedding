@@ -1,0 +1,164 @@
+/* Mobile-first wedding site — Jason & Rebecca */
+
+:root {
+  --bg: #f5f3f0;
+  --card-bg: #fff;
+  --text: #2c2c2c;
+  --text-muted: #5a5a5a;
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  --radius: 10px;
+  --max-width: 900px;
+  --space: 1.25rem;
+  --space-lg: 2rem;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hero {
+  width: 100%;
+  max-width: var(--max-width);
+  padding: var(--space-lg) var(--space);
+  text-align: center;
+}
+
+.hero h1 {
+  margin: 0 0 0.25em;
+  font-size: clamp(1.75rem, 5vw, 2.5rem);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.hero .tagline {
+  margin: 0 0 0.5em;
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.hero .dates {
+  margin: 0 0 0.25em;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.hero .location {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+
+main {
+  flex: 1;
+  width: 100%;
+  max-width: var(--max-width);
+  padding: 0 var(--space) var(--space-lg);
+}
+
+.events {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.card {
+  background: var(--card-bg);
+  padding: var(--space-lg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.card h3 {
+  margin: 0 0 0.5em;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.card .event-name {
+  margin: 0 0 0.25em;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.card .event-location {
+  margin: 0 0 0.5em;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+.card .venue-note {
+  margin: 0;
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+footer {
+  width: 100%;
+  max-width: var(--max-width);
+  padding: var(--space-lg) var(--space);
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+footer p {
+  margin: 0 0 0.25em;
+}
+
+footer .year {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+@media (min-width: 600px) {
+  .hero {
+    padding-top: 3rem;
+    padding-bottom: 2.5rem;
+  }
+
+  .hero .tagline {
+    font-size: 1.2rem;
+  }
+
+  .events {
+    gap: var(--space-lg);
+  }
+
+  .card {
+    padding: 2rem;
+  }
+
+  .card h3 {
+    font-size: 1.25rem;
+  }
+}
