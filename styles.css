@@ -607,3 +607,94 @@ footer a:focus {
   margin: 0 0 0.5em;
   padding-left: 1.25em;
 }
+
+/* Seating (guest find-your-seat) */
+.seating-search {
+  padding: 0 var(--space) var(--space);
+}
+
+.seating-search form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  align-items: center;
+}
+
+.seating-search input {
+  flex: 1;
+  min-width: 10rem;
+  padding: 0.5em 0.75em;
+  font-family: inherit;
+  font-size: 1rem;
+  border: 1px solid var(--text-muted);
+  border-radius: var(--radius);
+}
+
+.seating-search input:focus {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.seating-result {
+  padding: 0 var(--space) var(--space);
+  font-size: 1.05rem;
+}
+
+.seating-result-found {
+  font-weight: 600;
+}
+
+.seating-result-none {
+  color: var(--text-muted);
+}
+
+/* Admin guest list & table plan */
+.guestlist-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75em;
+  align-items: center;
+  margin-bottom: var(--space);
+}
+
+.guestlist-controls label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.guestlist-input,
+.guestlist-select {
+  padding: 0.4em 0.6em;
+  font-family: inherit;
+  font-size: 0.95rem;
+  border: 1px solid var(--text-muted);
+  border-radius: var(--radius);
+}
+
+.guestlist-input:focus,
+.guestlist-select:focus {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.guestlist-table-plan {
+  margin: 0 0 var(--space);
+}
+
+.guestlist-table-group {
+  margin-bottom: var(--space);
+}
+
+.guestlist-table-group ul {
+  margin: 0.35em 0 0;
+  padding-left: 1.25em;
+}
+
+.guestlist-yaml-area {
+  margin-top: 0.5em;
+}
+
+.guestlist-yaml-ok {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
