@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Enter access code to view the wedding test site.">
+  <title>Access code — Wedding (Test)</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <main class="code-gate">
+    <!-- This is not secure — it is only a light speed bump. Do not rely on it for real access control. -->
+    <h1>Test site</h1>
+    <p>Enter the access code to continue.</p>
+    <form id="code-form" action="index.html" method="get">
+      <label for="access-code" class="visually-hidden">Access code</label>
+      <input type="text" id="access-code" name="code" inputmode="text" autocomplete="off" placeholder="Access code" required>
+      <button type="submit">Enter</button>
+    </form>
+    <p id="code-error" class="code-error" role="alert" hidden>Incorrect code. Try again.</p>
+  </main>
+
+  <script>
+    (function () {
+      var PLACEHOLDER_CODE = '[ACCESS_CODE]';
+
+      var form = document.getElementById('code-form');
+      var input = document.getElementById('access-code');
+      var error = document.getElementById('code-error');
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var value = (input.value || '').trim();
+        if (value === PLACEHOLDER_CODE) {
+          window.location.href = 'index.html';
+          return;
+        }
+        error.hidden = false;
+        input.setAttribute('aria-invalid', 'true');
+        input.focus();
+      });
+    })();
+  </script>
+</body>
+</html>

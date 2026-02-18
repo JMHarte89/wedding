@@ -188,3 +188,265 @@ footer .year {
     font-size: 1.25rem;
   }
 }
+
+/* Test site (/test/) */
+.site-header {
+  width: 100%;
+  max-width: var(--max-width);
+  padding: var(--space) var(--space-lg);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.site-nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space);
+  justify-content: center;
+}
+
+.site-nav a {
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.site-nav a:hover {
+  text-decoration: underline;
+}
+
+.site-nav a:focus {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.intro {
+  padding: 0 var(--space) var(--space-lg);
+}
+
+.intro p {
+  margin: 0;
+  max-width: 50ch;
+}
+
+.page-heading {
+  padding: 0 var(--space) var(--space-lg);
+}
+
+.page-heading h1 {
+  margin: 0 0 0.25em;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+}
+
+.page-heading .dates,
+.page-heading .location {
+  margin: 0 0 0.25em;
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+
+.page-heading p:not(.dates):not(.location) {
+  margin: 0.5em 0 0;
+}
+
+.nav-cards-section {
+  padding: 0 var(--space) var(--space-lg);
+}
+
+.nav-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space);
+}
+
+.nav-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.nav-card:focus {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.nav-card p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+@media (min-width: 500px) {
+  .nav-cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.add-to-calendar-wrap {
+  padding: 0 var(--space) var(--space-lg);
+}
+
+.timeline-section {
+  padding: 0 var(--space) var(--space-lg);
+}
+
+.timeline {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.timeline-item {
+  padding: var(--space) 0;
+  padding-left: var(--space-lg);
+  margin-left: 0.25em;
+  border-left: 2px solid var(--text-muted);
+  position: relative;
+}
+
+.timeline-item::before {
+  content: "";
+  position: absolute;
+  left: -5px;
+  top: 1.25em;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text);
+}
+
+.timeline-time {
+  font-weight: 600;
+}
+
+.timeline-detail {
+  margin: 0.25em 0 0;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+.hotel-section {
+  margin-bottom: var(--space-lg);
+  padding: 0 var(--space);
+}
+
+.hotel-section h2 {
+  font-size: 1.15rem;
+  margin: 0 0 0.5em;
+}
+
+.hotel-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.hotel-item {
+  margin-bottom: var(--space);
+  padding: var(--space);
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.hotel-item h3 {
+  margin: 0 0 0.25em;
+  font-size: 1.05rem;
+}
+
+.hotel-item .hotel-note {
+  margin: 0 0 0.5em;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.book-link {
+  display: inline-block;
+  padding: 0.4em 0.9em;
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--text-muted);
+  border-radius: var(--radius);
+  text-decoration: none;
+}
+
+.book-link:hover {
+  box-shadow: var(--shadow);
+}
+
+.book-link:focus {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.contact-section {
+  margin-bottom: var(--space-lg);
+  padding: 0 var(--space);
+}
+
+.contact-section h2 {
+  font-size: 1.15rem;
+  margin: 0 0 0.5em;
+}
+
+.contact-section p {
+  margin: 0 0 0.5em;
+}
+
+.code-gate {
+  padding: var(--space-lg) var(--space);
+  text-align: center;
+  max-width: 22rem;
+  margin: 0 auto;
+}
+
+.code-gate h1 {
+  margin: 0 0 0.5em;
+  font-size: 1.5rem;
+}
+
+.code-gate form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space);
+  margin: var(--space-lg) 0;
+}
+
+.code-gate input {
+  padding: 0.5em 0.75em;
+  font-family: inherit;
+  font-size: 1rem;
+  border: 1px solid var(--text-muted);
+  border-radius: var(--radius);
+}
+
+.code-gate input:focus {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.code-gate button {
+  padding: 0.5em 1em;
+  font-family: inherit;
+  font-size: 1rem;
+  color: var(--text);
+  background: var(--card-bg);
+  border: 1px solid var(--text-muted);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.code-gate button:focus {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.code-error {
+  color: #a00;
+  font-size: 0.9rem;
+  margin: 0;
+}
