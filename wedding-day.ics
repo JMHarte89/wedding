@@ -10,6 +10,7 @@ DTSTART;VALUE=DATE:20260829
 DTEND;VALUE=DATE:20260830
 SUMMARY:Wedding of Jason Harte & Rebecca Blackshaw
 LOCATION:Kendal\, Cumbria
-DESCRIPTION:Wedding day celebrations. More details to follow on the website.
+URL:https://jmharte89.github.io/wedding/
+DESCRIPTION:Wedding day celebrations. Details: https://jmharte89.github.io/wedding/
 END:VEVENT
 END:VCALENDAR
