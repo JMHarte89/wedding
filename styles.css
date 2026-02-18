@@ -116,10 +116,36 @@ main {
 }
 
 .card .venue-note {
-  margin: 0;
+  margin: 0 0 1em;
   font-size: 0.9rem;
   font-style: italic;
   color: var(--text-muted);
+}
+
+.card-actions {
+  margin: 0;
+}
+
+.add-to-calendar {
+  display: inline-block;
+  padding: 0.5em 1em;
+  font-size: 0.95rem;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--text-muted);
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: box-shadow 0.2s ease;
+}
+
+.add-to-calendar:hover {
+  box-shadow: var(--shadow);
+}
+
+.add-to-calendar:focus {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
 }
 
 footer {
