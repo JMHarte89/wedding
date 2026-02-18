@@ -764,6 +764,19 @@ footer a:focus {
   border: 0;
 }
 
+.map-fullscreen {
+  text-decoration: none;
+}
+
+.map-fullscreen:hover {
+  text-decoration: underline;
+}
+
+.map-fullscreen:focus {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
 .faq-search-wrap {
   padding-bottom: var(--space);
 }
