@@ -332,6 +332,28 @@ footer .year {
   color: var(--text-muted);
 }
 
+.callout-box {
+  margin: 0 var(--space) var(--space);
+  padding: var(--space);
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border-left: 3px solid var(--text-muted);
+}
+
+.callout-box p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.runsheet-ops {
+  margin: var(--space) 0 0;
+  padding-top: var(--space);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
 .timeline-section {
   padding: 0 var(--space) var(--space-lg);
 }

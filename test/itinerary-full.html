@@ -25,36 +25,68 @@
       <p class="dates">Saturday 29 August 2026</p>
       <p class="location">Kendal, Cumbria</p>
       <p><strong>Internal use — Jason, Becki &amp; key roles.</strong></p>
+      <p class="card-actions">
+        <button type="button" id="copy-runsheet-top" class="add-to-calendar">Copy this run sheet</button>
+      </p>
     </section>
 
-    <section class="timeline-section" aria-labelledby="timeline-heading">
+    <section class="timeline-section" id="runsheet-content" aria-labelledby="timeline-heading">
       <h2 id="timeline-heading" class="visually-hidden">Schedule</h2>
       <ol class="timeline">
         <li class="timeline-item">
+          <span class="timeline-time">11:40</span>
+          <p class="timeline-detail">Guests arrive at church (doors open in good time).</p>
+        </li>
+        <li class="timeline-item">
+          <span class="timeline-time">12:00–13:00</span>
+          <p class="timeline-detail">Wedding service at church.</p>
+        </li>
+        <li class="timeline-item">
+          <span class="timeline-time">13:00–13:30</span>
+          <p class="timeline-detail">Photos. Confetti moment after ceremony — biodegradable only, outside.</p>
+        </li>
+        <li class="timeline-item">
           <span class="timeline-time">13:15</span>
-          <p class="timeline-detail">Venue access. Aim to have everyone in by 14:00. [VENUE NAME]</p>
+          <p class="timeline-detail">Reception venue access [VENUE NAME]. Aim to have everyone in by 14:00.</p>
         </li>
         <li class="timeline-item">
-          <span class="timeline-time">14:00</span>
-          <p class="timeline-detail">Ceremony — [VENUE NAME]</p>
+          <span class="timeline-time">13:30</span>
+          <p class="timeline-detail">Walk to [VENUE NAME] (5 minutes).</p>
         </li>
         <li class="timeline-item">
-          <span class="timeline-time">After ceremony</span>
-          <p class="timeline-detail">Drinks and canapés. Confetti moment (biodegradable only).</p>
+          <span class="timeline-time">13:30–14:30</span>
+          <p class="timeline-detail">Welcome drinks at [VENUE NAME].</p>
         </li>
         <li class="timeline-item">
-          <span class="timeline-time">Speeches window</span>
-          <p class="timeline-detail">Speeches to take place in this slot. [Exact time TBC.]</p>
+          <span class="timeline-time">15:00</span>
+          <p class="timeline-detail">Meal is served.</p>
+        </li>
+        <li class="timeline-item">
+          <span class="timeline-time">15:30–16:30</span>
+          <p class="timeline-detail">Speeches window (exact order/length TBC if needed).</p>
         </li>
         <li class="timeline-item">
           <span class="timeline-time">16:30–18:00</span>
           <p class="timeline-detail"><strong>TBC.</strong> Options under consideration: games, quiet break, or earlier start for evening. Not final — to be confirmed.</p>
         </li>
         <li class="timeline-item">
-          <span class="timeline-time">Evening</span>
-          <p class="timeline-detail">Pizza timing: [TIME]. Token system for pizza — tokens to be distributed; one token per slice / per person as agreed. Band set: [TIME]. DJ set: [TIME].</p>
+          <span class="timeline-time">18:30</span>
+          <p class="timeline-detail">Live band set ([TIME] / duration TBC if needed).</p>
+        </li>
+        <li class="timeline-item">
+          <span class="timeline-time">From 19:00</span>
+          <p class="timeline-detail">Evening food (pizza). Token system: tokens to be distributed; one token per slice / per person as agreed.</p>
+        </li>
+        <li class="timeline-item">
+          <span class="timeline-time">20:30</span>
+          <p class="timeline-detail">DJ set ([TIME] / duration TBC if needed).</p>
+        </li>
+        <li class="timeline-item">
+          <span class="timeline-time">—</span>
+          <p class="timeline-detail">Celebrations continue until late.</p>
         </li>
       </ol>
+      <p class="runsheet-ops">Operational notes: Supplier contact [LINK] or [VENUE NAME]. Confetti: we provide; biodegradable, outside only.</p>
     </section>
 
     <p class="card-actions add-to-calendar-wrap">
@@ -67,7 +99,31 @@
     <p class="year">2026</p>
   </footer>
   <script>
-    (function(){ if (localStorage.getItem('wedding_role') !== 'admin') return; var ul = document.getElementById('site-nav-list'); if (!ul) return; var li = document.createElement('li'); var a = document.createElement('a'); a.href = 'admin.html'; a.textContent = 'Admin'; li.appendChild(a); ul.appendChild(li); })();
+    (function () {
+      var btn = document.getElementById('copy-runsheet-top');
+      var block = document.getElementById('runsheet-content');
+      if (btn && block) {
+        btn.addEventListener('click', function () {
+          var text = block.innerText.trim();
+          navigator.clipboard.writeText(text).then(function () {
+            btn.textContent = 'Copied!';
+            setTimeout(function () { btn.textContent = 'Copy this run sheet'; }, 2000);
+          }).catch(function () {
+            btn.textContent = 'Copy failed';
+            setTimeout(function () { btn.textContent = 'Copy this run sheet'; }, 2000);
+          });
+        });
+      }
+      if (localStorage.getItem('wedding_role') !== 'admin') return;
+      var ul = document.getElementById('site-nav-list');
+      if (!ul) return;
+      var li = document.createElement('li');
+      var a = document.createElement('a');
+      a.href = 'admin.html';
+      a.textContent = 'Admin';
+      li.appendChild(a);
+      ul.appendChild(li);
+    })();
   </script>
 </body>
 </html>
