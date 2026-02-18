@@ -475,6 +475,20 @@ footer .year {
   color: var(--text-muted);
 }
 
+.hotel-item .hotel-meta {
+  margin: 0.25em 0 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.hotel-availability-note {
+  margin: var(--space-lg) var(--space) 0;
+  padding: 0 var(--space);
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--text-muted);
+}
+
 .book-link {
   display: inline-block;
   padding: 0.4em 0.9em;
