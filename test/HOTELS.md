@@ -77,31 +77,31 @@
 ## Map import (CSV for Leaflet/uMap)
 
 ```csv
-name,category,area,icon,lat,lon
-Riverside Hotel Kendal,hotel,kendal,hotel,54.330502,-2.741897
-Castle Green Hotel Kendal,hotel,kendal,hotel,54.324159,-2.720953
-Stonecross Manor Hotel,hotel,kendal,hotel,54.313049,-2.752831
-Premier Inn Kendal Central,hotel,kendal,hotel,54.327233,-2.749353
-Travelodge Kendal Town Centre (Riverside Place),hotel,kendal,hotel,54.31983,-2.74361
-Travelodge Kendal (Prizet, LA8 8AA),hotel,kendal,hotel,54.297604,-2.759481
-Kendal Hostel,hostel,kendal,hostel,54.324602,-2.747581
-The Lakeland Kendal Hotel,hotel,kendal,hotel,54.332862,-2.747721
-Damson Dene Hotel,hotel,near-kendal,hotel,54.333754,-2.822812
-The Punch Bowl Inn,hotel,near-kendal,hotel,54.345754,-2.823157
-Crooklands Hotel,hotel,near-kendal,hotel,54.244859,-2.777520
-Days Inn Kendal (Killington Lake),hotel,near-kendal,hotel,54.240236,-2.771677
-Gilpin Hotel & Lake House,hotel,lake-district,hotel,54.325091,-2.917723
-Linthwaite House,hotel,lake-district,hotel,54.352286,-2.913180
-Low Wood Bay Resort & Spa,hotel,lake-district,hotel,54.412399,-2.946218
-Lakes Hotel & Spa,hotel,lake-district,hotel,54.364470,-2.916830
-The Belsfield,hotel,lake-district,hotel,54.371707,-2.916258
-Langdale Chase,hotel,lake-district,hotel,54.413205,-2.927150
-The Samling,hotel,lake-district,hotel,54.423086,-2.916905
-YHA Windermere,hostel,budget,hostel,54.403862,-2.917495
-YHA Ambleside,hostel,budget,hostel,54.419161,-2.961748
-Kendal Club Campsite (Caravan and Motorhome Club),camping,camping,camping,54.281660,-2.756580
-Kendal Camping & Caravanning Club Site,camping,camping,camping,54.346500,-2.730700
-Park Cliffe,camping,camping,camping,54.312059,-2.937711
-Low Wray Campsite,camping,camping,camping,54.400864,-2.966110
-Skelwith Fold Caravan Park,camping,camping,camping,54.411763,-2.985365
+name,category,lat,lng,url,price
+Riverside Hotel Kendal,hotel,54.330502,-2.741897,https://www.riversidekendal.co.uk/,££
+Castle Green Hotel Kendal,hotel,54.324159,-2.720953,https://www.castlegreenhotel.co.uk/,££
+Stonecross Manor Hotel,hotel,54.313049,-2.752831,https://www.everbrightgrouphotels.com/stonecross-manor-leisure,££
+Premier Inn Kendal Central,hotel,54.327233,-2.749353,https://www.premierinn.com/gb/en/hotels/england/cumbria/kendal/kendal-central.html,£
+Travelodge Kendal Town Centre (Riverside Place),hotel,54.31983,-2.74361,https://www.travelodge.co.uk/hotels/675/Kendal-Town-Centre-hotel,£
+Travelodge Kendal (Prizet, LA8 8AA),hotel,54.297604,-2.759481,https://www.travelodge.co.uk/hotels/330/Kendal-hotel,£
+Kendal Hostel,hostel,54.324602,-2.747581,https://www.kendalhostel.co.uk/,£
+The Lakeland Kendal Hotel,hotel,54.33114,-2.74041,https://www.aghotels.co.uk/the-lakeland-hotel/,££
+Damson Dene Hotel,hotel,54.31399,-2.88427,https://www.damsondene.co.uk/,££
+The Punch Bowl Inn,hotel,54.31358,-2.853586,https://www.thepunchbowlinn.co.uk/,£££
+Crooklands Hotel,hotel,54.24644,-2.7156,https://thecrooklands.com/,££
+Days Inn Kendal (Killington Lake),hotel,54.240236,-2.771677,https://www.wyndhamhotels.com/en-uk/days-inn/killington-lake-united-kingdom/days-inn-kendal-killington-lake/overview,£
+Gilpin Hotel & Lake House,hotel,54.35535,-2.88047,https://thegilpin.co.uk/,£££
+Linthwaite House,hotel,54.352286,-2.91318,https://www.linthwaitehouse.co.uk/,£££
+Low Wood Bay Resort & Spa,hotel,54.412399,-2.946218,https://englishlakes.co.uk/low-wood-bay/,£££
+Lakes Hotel & Spa,hotel,54.360009,-2.920256,https://www.lakeshotel.co.uk/,£££
+The Belsfield Hotel (Bowness-on-Windermere),hotel,54.3618,-2.9211,https://www.lake-district-hotels.co.uk/the-belsfield/,£££
+Langdale Chase Hotel (Windermere),hotel,54.4069,-2.9464,https://langdalechase.co.uk/,£££
+The Samling Hotel (Windermere/Troutbeck),hotel,54.41465,-2.95084,https://thesamlinghotel.co.uk/,£££
+YHA Windermere,hostel,54.403862,-2.917495,https://www.yha.org.uk/hostel/yha-windermere,£
+YHA Ambleside,hostel,54.419161,-2.961748,https://www.yha.org.uk/hostel/yha-ambleside,£
+Kendal Club Campsite (Caravan and Motorhome Club),camping,54.28166,-2.75658,https://www.caravanclub.co.uk/club-sites/england/north-west-england/cumbria/kendal-club-campsite/,££
+Kendal Camping & Caravanning Club Site,camping,54.3465,-2.7307,https://www.campingandcaravanningclub.co.uk/campsites/uk/cumbria/kendal/kendal/,££
+Park Cliffe,camping,54.312059,-2.937711,https://www.parkcliffe.co.uk/,££
+Low Wray Campsite,camping,54.400864,-2.96611,https://www.nationaltrust.org.uk/visit/lakes/low-wray-campsite,££
+Skelwith Fold Caravan Park,camping,54.411763,-2.985365,https://www.skelwithfold.co.uk/,££
 ```

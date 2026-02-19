@@ -467,6 +467,7 @@
     }
 
     var facts = [];
+    if (place.price) facts.push('Price guide: ' + escapeHtml(place.price));
     if (typeof place.stars === 'number') facts.push('Star rating: ' + place.stars + '-star');
     if (typeof place.rooms === 'number') facts.push('Rooms: ' + place.rooms);
     if (typeof place.beds === 'number') facts.push('Beds: ' + place.beds);
