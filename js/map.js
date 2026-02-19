@@ -300,15 +300,23 @@
         var w = container.offsetWidth;
         var h = container.offsetHeight;
         var leafletPresent = map.getContainer() ? 'yes' : 'no';
-        debugPreEl.textContent = debugPreEl.textContent + '\nMap container size: ' + w + 'x' + h + '\nLeaflet container present: ' + leafletPresent;
+        var cs = getComputedStyle(container);
+        var compHeight = cs.height;
+        var compMinHeight = cs.minHeight;
+        var compDisplay = cs.display;
+        debugPreEl.textContent = debugPreEl.textContent + '\nMap container size: ' + w + 'x' + h + '\nLeaflet container present: ' + leafletPresent + '\nMap computed height: ' + compHeight + ' (min-height: ' + compMinHeight + ')\nMap computed display: ' + compDisplay;
         setTimeout(function () {
           var w1 = container.offsetWidth;
           var h1 = container.offsetHeight;
+          var cs1 = getComputedStyle(container);
           var lines = debugPreEl.textContent.split('\n');
           for (var i = 0; i < lines.length; i += 1) {
             if (lines[i].indexOf('Map container size:') === 0) {
               lines[i] = 'Map container size: ' + w1 + 'x' + h1;
-              break;
+            } else if (lines[i].indexOf('Map computed height:') === 0) {
+              lines[i] = 'Map computed height: ' + cs1.height + ' (min-height: ' + cs1.minHeight + ')';
+            } else if (lines[i].indexOf('Map computed display:') === 0) {
+              lines[i] = 'Map computed display: ' + cs1.display;
             }
           }
           debugPreEl.textContent = lines.join('\n');

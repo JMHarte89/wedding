@@ -1004,3 +1004,16 @@ footer a:focus {
 .faq-item[hidden] {
   display: none;
 }
+
+#wedding-map {
+  display: block !important;
+  height: 420px !important;
+  min-height: 420px !important;
+}
+
+@media (max-width: 480px) {
+  #wedding-map {
+    height: 360px !important;
+    min-height: 360px !important;
+  }
+}
