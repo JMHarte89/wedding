@@ -28,43 +28,44 @@
 
 ## 1. In Kendal (closest)
 
-- **Riverside Hotel Kendal** — Riverside hotel with leisure club/pool. https://www.riversidekendal.co.uk/ Coords: 54.330502, -2.741897
-- **Castle Green Hotel** — Popular Kendal hotel on the edge of town. https://www.castlegreenhotel.co.uk/ Coords: 54.324159, -2.720953
-- **Stonecross Manor Hotel** — Kendal hotel with leisure facilities. https://www.everbrightgrouphotels.com/stonecross-manor-leisure Coords: 54.313049, -2.752831
-- **Premier Inn Kendal Central** — Reliable budget chain, central. https://www.premierinn.com/gb/en/hotels/england/cumbria/kendal/kendal-central.html Coords: 54.327233, -2.749353
-- **Travelodge Kendal Town Centre (Riverside Place)** — Simple budget option. https://www.travelodge.co.uk/hotels/675/Kendal-Town-Centre-hotel Coords: 54.31983, -2.74361
-- **Travelodge Kendal (Prizet, LA8 8AA)** — Another budget option (slightly out of centre). https://www.travelodge.co.uk/hotels/330/Kendal-hotel Coords: 54.297604, -2.759481
-- **Kendal Hostel** — Cheapest option; good for groups. https://www.kendalhostel.co.uk/ Coords: 54.324602, -2.747581
-- **The Lakeland Kendal Hotel** — Town-centre hotel. https://www.aghotels.co.uk/the-lakeland-hotel/ Coords: 54.332862, -2.747721
+- **Riverside Hotel Kendal** — Riverside hotel with leisure club/pool. ££ https://www.riversidekendal.co.uk/
+- **Castle Green Hotel Kendal** — Popular Kendal hotel on the edge of town. ££ https://www.castlegreenhotel.co.uk/
+- **Stonecross Manor Hotel** — Kendal hotel with leisure facilities. ££ https://www.everbrightgrouphotels.com/stonecross-manor-leisure
+- **Premier Inn Kendal Central** — Reliable budget chain, central. £ https://www.premierinn.com/gb/en/hotels/england/cumbria/kendal/kendal-central.html
+- **Travelodge Kendal Town Centre (Riverside Place)** — Simple budget option. £ https://www.travelodge.co.uk/hotels/675/Kendal-Town-Centre-hotel
+- **Travelodge Kendal (Prizet, LA8 8AA)** — Budget option, slightly out of centre. £ https://www.travelodge.co.uk/hotels/330/Kendal-hotel
+- **Kendal Hostel** — Cheapest option; good for groups. £ https://www.kendalhostel.co.uk/
+- **The Lakeland Kendal Hotel** — Town-centre hotel. ££ https://www.aghotels.co.uk/the-lakeland-hotel/
 
 ## 2. Near Kendal (short drive / countryside)
 
-- **Damson Dene Hotel (Lyth Valley)** — Countryside base near Kendal. https://www.damsondene.co.uk/ Coords: 54.333754, -2.822812
-- **The Punch Bowl Inn (Crosthwaite)** — Country inn option. https://www.thepunchbowlinn.co.uk/ Coords: 54.345754, -2.823157
-- **The Crooklands Hotel** — Handy if you’re driving up/down the M6. https://thecrooklands.com/ Coords: 54.244859, -2.777520
-- **Days Inn Kendal (Killington Lake)** — Motorway stopover option. https://www.wyndhamhotels.com/en-uk/days-inn/killington-lake-united-kingdom/days-inn-kendal-killington-lake/overview Coords: 54.240236, -2.771677
+- **Damson Dene Hotel** — Countryside base near Kendal. ££ https://www.damsondene.co.uk/
+- **The Punch Bowl Inn** — Country inn option. £££ https://www.thepunchbowlinn.co.uk/
+- **Crooklands Hotel** — Handy if you’re driving up/down the M6. ££ https://thecrooklands.com/
+- **Days Inn Kendal (Killington Lake)** — Motorway stopover option. £ https://www.wyndhamhotels.com/en-uk/days-inn/killington-lake-united-kingdom/days-inn-kendal-killington-lake/overview
 
 ## 3. Lake District (treat-yourself)
 
-- **Gilpin Hotel & Lake House (near Windermere)** — High-end. https://thegilpin.co.uk/ Coords: 54.325091, -2.917723
-- **Linthwaite House (Bowness-on-Windermere)** — High-end. https://www.linthwaitehouse.co.uk/ Coords: 54.352286, -2.913180
-- **Low Wood Bay Resort & Spa (Windermere)** — Spa resort. https://englishlakes.co.uk/low-wood-bay/ Coords: 54.412399, -2.946218
-- **Lakes Hotel & Spa (Bowness-on-Windermere)** — Central + spa. https://www.lakeshotel.co.uk/ Coords: 54.364470, -2.916830
-- **The Belsfield Hotel (Bowness-on-Windermere)** — Classic Windermere option. https://www.lake-district-hotels.co.uk/the-belsfield/ Coords: 54.371707, -2.916258
-- **Langdale Chase Hotel (Ambleside/Windermere)** — Lakeside hotel. https://langdalechase.co.uk/ Coords: 54.413205, -2.927150
-- **The Samling Hotel (Windermere)** — Boutique/luxury. https://thesamlinghotel.co.uk/ Coords: 54.423086, -2.916905
+- **Gilpin Hotel & Lake House** — High-end. £££ https://thegilpin.co.uk/
+- **Linthwaite House** — High-end. £££ https://www.linthwaitehouse.co.uk/
+- **Low Wood Bay Resort & Spa** — Spa resort. £££ https://englishlakes.co.uk/low-wood-bay/
+- **Lakes Hotel & Spa** — Central + spa. £££ https://www.lakeshotel.co.uk/
+- **The Belsfield Hotel (Bowness-on-Windermere)** — Classic Windermere option. £££ https://www.lake-district-hotels.co.uk/the-belsfield/
+- **Langdale Chase Hotel (Windermere)** — Lakeside hotel. £££ https://langdalechase.co.uk/
+- **The Samling Hotel (Windermere/Troutbeck)** — Boutique/luxury. £££ https://thesamlinghotel.co.uk/
 
 ## 4. Budget & hostels (Lakes)
 
-- **YHA Windermere** — Hostel option near Windermere. https://www.yha.org.uk/hostel/yha-windermere Coords: 54.403862, -2.917495
-- **YHA Ambleside** — Hostel option in Ambleside. https://www.yha.org.uk/hostel/yha-ambleside Coords: 54.419161, -2.961748
+- **YHA Windermere** — Hostel option near Windermere. £ https://www.yha.org.uk/hostel/yha-windermere
+- **YHA Ambleside** — Hostel option in Ambleside. £ https://www.yha.org.uk/hostel/yha-ambleside
 
 ## 5. Camping / glamping
 
-- **Kendal Camping & Caravanning Club Site** — Camping near Kendal. https://www.campingandcaravanningclub.co.uk/campsites/uk/cumbria/kendal/kendal/ Coords: 54.346500, -2.730700
-- **Park Cliffe Camping & Caravan Estate (Windermere)** — Camping option. https://www.parkcliffe.co.uk/ Coords: 54.312059, -2.937711
-- **National Trust Low Wray Campsite (Windermere)** — Camping option. https://www.nationaltrust.org.uk/visit/lakes/low-wray-campsite Coords: 54.400864, -2.966110
-- **Skelwith Fold Caravan Park (Ambleside area)** — Camping / caravans. https://www.skelwithfold.co.uk/ Coords: 54.411763, -2.985365
+- **Kendal Club Campsite (Caravan and Motorhome Club)** — ££ https://www.caravanclub.co.uk/club-sites/england/north-west-england/cumbria/kendal-club-campsite/
+- **Kendal Camping & Caravanning Club Site** — Camping near Kendal. ££ https://www.campingandcaravanningclub.co.uk/campsites/uk/cumbria/kendal/kendal/
+- **Park Cliffe** — Camping option near Windermere. ££ https://www.parkcliffe.co.uk/
+- **Low Wray Campsite** — National Trust camping. ££ https://www.nationaltrust.org.uk/visit/lakes/low-wray-campsite
+- **Skelwith Fold Caravan Park** — Camping / caravans, Ambleside area. ££ https://www.skelwithfold.co.uk/
 
 ## 6. Self-catering (cottages / Airbnb)
 
