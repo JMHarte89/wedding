@@ -1017,3 +1017,205 @@ footer a:focus {
     min-height: 360px !important;
   }
 }
+
+/* ------------------------------------------------------------
+   Polish layer (type scale, hierarchy, buttons, callouts)
+   Add at the END of styles.css so it wins the cascade.
+------------------------------------------------------------ */
+
+:root{
+  --bg: #f6f5f2;
+  --surface: #ffffff;
+  --text: #111827;
+  --muted: #374151;
+  --muted-2: #6b7280;
+  --border: #e5e7eb;
+  --shadow: 0 1px 2px rgba(0,0,0,.05), 0 8px 24px rgba(0,0,0,.06);
+
+  --primary: #111827;
+  --primary-hover: #0b1220;
+  --primary-text: #ffffff;
+
+  --radius: 14px;
+
+  --s1: .25rem;
+  --s2: .5rem;
+  --s3: .75rem;
+  --s4: 1rem;
+  --s5: 1.5rem;
+  --s6: 2rem;
+  --s7: 2.5rem;
+
+  --lh: 1.6;
+}
+
+html{ font-size: 16px; }
+body{
+  color: var(--text);
+  background: var(--bg);
+  line-height: var(--lh);
+  text-rendering: optimizeLegibility;
+}
+
+p{ color: var(--muted); }
+
+a{
+  color: inherit;
+  text-decoration-thickness: .08em;
+  text-underline-offset: .18em;
+}
+a:hover{ text-decoration-thickness: .12em; }
+a:focus-visible{
+  outline: 3px solid var(--primary);
+  outline-offset: 3px;
+}
+
+/* Type scale */
+h1, h2, h3{
+  color: var(--text);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+h1{ font-size: clamp(2.1rem, 6vw, 3rem); }
+h2{ font-size: clamp(1.35rem, 3.2vw, 1.85rem); }
+h3{ font-size: clamp(1.1rem, 2.4vw, 1.35rem); }
+
+/* Sections: slightly more breathing room, not huge gaps */
+section{
+  margin-top: var(--s6);
+}
+section:first-of-type{
+  margin-top: var(--s5);
+}
+
+/* Cards / panels (keeps your existing look but a touch cleaner) */
+.card, .panel, .box{
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+/* Hero hierarchy (add these classes in index.html) */
+.hero-title{
+  margin: 0;
+  font-size: clamp(2.35rem, 7vw, 3.2rem);
+}
+.hero-meta{
+  margin: var(--s3) 0 0 0;
+  color: var(--muted);
+  font-size: 1.05rem;
+}
+.hero-date{
+  color: var(--text);
+}
+.hero-location{
+  color: var(--muted-2);
+  font-size: .98rem;
+}
+.hero-sep{
+  margin: 0 .5rem;
+  color: var(--muted-2);
+}
+
+/* Buttons (works for <a> and <button>).
+   Also styles plain <button> so /test/login.html and /test/admin.html stay consistent. */
+.btn, .button, button, input[type="submit"], input[type="button"]{
+  -webkit-tap-highlight-color: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  min-height: 44px;
+  padding: .75rem 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform .04s ease, background-color .12s ease, border-color .12s ease, box-shadow .12s ease;
+}
+.btn:hover, .button:hover, button:hover, input[type="submit"]:hover, input[type="button"]:hover{
+  background: #f3f4f6;
+}
+.btn:active, .button:active, button:active{
+  transform: translateY(1px);
+}
+.btn:focus-visible, .button:focus-visible, button:focus-visible, input[type="submit"]:focus-visible, input[type="button"]:focus-visible{
+  outline: 3px solid var(--primary);
+  outline-offset: 3px;
+}
+
+/* Primary vs secondary (add these classes where you can) */
+.btn-primary, .button.primary{
+  background: var(--primary);
+  color: var(--primary-text);
+  border-color: var(--primary);
+}
+.btn-primary:hover, .button.primary:hover{
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+.btn-secondary, .button.secondary{
+  background: transparent;
+  border-color: var(--border);
+}
+
+/* Button groups */
+.actions, .btn-row{
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+}
+
+/* Subtle helper text */
+.subtle{
+  margin-top: var(--s3);
+  color: var(--muted-2);
+  font-size: .98rem;
+}
+
+/* Travel map quick-nav: segmented / pill control */
+.pill-nav{
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin: var(--s4) 0;
+}
+.pill-nav a, .pill-nav button{
+  min-height: 40px; /* still chunky enough; keeps nav compact */
+  padding: .6rem .9rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  text-decoration: none;
+}
+.pill-nav a:hover, .pill-nav button:hover{
+  background: #f3f4f6;
+}
+.pill-nav a:focus-visible, .pill-nav button:focus-visible{
+  outline: 3px solid var(--primary);
+  outline-offset: 3px;
+}
+
+/* Subtle callouts (recommended option, RSVP deadline, etc.) */
+.callout{
+  background: #f9fafb;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--s4);
+  color: var(--muted);
+}
+
+.deadline{
+  background: #f9fafb;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  border-radius: var(--radius);
+  padding: var(--s4);
+  color: var(--text);
+}
