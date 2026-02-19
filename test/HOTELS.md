@@ -6,10 +6,13 @@
 
 ## Key venues (in data/places.json)
 
-- **Holy Trinity Kendal Parish Church** — Ceremony. https://www.kendalparishchurch.co.uk/
-- **The Venue (Kendal)** — Reception (Bowness Bay Brewing). https://www.bownessbaybrewing.co.uk/the-venue/
-- **Blackhall Road car park** — Church parking. Pay-by-phone 9860.
-- **Library Road car park** — Venue parking. Pay-by-phone 9862.
+- **Holy Trinity Kendal Parish Church** — Ceremony. LA9 5AF. ///parks.hops.blank. https://www.kendalparishchurch.co.uk/
+- **The Venue (Kendal)** — Reception (Bowness Bay Brewing). ///hats.grades.admits. https://www.bownessbaybrewing.co.uk/the-venue/
+- **Venue parking** — Parking up to 15 hours; provide registration number at the venue. ///skip.flies.beans
+- **Church parking (Point A)** — Near the church. LA9 5AF. ///parks.hops.blank
+- **Church parking (Point B)** — Peppercorn Lane. LA9 5AQ. ///trash.damp.issued
+- **Church parking (Point C)** — Kirkland. LA9 5AF. ///design.rings.object
+- **Library Road car park** — Additional parking. Pay-by-phone 9862.
 
 ---
 
