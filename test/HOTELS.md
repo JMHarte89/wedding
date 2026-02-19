@@ -32,8 +32,8 @@
 - **Castle Green Hotel** — Popular Kendal hotel on the edge of town. https://www.castlegreenhotel.co.uk/ Coords: 54.324159, -2.720953
 - **Stonecross Manor Hotel** — Kendal hotel with leisure facilities. https://www.everbrightgrouphotels.com/stonecross-manor-leisure Coords: 54.313049, -2.752831
 - **Premier Inn Kendal Central** — Reliable budget chain, central. https://www.premierinn.com/gb/en/hotels/england/cumbria/kendal/kendal-central.html Coords: 54.327233, -2.749353
-- **Travelodge Kendal Town Centre** — Simple budget option. https://www.travelodge.co.uk/hotels/675/Kendal-Town-Centre-hotel Coords: 54.328259, -2.746364
-- **Travelodge Kendal** — Another budget option (slightly out of centre). https://www.travelodge.co.uk/hotels/330/Kendal-hotel Coords: 54.334888, -2.731310
+- **Travelodge Kendal Town Centre (Riverside Place)** — Simple budget option. https://www.travelodge.co.uk/hotels/675/Kendal-Town-Centre-hotel Coords: 54.31983, -2.74361
+- **Travelodge Kendal (Prizet, LA8 8AA)** — Another budget option (slightly out of centre). https://www.travelodge.co.uk/hotels/330/Kendal-hotel Coords: 54.297604, -2.759481
 - **Kendal Hostel** — Cheapest option; good for groups. https://www.kendalhostel.co.uk/ Coords: 54.324602, -2.747581
 - **The Lakeland Kendal Hotel** — Town-centre hotel. https://www.aghotels.co.uk/the-lakeland-hotel/ Coords: 54.332862, -2.747721
 
@@ -82,8 +82,8 @@ Riverside Hotel Kendal,hotel,kendal,hotel,54.330502,-2.741897
 Castle Green Hotel Kendal,hotel,kendal,hotel,54.324159,-2.720953
 Stonecross Manor Hotel,hotel,kendal,hotel,54.313049,-2.752831
 Premier Inn Kendal Central,hotel,kendal,hotel,54.327233,-2.749353
-Travelodge Kendal Town Centre,hotel,kendal,hotel,54.328259,-2.746364
-Travelodge Kendal (Prizet),hotel,kendal,hotel,54.334888,-2.731310
+Travelodge Kendal Town Centre (Riverside Place),hotel,kendal,hotel,54.31983,-2.74361
+Travelodge Kendal (Prizet, LA8 8AA),hotel,kendal,hotel,54.297604,-2.759481
 Kendal Hostel,hostel,kendal,hostel,54.324602,-2.747581
 The Lakeland Kendal Hotel,hotel,kendal,hotel,54.332862,-2.747721
 Damson Dene Hotel,hotel,near-kendal,hotel,54.333754,-2.822812
