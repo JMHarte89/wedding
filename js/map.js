@@ -63,12 +63,39 @@
 
   var MAP_ERROR_MSG = 'Map failed to load. Please refresh, or use \'View full screen map\'.';
 
-  function showMapError(container, err, debugInfo) {
+  function updateDebugPanelStage(container, stage) {
+    if (!isDebug() || !container || !container.parentNode) return;
+    var pre = container.parentNode.querySelector('.map-debug-panel pre');
+    if (!pre) return;
+    var lines = pre.textContent.split('\n');
+    var found = false;
+    for (var i = 0; i < lines.length; i += 1) {
+      if (lines[i].indexOf('Stage:') === 0) {
+        lines[i] = 'Stage: ' + stage;
+        found = true;
+        break;
+      }
+    }
+    if (!found) lines.push('Stage: ' + stage);
+    pre.textContent = lines.join('\n');
+  }
+
+  function showMapError(container, err, stageOrInfo) {
     if (!container) return;
     console.error('map.js: Failed to load map:', err);
     var msg = MAP_ERROR_MSG;
-    if (isDebug() && debugInfo) {
-      msg += ' [Debug: ' + (debugInfo.status !== undefined ? 'status ' + debugInfo.status : '') + (debugInfo.contentType ? '; content-type ' + debugInfo.contentType : '') + ']';
+    var stageStr = typeof stageOrInfo === 'string' ? stageOrInfo : (stageOrInfo && stageOrInfo.stage);
+    var info = typeof stageOrInfo === 'object' && stageOrInfo ? stageOrInfo : {};
+    if (isDebug()) {
+      msg += '\nDebug error: ' + (err && (err.name || 'Error')) + ': ' + (err && (err.message || String(err)));
+      msg += '\nStage: ' + (stageStr || info.stage || '—');
+      if (err && err.stack) {
+        var firstLine = err.stack.split('\n')[0];
+        if (firstLine) msg += '\n' + firstLine.trim();
+      }
+      if (info.status !== undefined || info.contentType) {
+        msg += '\n[Debug: ' + (info.status !== undefined ? 'status ' + info.status : '') + (info.contentType ? '; content-type ' + info.contentType : '') + ']';
+      }
     }
     container.textContent = msg;
     container.classList.add('map-load-error');
@@ -85,24 +112,33 @@
       'Fetch: ' + (data.fetchStatus !== undefined ? data.fetchStatus : '—'),
       'Content-Type: ' + (data.contentType !== undefined ? data.contentType : '—'),
       'JSON parse: ' + (data.jsonOk === true ? 'ok' : data.jsonOk === false ? 'failed' : '—'),
-      'Places loaded: ' + (typeof data.placeCount === 'number' ? data.placeCount : '—')
+      'Places loaded: ' + (typeof data.placeCount === 'number' ? data.placeCount : '—'),
+      'Stage: start'
     ];
     wrap.innerHTML = '<pre>' + lines.map(function (s) { return escapeHtml(s); }).join('\n') + '</pre>';
     container.parentNode.insertBefore(wrap, container);
   }
 
   function initMap() {
+    var stage = 'start';
+    function setStage(s) {
+      stage = s;
+      updateDebugPanelStage(container, stage);
+    }
+
     var container = document.getElementById('wedding-map');
     if (!container) return;
+    setStage('container found');
 
     if (typeof L === 'undefined') {
-      showMapError(container, new Error('Leaflet (L) is not defined. Check that Leaflet JS loads before map.js.'));
+      showMapError(container, new Error('Leaflet (L) is not defined. Check that Leaflet JS loads before map.js.'), stage);
       return;
     }
+    setStage('leaflet ok');
 
     var placesUrl = container.getAttribute('data-places-url');
     if (!placesUrl) {
-      showMapError(container, new Error('No data-places-url on map container'));
+      showMapError(container, new Error('No data-places-url on map container'), stage);
       return;
     }
 
@@ -117,8 +153,9 @@
 
     fetch(placesUrl)
       .then(function (r) {
+        setStage('fetch ok');
         var ct = (r.headers.get('content-type') || '').toLowerCase();
-        var debugInfo = { status: r.status, contentType: (r.headers.get('content-type') || '—') };
+        var debugInfo = { stage: 'fetch ok', status: r.status, contentType: (r.headers.get('content-type') || '—') };
         if (ct.indexOf('text/html') !== -1) {
           var e = new Error('Server returned HTML instead of JSON (often a 404 page). Check the places URL.');
           e.debugInfo = debugInfo;
@@ -139,26 +176,43 @@
       })
       .then(function (result) {
         var data = result.data;
-        if (!data || !Array.isArray(data.places)) throw new Error('Invalid places data');
+        setStage('fetch ok');
+        if (!data || !Array.isArray(data.places)) {
+          var invalidErr = new Error('Invalid places data');
+          invalidErr.debugInfo = { stage: 'json ok' };
+          throw invalidErr;
+        }
+        setStage('json ok');
         if (isDebug()) {
           var panel = container.parentNode.querySelector('.map-debug-panel');
           if (panel) {
-            panel.querySelector('pre').textContent = [
+            var pre = panel.querySelector('pre');
+            pre.textContent = [
               'Leaflet loaded? yes',
               'places.json URL: ' + placesUrl,
               'Fetch: ' + result.response.status + ' ' + result.response.statusText,
               'Content-Type: ' + result.contentType,
               'JSON parse: ok',
               'Places loaded: ' + data.places.length,
-              'Tile errors: 0'
+              'Tile errors: 0',
+              'Stage: ' + stage
             ].join('\n');
           }
         }
-        renderMap(container, data);
+        setStage('renderMap start');
+        try {
+          renderMap(container, data, setStage);
+          setStage('done');
+        } catch (err) {
+          updateDebugPanelStage(container, stage);
+          showMapError(container, err, stage);
+          return;
+        }
         bindQuickNav(data);
       })
       .catch(function (err) {
-        showMapError(container, err, isDebug() && err && err.debugInfo ? err.debugInfo : null);
+        var info = err && err.debugInfo ? { stage: err.debugInfo.stage || 'fetch failed', status: err.debugInfo.status, contentType: err.debugInfo.contentType } : 'fetch failed';
+        showMapError(container, err, info);
       });
   }
 
@@ -184,12 +238,13 @@
     });
   }
 
-  function renderMap(container, data) {
+  function renderMap(container, data, setStage) {
     var layers = data.layers || [];
     var places = data.places || [];
     var layerMap = {};
     var markersByKey = {};
     var venueCoords = null;
+    if (typeof setStage !== 'function') setStage = function () {};
 
     places.forEach(function (p) {
       if (p.key === 'venue') {
@@ -201,10 +256,12 @@
 
     var map = L.map(container).setView(KENDAL_CENTRE, DEFAULT_ZOOM);
     window._weddingMap = map;
+    setStage('map created');
 
     var tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
+    setStage('tile layer added');
 
     if (isDebug()) {
       var tileErrorCount = 0;
@@ -303,6 +360,7 @@
         }
       }
     });
+    setStage('markers loop complete');
 
     if (isDebug()) {
       var preEl = container.parentNode && container.parentNode.querySelector('.map-debug-panel pre');
@@ -323,6 +381,7 @@
 
     window._weddingMapMarkersByKey = markersByKey;
 
+    setStage('fit bounds');
     if (bounds.length > 0) {
       map.fitBounds(bounds, { padding: [30, 30], maxZoom: 15 });
     }
