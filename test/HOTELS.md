@@ -1,6 +1,15 @@
 # Places to stay (single source of truth)
 
-**Update this file first, then update travel.html pages to match.**
+**Update this file first. Map data is in `/data/places.json` — sync URLs and details there for popups.**
+
+---
+
+## Key venues (in data/places.json)
+
+- **Holy Trinity Kendal Parish Church** — Ceremony. https://www.kendalparishchurch.co.uk/
+- **The Venue (Kendal)** — Reception (Bowness Bay Brewing). https://www.bownessbaybrewing.co.uk/the-venue/
+- **Blackhall Road car park** — Church parking. Pay-by-phone 9860.
+- **Library Road car park** — Venue parking. Pay-by-phone 9862.
 
 ---
 
