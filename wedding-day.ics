@@ -1,13 +1,8 @@
 BEGIN:VCALENDAR
 VERSION:2.0
-<<<<<<< HEAD
-PRODID:-//Jason & Rebecca Wedding//wedding-day//EN
-CALSCALE:GREGORIAN
-=======
 PRODID:-//Jason & Rebecca Wedding//Wedding Day//EN
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
->>>>>>> af8833b297ec0a8b71378f32643606e094441878
 BEGIN:VEVENT
 UID:wedding-jason-rebecca-2026@kendal
 DTSTAMP:20250218T120000Z
@@ -15,11 +10,7 @@ DTSTART;VALUE=DATE:20260829
 DTEND;VALUE=DATE:20260830
 SUMMARY:Wedding of Jason Harte & Rebecca Blackshaw
 LOCATION:Kendal\, Cumbria
-<<<<<<< HEAD
-DESCRIPTION:Wedding day celebrations. More details to follow on the website.
-=======
 URL:https://jmharte89.github.io/wedding/
 DESCRIPTION:Wedding day celebrations. Details: https://jmharte89.github.io/wedding/
->>>>>>> af8833b297ec0a8b71378f32643606e094441878
 END:VEVENT
 END:VCALENDAR
