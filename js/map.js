@@ -258,6 +258,10 @@
       }
     });
 
+    if (container.offsetHeight === 0) {
+      container.style.height = window.matchMedia('(max-width: 480px)').matches ? '360px' : '420px';
+    }
+
     var map = L.map(container).setView(KENDAL_CENTRE, DEFAULT_ZOOM);
     window._weddingMap = map;
     setStage('map created');
@@ -286,6 +290,8 @@
     }
 
     setTimeout(function () { map.invalidateSize(); }, 250);
+    setTimeout(function () { map.invalidateSize(); }, 1000);
+    window.addEventListener('load', function () { map.invalidateSize(); });
     window.addEventListener('resize', function () { map.invalidateSize(); });
 
     if (isDebug()) {
@@ -295,6 +301,18 @@
         var h = container.offsetHeight;
         var leafletPresent = map.getContainer() ? 'yes' : 'no';
         debugPreEl.textContent = debugPreEl.textContent + '\nMap container size: ' + w + 'x' + h + '\nLeaflet container present: ' + leafletPresent;
+        setTimeout(function () {
+          var w1 = container.offsetWidth;
+          var h1 = container.offsetHeight;
+          var lines = debugPreEl.textContent.split('\n');
+          for (var i = 0; i < lines.length; i += 1) {
+            if (lines[i].indexOf('Map container size:') === 0) {
+              lines[i] = 'Map container size: ' + w1 + 'x' + h1;
+              break;
+            }
+          }
+          debugPreEl.textContent = lines.join('\n');
+        }, 1000);
       }
     }
 
