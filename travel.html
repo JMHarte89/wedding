@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Travel and stay — Kendal and Lake District. Jason Harte &amp; Rebecca Blackshaw wedding, 29 August 2026.">
+  <title>Travel &amp; stay — Jason &amp; Rebecca</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+</head>
+<body>
+  <header class="hero">
+    <h1>Travel &amp; stay</h1>
+    <p class="tagline">Jason &amp; Rebecca</p>
+    <p class="location">Kendal, Cumbria — 29 August 2026</p>
+  </header>
+
+  <main>
+    <section class="content-section" aria-labelledby="map-heading">
+      <h2 id="map-heading">Map</h2>
+      <div class="map-quick-nav" aria-label="Quick map views">
+        <button type="button" data-map-focus="church">Church</button>
+        <button type="button" data-map-focus="church_parking">Church parking</button>
+        <button type="button" data-map-focus="venue">The Venue</button>
+        <button type="button" data-map-focus="venue_parking">Venue parking</button>
+      </div>
+      <div id="wedding-map" class="leaflet-map" data-places-url="data/places.json" aria-label="Wedding map"></div>
+      <p><a class="map-fullscreen" href="#wedding-map">View full screen map</a></p>
+      <p class="map-legend">⛪ Ceremony · 🥂 Venue · 🅿️ Parking · 🛏️ Hotels · ⛺ Camping</p>
+      <p class="map-instructions">Tap a marker to see details and booking links. Availability changes quickly — please use the booking link to check rooms for the weekend.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p><a href="index.html">Back to wedding</a></p>
+    <p class="year">2026</p>
+  </footer>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="js/map.js"></script>
+</body>
+</html>

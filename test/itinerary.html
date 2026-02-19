@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Wedding day itinerary — Saturday 29 August 2026, Kendal, Cumbria. Test site.">
+  <title>Itinerary — Jason &amp; Rebecca (Test)</title>
+  <link rel="stylesheet" href="../styles.css">
+  <script src="auth.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="site-nav" aria-label="Main">
+      <ul id="site-nav-list">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="itinerary.html" aria-current="page">Itinerary</a></li>
+        <li><a href="travel.html">Travel</a></li>
+        <li><a href="faq.html">FAQ</a></li>
+        <li><a href="seating.html">Seating</a></li>
+        <li><a href="rsvp.html">RSVP</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section class="page-heading">
+      <h1>Wedding day itinerary</h1>
+      <p class="dates">Saturday 29 August 2026</p>
+      <p class="location">Kendal, Cumbria</p>
+    </section>
+
+    <section class="content-section" aria-labelledby="glance-heading">
+      <h2 id="glance-heading">Itinerary at a glance</h2>
+      <ul class="content-list">
+        <li>Arrive at church by 11:40</li>
+        <li>12:00–13:00 Wedding service</li>
+        <li>13:00–13:30 Photos</li>
+        <li>13:30 Walk to [VENUE NAME] (5 minutes)</li>
+        <li>13:30–14:30 Welcome drinks</li>
+        <li>15:00 Meal is served (sharing platters)</li>
+        <li>15:30–16:30 Speeches</li>
+        <li>16:30–18:00 Free time (details to follow)</li>
+        <li>18:30 Live band</li>
+        <li>From 19:00 Evening food (pizza)</li>
+        <li>20:30 DJ</li>
+        <li>Celebrations continue until late</li>
+      </ul>
+    </section>
+
+    <div class="callout-box" role="note">
+      <p><strong>Confetti.</strong> Biodegradable, outside only; we provide.</p>
+    </div>
+    <div class="callout-box" role="note">
+      <p><strong>Photos.</strong> There will be a QR code on the day so you can upload your photos to our shared album.</p>
+    </div>
+    <div class="callout-box" role="note">
+      <p><strong>Dietary.</strong> Please tell us dietary requirements when you RSVP.</p>
+    </div>
+
+    <p class="card-actions add-to-calendar-wrap">
+      <a href="../wedding-day.ics" class="add-to-calendar">Add to calendar</a>
+    </p>
+  </main>
+
+  <footer>
+    <p>More details to follow</p>
+    <p><a href="login.html">Wedding party access</a></p>
+    <p class="year">2026</p>
+  </footer>
+  <script>
+    (function(){ if (localStorage.getItem('wedding_role') !== 'admin') return; var ul = document.getElementById('site-nav-list'); if (!ul) return; var li = document.createElement('li'); var a = document.createElement('a'); a.href = 'admin.html'; a.textContent = 'Admin'; li.appendChild(a); ul.appendChild(li); })();
+  </script>
+</body>
+</html>

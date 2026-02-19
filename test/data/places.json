@@ -1,0 +1,28 @@
+{
+  "meta": { "updated": "2026-02-18" },
+  "layers": [
+    { "id": "ceremony", "label": "Ceremony (church)", "emoji": "⛪" },
+    { "id": "venue", "label": "Venue", "emoji": "🥂" },
+    { "id": "parking", "label": "Parking", "emoji": "🅿️" },
+    { "id": "hotels", "label": "Hotels", "emoji": "🛏️" },
+    { "id": "camping", "label": "Camping / glamping", "emoji": "⛺" }
+  ],
+  "places": [
+    {
+      "layer": "ceremony",
+      "name": "Holy Trinity Kendal Parish Church",
+      "lat": null,
+      "lng": null,
+      "note": "Ceremony location.",
+      "url": ""
+    },
+    {
+      "layer": "venue",
+      "name": "Reception venue (TBC)",
+      "lat": null,
+      "lng": null,
+      "note": "Near the Factory Tap (landmark).",
+      "url": ""
+    }
+  ]
+}

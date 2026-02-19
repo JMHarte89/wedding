@@ -1,0 +1,23 @@
+# Wedding guest list — single source for seating
+# Update this file, then commit. Admin drafts are local only.
+
+meta:
+  title: Wedding guest list
+  updated: "2026-01-01"
+
+guests:
+  - name: [GUEST NAME]
+    party: [PARTY]
+    table: 1
+    seat: 1
+    # dietary: [optional]
+    # notes: [optional]
+  - name: [GUEST NAME]
+    party: [PARTY]
+    table: 1
+    # seat optional
+  - name: [GUEST NAME]
+    party: [PARTY]
+    table: 2
+    dietary: Vegetarian
+    # notes: [optional]

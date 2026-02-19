@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Jason Harte &amp; Rebecca Blackshaw — Wedding Day, Saturday 29 August 2026, Kendal, Cumbria. Test site.">
+  <title>Jason &amp; Rebecca — Wedding (Test)</title>
+  <link rel="stylesheet" href="../styles.css">
+  <script src="auth.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="site-nav" aria-label="Main">
+      <ul id="site-nav-list">
+        <li><a href="index.html" aria-current="page">Home</a></li>
+        <li><a href="itinerary.html">Itinerary</a></li>
+        <li><a href="travel.html">Travel</a></li>
+        <li><a href="faq.html">FAQ</a></li>
+        <li><a href="seating.html">Seating</a></li>
+        <li><a href="rsvp.html">RSVP</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>Jason Harte &amp; Rebecca Blackshaw</h1>
+      <p class="tagline">Wedding</p>
+      <p class="dates">Saturday 29 August 2026</p>
+      <p class="location">Kendal, Cumbria</p>
+    </section>
+
+    <section class="intro">
+      <p>We’re getting married in Kendal and would love you to join us. Use the links below to see the day’s plan, where to stay, and how to get in touch.</p>
+    </section>
+
+    <section class="nav-cards-section" aria-labelledby="nav-cards-heading">
+      <h2 id="nav-cards-heading" class="visually-hidden">Go to</h2>
+      <div class="nav-cards">
+        <a href="itinerary.html" class="card nav-card">
+          <h3>Itinerary</h3>
+          <p>Details of the day</p>
+        </a>
+        <a href="travel.html" class="card nav-card">
+          <h3>Travel &amp; stay</h3>
+          <p>Hotels and getting there</p>
+        </a>
+        <a href="faq.html" class="card nav-card">
+          <h3>FAQ</h3>
+          <p>Common questions</p>
+        </a>
+      </div>
+    </section>
+
+    <p class="card-actions add-to-calendar-wrap">
+      <a href="../wedding-day.ics" class="add-to-calendar">Save to your calendar</a>
+    </p>
+    <p class="rsvp-deadline">Please RSVP by 30 April 2026.</p>
+    <p class="card-actions">
+      <a href="rsvp.html" class="rsvp-btn">RSVP</a>
+    </p>
+  </main>
+
+  <footer>
+    <p>More details to follow</p>
+    <p><a href="login.html">Wedding party access</a></p>
+    <p class="year">2026</p>
+  </footer>
+  <script>
+    (function(){ if (localStorage.getItem('wedding_role') !== 'admin') return; var ul = document.getElementById('site-nav-list'); if (!ul) return; var li = document.createElement('li'); var a = document.createElement('a'); a.href = 'admin.html'; a.textContent = 'Admin'; li.appendChild(a); ul.appendChild(li); })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Admin notes — Jason &amp; Becki. Internal use.">
+  <title>Admin notes — Jason &amp; Rebecca (Test)</title>
+  <link rel="stylesheet" href="../styles.css">
+  <script src="auth.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="site-nav" aria-label="Main">
+      <ul id="site-nav-list">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="itinerary.html">Itinerary</a></li>
+        <li><a href="travel.html">Travel</a></li>
+        <li><a href="faq.html">FAQ</a></li>
+        <li><a href="seating.html">Seating</a></li>
+        <li><a href="rsvp.html">RSVP</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section class="page-heading">
+      <h1>Admin notes (Jason &amp; Becki)</h1>
+      <p><a href="login.html" id="admin-logout" class="book-link">Log out</a></p>
+      <p class="admin-local-note">Edits are saved only on this device/browser. Use Copy changes to update ITINERARY.md.</p>
+    </section>
+
+    <section class="admin-section admin-edit-block" id="block-shopping" data-storage-key="admin_edit_shopping">
+      <h2>Shopping list</h2>
+      <textarea id="textarea-shopping" class="admin-textarea" rows="6" aria-label="Shopping list"></textarea>
+      <div class="admin-edit-actions">
+        <button type="button" class="book-link admin-edit-btn" data-action="save">Save</button>
+        <button type="button" class="book-link admin-edit-btn" data-action="reset">Reset</button>
+        <button type="button" class="book-link admin-edit-btn" data-action="show-changes">Show changes</button>
+        <button type="button" class="book-link admin-edit-btn" data-action="copy-changes">Copy changes</button>
+        <button type="button" class="book-link admin-edit-btn" data-action="copy-full">Copy full</button>
+      </div>
+      <div id="changes-shopping" class="admin-changes-output" role="region" aria-live="polite" hidden></div>
+    </section>
+
+    <section class="admin-section admin-edit-block" id="block-checklist" data-storage-key="admin_edit_checklist">
+      <h2>Checklist</h2>
+      <textarea id="textarea-checklist" class="admin-textarea" rows="6" aria-label="Checklist"></textarea>
+      <div class="admin-edit-actions">
+        <button type="button" class="book-link admin-edit-btn" data-action="save">Save</button>
+        <button type="button" class="book-link admin-edit-btn" data-action="reset">Reset</button>
+        <button type="button" class="book-link admin-edit-btn" data-action="show-changes">Show changes</button>
+        <button type="button" class="book-link admin-edit-btn" data-action="copy-changes">Copy changes</button>
+        <button type="button" class="book-link admin-edit-btn" data-action="copy-full">Copy full</button>
+      </div>
+      <div id="changes-checklist" class="admin-changes-output" role="region" aria-live="polite" hidden></div>
+    </section>
+
+    <section class="admin-section admin-edit-block" id="block-runsheet" data-storage-key="admin_edit_runsheet">
+      <h2>Run sheet notes</h2>
+      <textarea id="textarea-runsheet" class="admin-textarea" rows="18" aria-label="Run sheet notes"></textarea>
+      <div class="admin-edit-actions">
+        <button type="button" class="book-link admin-edit-btn" data-action="save">Save</button>
+        <button type="button" class="book-link admin-edit-btn" data-action="reset">Reset</button>
+        <button type="button" class="book-link admin-edit-btn" data-action="show-changes">Show changes</button>
+        <button type="button" class="book-link admin-edit-btn" data-action="copy-changes">Copy changes</button>
+        <button type="button" class="book-link admin-edit-btn" data-action="copy-full">Copy full</button>
+      </div>
+      <div id="changes-runsheet" class="admin-changes-output" role="region" aria-live="polite" hidden></div>
+    </section>
+
+    <section class="admin-section" id="section-guestlist">
+      <h2>Guest list &amp; table plan</h2>
+      <p class="admin-local-note">Edits are local drafts. To publish, paste into /test/data/guestlist.yaml in Cursor and commit.</p>
+      <div id="guestlist-view">
+        <div class="guestlist-controls">
+          <label for="guestlist-search">Search (name or party)</label>
+          <input type="text" id="guestlist-search" class="guestlist-input" placeholder="Search name or party">
+          <label for="guestlist-table">Table</label>
+          <select id="guestlist-table" class="guestlist-select" aria-label="Filter by table">
+            <option value="">All tables</option>
+          </select>
+          <label for="guestlist-sort">Sort by</label>
+          <select id="guestlist-sort" class="guestlist-select" aria-label="Sort by">
+            <option value="table">Table</option>
+            <option value="party">Party</option>
+            <option value="name">Name</option>
+          </select>
+        </div>
+        <div id="guestlist-table-plan" class="guestlist-table-plan"></div>
+      </div>
+      <p>
+        <button type="button" id="guestlist-toggle-yaml" class="book-link">Edit YAML</button>
+      </p>
+      <div id="guestlist-yaml-area" class="guestlist-yaml-area" hidden>
+        <textarea id="guestlist-yaml" class="admin-textarea" rows="20" aria-label="Guest list YAML"></textarea>
+        <div class="admin-edit-actions">
+          <button type="button" class="book-link admin-edit-btn" id="guestlist-validate">Validate</button>
+          <button type="button" class="book-link admin-edit-btn" id="guestlist-save-draft">Save draft</button>
+          <button type="button" class="book-link admin-edit-btn" id="guestlist-copy-yaml">Copy YAML</button>
+          <button type="button" class="book-link admin-edit-btn" id="guestlist-reset-draft">Reset draft</button>
+        </div>
+        <div id="guestlist-yaml-error" class="code-error" role="alert" hidden></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Internal use only</p>
+    <p class="year">2026</p>
+  </footer>
+
+  <script>
+    (function () {
+      var BASELINES = {
+        shopping: 'Biodegradable confetti\n[VENUE NAME] — confirm final numbers\nPizza tokens\n[Other items TBC]',
+        checklist: 'Send invites\nConfirm [VENUE NAME] booking\nBook band / DJ — set times [TIME]\nOrder pizza — [TIME]\nPrint run sheet',
+        runsheet: '11:40 — Guests arrive at church (doors open in good time).\n12:00–13:00 — Wedding service at church.\n13:00–13:30 — Photos. Confetti moment after ceremony — biodegradable only, outside.\n13:15 — Reception venue access [VENUE NAME]. Aim to have everyone in by 14:00.\n13:30 — Walk to [VENUE NAME] (5 minutes).\n13:30–14:30 — Welcome drinks at [VENUE NAME].\n15:00 — Meal is served.\n15:30–16:30 — Speeches window (exact order/length TBC if needed).\n16:30–18:00 — TBC. Options under consideration: games, quiet break, or earlier start for evening. Not final — to be confirmed.\n18:30 — Live band set ([TIME] / duration TBC if needed).\nFrom 19:00 — Evening food (pizza). Token system: tokens to be distributed; one token per slice / per person as agreed.\n20:30 — DJ set ([TIME] / duration TBC if needed).\nCelebrations continue until late.\nOperational notes: Supplier contact [LINK] or [VENUE NAME]. Confetti: we provide; biodegradable, outside only.'
+      };
+
+      function normalizeLine(s) {
+        return (s || '').trim().replace(/\s+/g, ' ');
+      }
+      function toLineSet(text) {
+        var lines = (text || '').split('\n').map(normalizeLine).filter(Boolean);
+        var set = {};
+        lines.forEach(function (l) { set[l] = true; });
+        return { lines: lines, set: set };
+      }
+      function diff(baselineText, currentText) {
+        var base = toLineSet(baselineText);
+        var curr = toLineSet(currentText);
+        var added = curr.lines.filter(function (l) { return !base.set[l]; });
+        var removed = base.lines.filter(function (l) { return !curr.set[l]; });
+        return { added: added, removed: removed };
+      }
+      function formatChangesOutput(diffResult) {
+        var out = [];
+        out.push('Added lines:');
+        if (diffResult.added.length) diffResult.added.forEach(function (l) { out.push('- ' + l); });
+        else out.push('(none)');
+        out.push('');
+        out.push('Removed lines:');
+        if (diffResult.removed.length) diffResult.removed.forEach(function (l) { out.push('- ' + l); });
+        else out.push('(none)');
+        return out.join('\n');
+      }
+
+      var blocks = ['shopping', 'checklist', 'runsheet'];
+      blocks.forEach(function (key) {
+        var block = document.getElementById('block-' + key);
+        var textarea = document.getElementById('textarea-' + key);
+        var changesEl = document.getElementById('changes-' + key);
+        var storageKey = block.getAttribute('data-storage-key');
+        var baseline = BASELINES[key];
+
+        textarea.defaultValue = baseline;
+        try {
+          var saved = localStorage.getItem(storageKey);
+          if (saved !== null) textarea.value = saved;
+          else textarea.value = baseline;
+        } catch (e) {
+          textarea.value = baseline;
+        }
+
+        block.querySelectorAll('.admin-edit-btn').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var action = btn.getAttribute('data-action');
+            var value = textarea.value;
+
+            if (action === 'save') {
+              try { localStorage.setItem(storageKey, value); } catch (e) {}
+              btn.textContent = 'Saved';
+              setTimeout(function () { btn.textContent = 'Save'; }, 1500);
+              return;
+            }
+            if (action === 'reset') {
+              try { localStorage.removeItem(storageKey); } catch (e) {}
+              textarea.value = baseline;
+              if (changesEl) { changesEl.hidden = true; changesEl.textContent = ''; }
+              return;
+            }
+            if (action === 'show-changes') {
+              var d = diff(baseline, value);
+              var html = '';
+              if (d.added.length) {
+                html += '<p><strong>Added lines:</strong></p><ul>';
+                d.added.forEach(function (l) { html += '<li>' + escapeHtml(l) + '</li>'; });
+                html += '</ul>';
+              }
+              if (d.removed.length) {
+                html += '<p><strong>Removed lines:</strong></p><ul>';
+                d.removed.forEach(function (l) { html += '<li>' + escapeHtml(l) + '</li>'; });
+                html += '</ul>';
+              }
+              if (!d.added.length && !d.removed.length) html = '<p>No changes from baseline.</p>';
+              changesEl.innerHTML = html;
+              changesEl.hidden = false;
+              return;
+            }
+            if (action === 'copy-changes') {
+              var text = formatChangesOutput(diff(baseline, value));
+              copyToClipboard(text, btn, 'Copy changes');
+              return;
+            }
+            if (action === 'copy-full') {
+              copyToClipboard(value, btn, 'Copy full');
+            }
+          });
+        });
+      });
+
+      function escapeHtml(s) {
+        var div = document.createElement('div');
+        div.textContent = s;
+        return div.innerHTML;
+      }
+      function copyToClipboard(text, btn, label) {
+        navigator.clipboard.writeText(text).then(function () {
+          btn.textContent = 'Copied!';
+          setTimeout(function () { btn.textContent = label; }, 2000);
+        }).catch(function () {
+          btn.textContent = 'Copy failed';
+          setTimeout(function () { btn.textContent = label; }, 2000);
+        });
+      }
+
+      document.getElementById('admin-logout').addEventListener('click', function (e) {
+        e.preventDefault();
+        try { localStorage.removeItem('wedding_role'); } catch (err) {}
+        window.location.href = 'login.html';
+      });
+
+      var ul = document.getElementById('site-nav-list');
+      if (ul) {
+        var li = document.createElement('li');
+        var a = document.createElement('a');
+        a.href = 'admin.html';
+        a.textContent = 'Admin';
+        a.setAttribute('aria-current', 'page');
+        li.appendChild(a);
+        ul.appendChild(li);
+      }
+
+      // Guest list & table plan
+      var GUESTLIST_STORAGE_KEY = 'admin_guestlist_draft';
+      var baselineYaml = '';
+      var currentGuests = [];
+
+      var guestlistSearch = document.getElementById('guestlist-search');
+      var guestlistTable = document.getElementById('guestlist-table');
+      var guestlistSort = document.getElementById('guestlist-sort');
+      var guestlistTablePlan = document.getElementById('guestlist-table-plan');
+      var guestlistToggleYaml = document.getElementById('guestlist-toggle-yaml');
+      var guestlistYamlArea = document.getElementById('guestlist-yaml-area');
+      var guestlistYaml = document.getElementById('guestlist-yaml');
+      var guestlistYamlError = document.getElementById('guestlist-yaml-error');
+
+      function loadGuestlistFromText(text) {
+        try {
+          var data = jsyaml.load(text);
+          currentGuests = (data && data.guests) ? data.guests : [];
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+
+      function getTableNumbers() {
+        var tables = {};
+        currentGuests.forEach(function (g) {
+          var t = g.table != null ? String(g.table) : '';
+          if (t) tables[t] = true;
+        });
+        return Object.keys(tables).sort(function (a, b) {
+          var na = Number(a);
+          var nb = Number(b);
+          if (!isNaN(na) && !isNaN(nb)) return na - nb;
+          return a.localeCompare(b);
+        });
+      }
+
+      function filterAndSortGuests() {
+        var search = (guestlistSearch.value || '').trim().toLowerCase();
+        var tableFilter = (guestlistTable.value || '').trim();
+        var sortBy = (guestlistSort.value || 'table');
+        var list = currentGuests.filter(function (g) {
+          if (search) {
+            var name = (g.name != null ? String(g.name) : '').toLowerCase();
+            var party = (g.party != null ? String(g.party) : '').toLowerCase();
+            if (name.indexOf(search) === -1 && party.indexOf(search) === -1) return false;
+          }
+          if (tableFilter && String(g.table) !== tableFilter) return false;
+          return true;
+        });
+        list.sort(function (a, b) {
+          if (sortBy === 'table') {
+            var ta = a.table != null ? String(a.table) : '';
+            var tb = b.table != null ? String(b.table) : '';
+            var na = Number(ta); var nb = Number(tb);
+            if (!isNaN(na) && !isNaN(nb)) return na !== nb ? na - nb : 0;
+            return ta.localeCompare(tb);
+          }
+          if (sortBy === 'party') {
+            var pa = (a.party != null ? String(a.party) : '');
+            var pb = (b.party != null ? String(b.party) : '');
+            return pa.localeCompare(pb) || 0;
+          }
+          var na = (a.name != null ? String(a.name) : '');
+          var nb = (b.name != null ? String(b.name) : '');
+          return na.localeCompare(nb);
+        });
+        return list;
+      }
+
+      function renderTablePlan() {
+        var list = filterAndSortGuests();
+        var byTable = {};
+        list.forEach(function (g) {
+          var t = g.table != null ? String(g.table) : '—';
+          if (!byTable[t]) byTable[t] = [];
+          byTable[t].push(g.name != null ? String(g.name) : '—');
+        });
+        var tableOrder = Object.keys(byTable).sort(function (a, b) {
+          var na = Number(a); var nb = Number(b);
+          if (!isNaN(na) && !isNaN(nb)) return na - nb;
+          return a.localeCompare(b);
+        });
+        var html = '';
+        tableOrder.forEach(function (t) {
+          html += '<div class="guestlist-table-group"><strong>Table ' + escapeHtml(t) + '</strong><ul>';
+          byTable[t].forEach(function (name) {
+            html += '<li>' + escapeHtml(name) + '</li>';
+          });
+          html += '</ul></div>';
+        });
+        guestlistTablePlan.innerHTML = html || '<p>No guests to show.</p>';
+      }
+
+      function refreshGuestlistView() {
+        var tables = getTableNumbers();
+        var sel = guestlistTable;
+        var prev = sel.value;
+        sel.innerHTML = '<option value="">All tables</option>';
+        tables.forEach(function (t) {
+          var opt = document.createElement('option');
+          opt.value = t;
+          opt.textContent = t;
+          sel.appendChild(opt);
+        });
+        if (prev && tables.indexOf(prev) !== -1) sel.value = prev;
+        renderTablePlan();
+      }
+
+      function fetchGuestlistBaseline(cb) {
+        fetch('data/guestlist.yaml')
+          .then(function (r) { return r.text(); })
+          .then(function (text) {
+            baselineYaml = text;
+            var draft;
+            try { draft = localStorage.getItem(GUESTLIST_STORAGE_KEY); } catch (e) { draft = null; }
+            var toUse = (draft !== null && draft !== '') ? draft : text;
+            loadGuestlistFromText(toUse);
+            guestlistYaml.value = toUse;
+            refreshGuestlistView();
+            if (cb) cb();
+          })
+          .catch(function () {
+            baselineYaml = '';
+            currentGuests = [];
+            guestlistYaml.value = 'meta:\n  title: Wedding guest list\nguests: []';
+            guestlistTablePlan.innerHTML = '<p>Could not load guest list. Check data/guestlist.yaml.</p>';
+            if (cb) cb();
+          });
+      }
+
+      [guestlistSearch, guestlistTable, guestlistSort].forEach(function (el) {
+        if (el) el.addEventListener('input', renderTablePlan);
+        if (el) el.addEventListener('change', renderTablePlan);
+      });
+
+      guestlistToggleYaml.addEventListener('click', function () {
+        var show = guestlistYamlArea.hidden;
+        guestlistYamlArea.hidden = !show;
+        guestlistToggleYaml.textContent = show ? 'Hide YAML' : 'Edit YAML';
+      });
+
+      document.getElementById('guestlist-validate').addEventListener('click', function () {
+        var text = guestlistYaml.value;
+        guestlistYamlError.hidden = true;
+        try {
+          jsyaml.load(text);
+          guestlistYamlError.textContent = 'Valid YAML.';
+          guestlistYamlError.hidden = false;
+          guestlistYamlError.className = 'guestlist-yaml-ok';
+          setTimeout(function () { guestlistYamlError.hidden = true; }, 2000);
+        } catch (e) {
+          guestlistYamlError.textContent = e.message || 'Invalid YAML';
+          guestlistYamlError.className = 'code-error';
+          guestlistYamlError.hidden = false;
+        }
+      });
+
+      document.getElementById('guestlist-save-draft').addEventListener('click', function () {
+        try {
+          localStorage.setItem(GUESTLIST_STORAGE_KEY, guestlistYaml.value);
+          loadGuestlistFromText(guestlistYaml.value);
+          refreshGuestlistView();
+          this.textContent = 'Saved';
+          var btn = this;
+          setTimeout(function () { btn.textContent = 'Save draft'; }, 1500);
+        } catch (e) {}
+      });
+
+      document.getElementById('guestlist-copy-yaml').addEventListener('click', function () {
+        navigator.clipboard.writeText(guestlistYaml.value).then(function () {
+          this.textContent = 'Copied!';
+          var btn = this;
+          setTimeout(function () { btn.textContent = 'Copy YAML'; }, 2000);
+        }.bind(this)).catch(function () {
+          this.textContent = 'Copy failed';
+          var btn = this;
+          setTimeout(function () { btn.textContent = 'Copy YAML'; }, 2000);
+        }.bind(this));
+      });
+
+      document.getElementById('guestlist-reset-draft').addEventListener('click', function () {
+        try { localStorage.removeItem(GUESTLIST_STORAGE_KEY); } catch (e) {}
+        guestlistYaml.value = baselineYaml || '';
+        loadGuestlistFromText(guestlistYaml.value);
+        refreshGuestlistView();
+        guestlistYamlError.hidden = true;
+      });
+
+      fetchGuestlistBaseline();
+    })();
+  </script>
+</body>
+</html>

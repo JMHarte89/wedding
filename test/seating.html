@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Find your seat — wedding seating. Test site.">
+  <title>Find your seat — Jason &amp; Rebecca (Test)</title>
+  <link rel="stylesheet" href="../styles.css">
+  <script src="auth.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="site-nav" aria-label="Main">
+      <ul id="site-nav-list">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="itinerary.html">Itinerary</a></li>
+        <li><a href="travel.html">Travel</a></li>
+        <li><a href="faq.html">FAQ</a></li>
+        <li><a href="seating.html" aria-current="page">Seating</a></li>
+        <li><a href="rsvp.html">RSVP</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section class="page-heading">
+      <h1>Find your seat</h1>
+      <p>Enter your name to see your table and seat.</p>
+    </section>
+
+    <section class="content-section seating-search">
+      <form id="seating-form">
+        <label for="seating-name" class="visually-hidden">Your name</label>
+        <input type="text" id="seating-name" name="name" inputmode="text" autocomplete="name" placeholder="Your name" required>
+        <button type="submit" class="book-link">Find</button>
+      </form>
+    </section>
+
+    <div id="seating-result" class="seating-result" role="region" aria-live="polite" hidden></div>
+  </main>
+
+  <footer>
+    <p>More details to follow</p>
+    <p class="year">2026</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+  <script>
+    (function () {
+      var form = document.getElementById('seating-form');
+      var input = document.getElementById('seating-name');
+      var resultEl = document.getElementById('seating-result');
+      var guests = [];
+
+      function loadGuestlist(cb) {
+        if (guests.length) { cb(); return; }
+        fetch('data/guestlist.yaml')
+          .then(function (r) { return r.text(); })
+          .then(function (text) {
+            var data = jsyaml.load(text);
+            guests = (data && data.guests) ? data.guests : [];
+            cb();
+          })
+          .catch(function () {
+            guests = [];
+            cb();
+          });
+      }
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var q = (input.value || '').trim();
+        resultEl.hidden = true;
+        resultEl.innerHTML = '';
+        if (!q) return;
+
+        loadGuestlist(function () {
+          var match = null;
+          for (var i = 0; i < guests.length; i++) {
+            var g = guests[i];
+            var name = (g && g.name) ? String(g.name).trim() : '';
+            if (name && name.toLowerCase().indexOf(q.toLowerCase()) !== -1) {
+              match = g;
+              break;
+            }
+          }
+          if (match) {
+            var table = match.table != null ? String(match.table) : '';
+            var seat = match.seat != null && match.seat !== '' ? String(match.seat) : null;
+            var msg = 'Table ' + (table || '—');
+            if (seat) msg += ', Seat ' + seat;
+            resultEl.textContent = msg;
+            resultEl.className = 'seating-result seating-result-found';
+          } else {
+            resultEl.textContent = 'We couldn’t find a match for that name. Please try again or check the spelling.';
+            resultEl.className = 'seating-result seating-result-none';
+          }
+          resultEl.hidden = false;
+        });
+      });
+
+      if (localStorage.getItem('wedding_role') === 'admin') {
+        var ul = document.getElementById('site-nav-list');
+        if (ul) {
+          var li = document.createElement('li');
+          var a = document.createElement('a');
+          a.href = 'admin.html';
+          a.textContent = 'Admin';
+          li.appendChild(a);
+          ul.appendChild(li);
+        }
+      }
+    })();
+  </script>
+</body>
+</html>

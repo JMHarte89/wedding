@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="RSVP — Jason Harte &amp; Rebecca Blackshaw wedding. Test site.">
+  <title>RSVP — Jason &amp; Rebecca (Test)</title>
+  <link rel="stylesheet" href="../styles.css">
+  <script src="auth.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="site-nav" aria-label="Main">
+      <ul id="site-nav-list">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="itinerary.html">Itinerary</a></li>
+        <li><a href="travel.html">Travel</a></li>
+        <li><a href="faq.html">FAQ</a></li>
+        <li><a href="seating.html">Seating</a></li>
+        <li><a href="rsvp.html" aria-current="page">RSVP</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section class="page-heading">
+      <h1>RSVP</h1>
+      <p class="rsvp-deadline">Please RSVP by 30 April 2026.</p>
+    </section>
+
+    <section class="content-section rsvp-intro">
+      <p>We’d love to know if you can join us. The form will ask for your name, phone number, email, and whether you can attend.</p>
+      <p><a href="https://docs.google.com/forms/d/e/1FAIpQLScMNlUwFgbeQyC2KtSvK8oRttnNdYwa7HwYbnJrGpLyGTUIQw/viewform?usp=publish-editor" class="rsvp-btn">Open RSVP form</a></p>
+    </section>
+
+    <!-- Optional embed placeholder for later: [GOOGLE_FORM_IFRAME] -->
+
+    <p class="rsvp-privacy">We’ll only use your details for wedding communications.</p>
+  </main>
+
+  <footer>
+    <p>More details to follow</p>
+    <p class="year">2026</p>
+  </footer>
+  <script>
+    (function(){ if (localStorage.getItem('wedding_role') !== 'admin') return; var ul = document.getElementById('site-nav-list'); if (!ul) return; var li = document.createElement('li'); var a = document.createElement('a'); a.href = 'admin.html'; a.textContent = 'Admin'; li.appendChild(a); ul.appendChild(li); })();
+  </script>
+</body>
+</html>

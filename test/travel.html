@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Where to stay — hotels in Kendal and nearby for our wedding. Test site.">
+  <title>Travel &amp; stay — Jason &amp; Rebecca (Test)</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <script src="auth.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="site-nav" aria-label="Main">
+      <ul id="site-nav-list">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="itinerary.html">Itinerary</a></li>
+        <li><a href="travel.html" aria-current="page">Travel</a></li>
+        <li><a href="faq.html">FAQ</a></li>
+        <li><a href="seating.html">Seating</a></li>
+        <li><a href="rsvp.html">RSVP</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section class="page-heading">
+      <h1>Travel &amp; stay</h1>
+      <p>Some places we recommend in and around Kendal. Book early for August.</p>
+    </section>
+
+    <section class="content-section" aria-labelledby="map-heading">
+      <h2 id="map-heading">Map</h2>
+      <div class="map-quick-nav" aria-label="Quick map views">
+        <button type="button" data-map-focus="church">Church</button>
+        <button type="button" data-map-focus="church_parking">Church parking</button>
+        <button type="button" data-map-focus="venue">The Venue</button>
+        <button type="button" data-map-focus="venue_parking">Venue parking</button>
+      </div>
+      <div id="wedding-map" class="leaflet-map" data-places-url="../data/places.json" aria-label="Wedding map"></div>
+      <p><a class="map-fullscreen" href="#wedding-map">View full screen map</a></p>
+      <p class="map-legend">⛪ Ceremony · 🥂 Venue · 🅿️ Parking · 🛏️ Hotels · ⛺ Camping</p>
+      <p class="map-instructions">Tap a marker to see details and booking links. Availability changes quickly — please use the booking link to check rooms for the weekend.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>More details to follow</p>
+    <p class="year">2026</p>
+  </footer>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="../js/map.js"></script>
+  <script>
+    (function(){ if (localStorage.getItem('wedding_role') !== 'admin') return; var ul = document.getElementById('site-nav-list'); if (!ul) return; var li = document.createElement('li'); var a = document.createElement('a'); a.href = 'admin.html'; a.textContent = 'Admin'; li.appendChild(a); ul.appendChild(li); })();
+  </script>
+</body>
+</html>
