@@ -11,6 +11,10 @@
     console.log('map.js loaded', window.__WEDDING_MAP_JS_LOADED__, typeof location !== 'undefined' ? location.href : '');
   }
 
+  var KENDAL_CENTRE = [54.3269, -2.7476];
+  var DEFAULT_ZOOM = 13;
+  var FOCUS_ZOOM = 15;
+
   var debugMode = typeof window !== 'undefined' && window.location && window.location.search.indexOf('debug=1') !== -1;
   var debugBannerEl = null;
   var firstRuntimeErrorShown = false;
