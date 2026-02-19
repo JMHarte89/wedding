@@ -6,14 +6,14 @@
 (function () {
   'use strict';
 
-  window.__WEDDING_MAP_JS_LOADED__ = '20260219c';
+  const KENDAL_CENTRE = [54.3269, -2.7476];
+  const DEFAULT_ZOOM = 13;
+  const FOCUS_ZOOM = 15;
+
+  window.__WEDDING_MAP_JS_LOADED__ = '20260219d';
   if (typeof console !== 'undefined' && console.log) {
     console.log('map.js loaded', window.__WEDDING_MAP_JS_LOADED__, typeof location !== 'undefined' ? location.href : '');
   }
-
-  var KENDAL_CENTRE = [54.3269, -2.7476];
-  var DEFAULT_ZOOM = 13;
-  var FOCUS_ZOOM = 15;
 
   var debugMode = typeof window !== 'undefined' && window.location && window.location.search.indexOf('debug=1') !== -1;
   var debugBannerEl = null;
@@ -30,7 +30,7 @@
     banner.id = 'map-debug-banner';
     banner.className = 'map-debug-banner';
     banner.setAttribute('aria-live', 'polite');
-    banner.textContent = 'Map debug active — build 20260219c';
+    banner.textContent = 'Map debug active — build 20260219d';
     body.insertBefore(banner, body.firstChild);
     debugBannerEl = banner;
   }
