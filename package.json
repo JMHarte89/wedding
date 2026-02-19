@@ -1,0 +1,11 @@
+{
+  "name": "wedding-site",
+  "private": true,
+  "devDependencies": {
+    "staticrypt": "^3.0.0"
+  },
+  "scripts": {
+    "salt": "staticrypt --salt",
+    "encrypt": "staticrypt index.source.html -d encrypted --remember false --short --template-title \"Jason & Rebecca\" --template-instructions \"Enter the passphrase\" && node scripts/copy-encrypted.js"
+  }
+}

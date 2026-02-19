@@ -9,3 +9,9 @@ Thumbs.db
 
 Photos/
 
+# Node / Staticrypt
+node_modules/
+encrypted/
+index.source.html
+.env
+
