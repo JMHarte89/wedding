@@ -61,7 +61,7 @@
     return R * c;
   }
 
-  var MAP_ERROR_MSG = 'Map failed to load. Please refresh, or open Google Maps links from the list below.';
+  var MAP_ERROR_MSG = 'Map failed to load. Please refresh, or use \'View full screen map\'.';
 
   function showMapError(container, err, debugInfo) {
     if (!container) return;
@@ -192,8 +192,10 @@
     var venueCoords = null;
 
     places.forEach(function (p) {
-      if (p.key === 'venue' && typeof p.lat === 'number' && typeof p.lng === 'number') {
-        venueCoords = [p.lat, p.lng];
+      if (p.key === 'venue') {
+        var vLat = Number(p.lat);
+        var vLng = Number(p.lng);
+        if (Number.isFinite(vLat) && Number.isFinite(vLng)) venueCoords = [vLat, vLng];
       }
     });
 
@@ -235,42 +237,89 @@
       }
     }
 
+    var validLayerIds = new Set();
     layers.forEach(function (layer) {
       var group = L.layerGroup();
       layerMap[layer.id] = { group: group, label: layer.label, emoji: layer.emoji || '' };
+      validLayerIds.add(layer.id);
       group.addTo(map);
     });
+    var fallbackLayerId = layerMap.hotels ? 'hotels' : (layers[0] && layers[0].id) || 'hotels';
+    if (!layerMap[fallbackLayerId]) {
+      var otherGroup = L.layerGroup();
+      layerMap.other = { group: otherGroup, label: 'Other', emoji: '📍' };
+      otherGroup.addTo(map);
+      fallbackLayerId = 'other';
+    }
 
     var bounds = [];
-    places.forEach(function (place) {
-      var lat = place.lat;
-      var lng = place.lng;
-      if (typeof lat !== 'number' || typeof lng !== 'number') return;
+    var markersAdded = 0;
+    var markersSkipped = 0;
+    var markerErrorCount = 0;
+    var markerErrors = [];
+    var layerFallbacks = 0;
 
-      var layerInfo = layerMap[place.layer];
+    places.forEach(function (place) {
+      var layerId = place.layer;
+      if (!layerId || !validLayerIds.has(layerId)) {
+        layerId = fallbackLayerId;
+        layerFallbacks += 1;
+      }
+      var layerInfo = layerMap[layerId];
       if (!layerInfo) return;
 
-      var emoji = layerInfo.emoji;
-      var iconClass = 'wedding-marker';
-      if (place.priority) iconClass += ' wedding-marker-priority';
-      var size = place.priority ? 40 : 32;
-      var icon = L.divIcon({
-        className: iconClass,
-        html: '<span class="wedding-marker-emoji">' + (emoji || '📍') + '</span>',
-        iconSize: [size, size],
-        iconAnchor: [size / 2, size]
-      });
+      var lat = Number(place.lat);
+      var lng = Number(place.lng);
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        markersSkipped += 1;
+        return;
+      }
 
-      var popupContent = buildPopupContent(place, venueCoords);
-      var marker = L.marker([lat, lng], { icon: icon })
-        .bindPopup(popupContent)
-        .addTo(layerInfo.group);
-      bounds.push([lat, lng]);
-
-      if (place.key) {
-        markersByKey[place.key] = { marker: marker, lat: lat, lng: lng };
+      try {
+        var emoji = layerInfo.emoji;
+        var iconClass = 'wedding-marker';
+        if (place.priority) iconClass += ' wedding-marker-priority';
+        var size = place.priority ? 40 : 32;
+        var icon = L.divIcon({
+          className: iconClass,
+          html: '<span class="wedding-marker-emoji">' + (emoji || '📍') + '</span>',
+          iconSize: [size, size],
+          iconAnchor: [size / 2, size]
+        });
+        var popupContent = buildPopupContent(place, venueCoords);
+        var marker = L.marker([lat, lng], { icon: icon })
+          .bindPopup(popupContent)
+          .addTo(layerInfo.group);
+        bounds.push([lat, lng]);
+        markersAdded += 1;
+        if (place.key) {
+          markersByKey[place.key] = { marker: marker, lat: lat, lng: lng };
+        }
+      } catch (err) {
+        markerErrorCount += 1;
+        var reason = (err && err.message) ? err.message : String(err);
+        if (markerErrors.length < 3) {
+          markerErrors.push({ name: place.name || '—', reason: reason.slice(0, 80) });
+        }
       }
     });
+
+    if (isDebug()) {
+      var preEl = container.parentNode && container.parentNode.querySelector('.map-debug-panel pre');
+      if (preEl) {
+        var extra = [
+          'Markers added: ' + markersAdded,
+          'Markers skipped: ' + markersSkipped,
+          'Marker errors: ' + markerErrorCount
+        ];
+        if (markerErrors.length > 0) {
+          for (var i = 0; i < markerErrors.length; i += 1) {
+            extra.push('- ' + (markerErrors[i].name || '—') + ': ' + (markerErrors[i].reason || '—'));
+          }
+        }
+        preEl.textContent = preEl.textContent + '\n' + extra.join('\n');
+      }
+    }
 
     window._weddingMapMarkersByKey = markersByKey;
 
@@ -285,6 +334,9 @@
         overlays[layer.emoji + ' ' + layer.label] = info.group;
       }
     });
+    if (layerMap.other && layerMap.other.group) {
+      overlays[layerMap.other.emoji + ' ' + layerMap.other.label] = layerMap.other.group;
+    }
     L.control.layers(null, overlays, { collapsed: true }).addTo(map);
   }
 
