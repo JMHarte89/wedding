@@ -297,31 +297,6 @@ input[type="button"]:focus-visible,
   gap: 0.6rem;
 }
 
-/* Calendar button group — stack on small screens, inline on desktop */
-.calendar-btn-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-@media (max-width: 480px) {
-  .calendar-btn-group {
-    flex-basis: 100%;
-    flex-direction: column;
-  }
-  .calendar-btn-group .btn {
-    width: 100%;
-  }
-}
-.calendar-btn-group .btn:focus-visible {
-  outline: var(--focus-ring);
-  outline-offset: var(--focus-offset);
-}
-.calendar-helper {
-  margin: 0.5rem 0 0;
-  font-size: var(--text-sm);
-  color: var(--muted-2);
-}
-
 .subtle {
   margin-top: var(--space);
   color: var(--muted-2);
