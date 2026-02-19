@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  window.__WEDDING_MAP_JS_LOADED__ = '20260219b';
+  window.__WEDDING_MAP_JS_LOADED__ = '20260219c';
   if (typeof console !== 'undefined' && console.log) {
     console.log('map.js loaded', window.__WEDDING_MAP_JS_LOADED__, typeof location !== 'undefined' ? location.href : '');
   }
@@ -26,7 +26,7 @@
     banner.id = 'map-debug-banner';
     banner.className = 'map-debug-banner';
     banner.setAttribute('aria-live', 'polite');
-    banner.textContent = 'Map debug active — build 20260219b';
+    banner.textContent = 'Map debug active — build 20260219c';
     body.insertBefore(banner, body.firstChild);
     debugBannerEl = banner;
   }
@@ -87,8 +87,8 @@
     var stageStr = typeof stageOrInfo === 'string' ? stageOrInfo : (stageOrInfo && stageOrInfo.stage);
     var info = typeof stageOrInfo === 'object' && stageOrInfo ? stageOrInfo : {};
     if (isDebug()) {
-      msg += '\nDebug error: ' + (err && (err.name || 'Error')) + ': ' + (err && (err.message || String(err)));
       msg += '\nStage: ' + (stageStr || info.stage || '—');
+      msg += '\nDebug error: ' + (err != null ? String(err) : '—');
       if (err && err.stack) {
         var firstLine = err.stack.split('\n')[0];
         if (firstLine) msg += '\n' + firstLine.trim();
