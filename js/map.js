@@ -382,7 +382,7 @@
           icon = churchIcon;
           markerOptions.zIndexOffset = 1000;
           markerOptions.riseOnHover = true;
-        } else if (place.key === 'church_parking' || place.key === 'venue_parking') {
+        } else if (place.key === 'church_parking' || place.key === 'venue_parking' || place.key === 'county_hall') {
           icon = parkingIcon;
           markerOptions.zIndexOffset = 900;
           markerOptions.riseOnHover = true;
@@ -462,6 +462,9 @@
   function buildPopupContent(place, venueCoords) {
     var parts = ['<strong>' + escapeHtml(place.name) + '</strong>'];
     if (place.note) parts.push('<br>' + escapeHtml(place.note));
+    if (place.key === 'venue_parking') {
+      parts.push('<div class="popup-muted">Parking is limited.</div>');
+    }
 
     var facts = [];
     if (typeof place.stars === 'number') facts.push('Star rating: ' + place.stars + '-star');
