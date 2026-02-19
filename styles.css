@@ -520,6 +520,19 @@ footer a:focus-visible {
 }
 
 .map-legend { margin: 0.5em 0 0; font-size: var(--text-sm); color: var(--muted); }
+/* Legend uses same pin styling as map markers; scaled down for inline legend */
+.map-legend__pin.map-pin {
+  width: 1.25em;
+  height: 1.25em;
+  font-size: 0.7em;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 0.15em;
+}
+.map-legend__pin.map-pin::after {
+  inset: -3px;
+  box-shadow: 0 0 0 2px rgba(26, 26, 26, 0.12);
+}
 
 .leaflet-popup-content .popup-facts { margin: 0.5em 0; padding-left: 1.25em; font-size: var(--text-sm); color: var(--muted); }
 .leaflet-popup-content .popup-facts li { margin-bottom: 0.2em; }
