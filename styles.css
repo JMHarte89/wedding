@@ -1219,3 +1219,83 @@ section:first-of-type{
   padding: var(--s4);
   color: var(--text);
 }
+
+/* ------------------------------------------------------------
+   Leaflet marker polish (church / parking / venue)
+------------------------------------------------------------ */
+
+/* Remove Leaflet's default white square for divIcons */
+.leaflet-div-icon.map-pin-icon {
+  background: transparent;
+  border: 0;
+}
+
+/* Base pin */
+.map-pin {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: 0 2px 10px rgba(0,0,0,.18);
+  position: relative;
+  user-select: none;
+}
+
+/* Halo ring to help it pop on busy map tiles */
+.map-pin::after {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  border-radius: 999px;
+  box-shadow: 0 0 0 6px rgba(17, 24, 39, 0.14);
+  pointer-events: none;
+}
+
+/* Variants (neutral palette, strong contrast) */
+.map-pin--church {
+  background: #ffffff;
+  color: #111827;
+  border: 2px solid #111827;
+}
+
+.map-pin--venue {
+  background: #111827;
+  color: #ffffff;
+  border: 2px solid #111827;
+}
+
+.map-pin--parking {
+  background: #ffffff;
+  color: #111827;
+  border: 2px dashed #111827;
+}
+
+/* De-clash when parking shares exact coordinates with church */
+.map-pin--parking {
+  transform: translate(12px, -12px);
+}
+
+/* Slightly bolder buttons/links (more distinct without bright colours) */
+.btn, .button, button, input[type="submit"], input[type="button"] {
+  font-weight: 600;
+}
+
+.btn-secondary, .button.secondary {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+.btn-secondary:hover, .button.secondary:hover {
+  background: #f3f4f6;
+  border-color: #cbd5e1;
+}
+
+/* If you have a small page-to-page nav row, this makes it wrap nicely */
+.page-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+  margin: 1rem 0;
+}
