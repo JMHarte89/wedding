@@ -339,6 +339,19 @@
       fallbackLayerId = 'other';
     }
 
+    function makePin(variant, label) {
+      return L.divIcon({
+        className: 'map-pin-icon',
+        html: '<div class="map-pin map-pin--' + variant + '">' + escapeHtml(label) + '</div>',
+        iconSize: [42, 42],
+        iconAnchor: [21, 21],
+        popupAnchor: [0, -18]
+      });
+    }
+    var churchIcon = makePin('church', 'C');
+    var parkingIcon = makePin('parking', 'P');
+    var venueIcon = makePin('venue', 'V');
+
     var bounds = [];
     var markersAdded = 0;
     var markersSkipped = 0;
@@ -363,18 +376,35 @@
       }
 
       try {
-        var emoji = layerInfo.emoji;
-        var iconClass = 'wedding-marker';
-        if (place.priority) iconClass += ' wedding-marker-priority';
-        var size = place.priority ? 40 : 32;
-        var icon = L.divIcon({
-          className: iconClass,
-          html: '<span class="wedding-marker-emoji">' + (emoji || '📍') + '</span>',
-          iconSize: [size, size],
-          iconAnchor: [size / 2, size]
-        });
+        var icon;
+        var markerOptions = {};
+        if (place.key === 'church') {
+          icon = churchIcon;
+          markerOptions.zIndexOffset = 1000;
+          markerOptions.riseOnHover = true;
+        } else if (place.key === 'church_parking' || place.key === 'venue_parking') {
+          icon = parkingIcon;
+          markerOptions.zIndexOffset = 900;
+          markerOptions.riseOnHover = true;
+        } else if (place.key === 'venue') {
+          icon = venueIcon;
+          markerOptions.zIndexOffset = 950;
+          markerOptions.riseOnHover = true;
+        } else {
+          var emoji = layerInfo.emoji;
+          var iconClass = 'wedding-marker';
+          if (place.priority) iconClass += ' wedding-marker-priority';
+          var size = place.priority ? 40 : 32;
+          icon = L.divIcon({
+            className: iconClass,
+            html: '<span class="wedding-marker-emoji">' + (emoji || '📍') + '</span>',
+            iconSize: [size, size],
+            iconAnchor: [size / 2, size]
+          });
+        }
+        markerOptions.icon = icon;
         var popupContent = buildPopupContent(place, venueCoords);
-        var marker = L.marker([lat, lng], { icon: icon })
+        var marker = L.marker([lat, lng], markerOptions)
           .bindPopup(popupContent)
           .addTo(layerInfo.group);
         bounds.push([lat, lng]);
