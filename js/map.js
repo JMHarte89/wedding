@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  window.__WEDDING_MAP_JS_LOADED__ = '20260219a';
+  window.__WEDDING_MAP_JS_LOADED__ = '20260219b';
   if (typeof console !== 'undefined' && console.log) {
     console.log('map.js loaded', window.__WEDDING_MAP_JS_LOADED__, typeof location !== 'undefined' ? location.href : '');
   }
@@ -26,7 +26,7 @@
     banner.id = 'map-debug-banner';
     banner.className = 'map-debug-banner';
     banner.setAttribute('aria-live', 'polite');
-    banner.textContent = 'Map debug active — build 20260219a';
+    banner.textContent = 'Map debug active — build 20260219b';
     body.insertBefore(banner, body.firstChild);
     debugBannerEl = banner;
   }
