@@ -18,21 +18,42 @@
     return R * c;
   }
 
+  var MAP_ERROR_MSG = 'Map failed to load. Please refresh, or open Google Maps links from the list below.';
+
+  function showMapError(container, err) {
+    if (!container) return;
+    console.error('map.js: Failed to load map:', err);
+    container.textContent = MAP_ERROR_MSG;
+    container.classList.add('map-load-error');
+  }
+
   function initMap() {
     var container = document.getElementById('wedding-map');
     if (!container) return;
 
+    if (typeof L === 'undefined') {
+      showMapError(container, new Error('Leaflet (L) is not defined. Check that Leaflet JS loads before map.js.'));
+      return;
+    }
+
     var placesUrl = container.getAttribute('data-places-url');
-    if (!placesUrl) return;
+    if (!placesUrl) {
+      showMapError(container, new Error('No data-places-url on map container'));
+      return;
+    }
 
     fetch(placesUrl)
-      .then(function (r) { return r.json(); })
+      .then(function (r) {
+        if (!r.ok) throw new Error('Fetch failed: ' + r.status + ' ' + r.statusText);
+        return r.json();
+      })
       .then(function (data) {
+        if (!data || !Array.isArray(data.places)) throw new Error('Invalid places data');
         renderMap(container, data);
         bindQuickNav(data);
       })
       .catch(function (err) {
-        console.error('map.js: Failed to load places:', err);
+        showMapError(container, err);
       });
   }
 

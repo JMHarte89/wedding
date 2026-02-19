@@ -232,6 +232,16 @@ footer .year {
 }
 
 /* Map (shared by root and test pages) */
+.travel-reco {
+  margin: 0 0 0.75em;
+  padding: var(--space);
+  line-height: 1.5;
+  font-weight: normal;
+  color: var(--text);
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: var(--radius);
+}
+
 .map-quick-nav {
   display: flex;
   flex-wrap: wrap;
@@ -263,6 +273,18 @@ footer .year {
   margin: 0.5em 0 0;
   font-size: 0.9rem;
   color: var(--text-muted);
+}
+
+.map-load-error {
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space);
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  text-align: center;
+  background: var(--card-bg);
 }
 
 .leaflet-map {
