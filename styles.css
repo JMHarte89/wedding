@@ -534,6 +534,15 @@ footer a:focus-visible {
   box-shadow: 0 0 0 2px rgba(26, 26, 26, 0.12);
 }
 
+.map-legend__box.map-box {
+  width: 1.25em;
+  height: 1.25em;
+  font-size: 0.7em;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 0.15em;
+}
+
 .leaflet-popup-content .popup-facts { margin: 0.5em 0; padding-left: 1.25em; font-size: var(--text-sm); color: var(--muted); }
 .leaflet-popup-content .popup-facts li { margin-bottom: 0.2em; }
 .leaflet-popup-content .popup-muted {
@@ -584,11 +593,28 @@ footer a:focus-visible {
   border: 2px solid #1a1a1a;
 }
 
-.map-pin--parking {
-  background: #ffffff;
-  color: #1a1a1a;
-  border: 2px dashed #1a1a1a;
-  transform: translate(12px, -12px);
+/* Parking: blue square box (all parking markers use "P") */
+.leaflet-div-icon.map-box-icon {
+  background: transparent;
+  border: 0;
+}
+
+.map-box {
+  width: 42px;
+  height: 42px;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+  user-select: none;
+}
+
+.map-box--parking {
+  background: #2563eb;
+  color: #ffffff;
+  border: 2px solid #1e40af;
 }
 
 /* ------------------------------------------------------------

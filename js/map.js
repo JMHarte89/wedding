@@ -348,9 +348,18 @@
         popupAnchor: [0, -18]
       });
     }
+    function makeBox(variant, label) {
+      return L.divIcon({
+        className: 'map-box-icon',
+        html: '<div class="map-box map-box--' + variant + '">' + escapeHtml(label) + '</div>',
+        iconSize: [42, 42],
+        iconAnchor: [21, 21],
+        popupAnchor: [0, -18]
+      });
+    }
     var churchIcon = makePin('church', 'C');
-    var parkingIcon = makePin('parking', 'P');
     var venueIcon = makePin('venue', 'V');
+    var parkingIcon = makeBox('parking', 'P');
 
     var bounds = [];
     var markersAdded = 0;
