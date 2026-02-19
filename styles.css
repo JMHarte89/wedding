@@ -287,6 +287,17 @@ footer .year {
   background: var(--card-bg);
 }
 
+.map-debug-banner {
+  padding: 0.5em var(--space);
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--text);
+  background: #f0e6d8;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .map-debug-panel {
   margin-bottom: 0.75em;
   padding: var(--space);

@@ -4,9 +4,47 @@
  * Add ?debug=1 to the page URL to show a diagnostics panel above the map.
  */
 (function () {
-  var KENDAL_CENTRE = [54.3269, -2.7476];
-  var DEFAULT_ZOOM = 13;
-  var FOCUS_ZOOM = 17;
+  'use strict';
+
+  window.__WEDDING_MAP_JS_LOADED__ = '20260219a';
+  if (typeof console !== 'undefined' && console.log) {
+    console.log('map.js loaded', window.__WEDDING_MAP_JS_LOADED__, typeof location !== 'undefined' ? location.href : '');
+  }
+
+  var debugMode = typeof window !== 'undefined' && window.location && window.location.search.indexOf('debug=1') !== -1;
+  var debugBannerEl = null;
+  var firstRuntimeErrorShown = false;
+
+  function ensureDebugBanner() {
+    if (!debugMode || debugBannerEl) return;
+    var body = document.body;
+    if (!body) {
+      document.addEventListener('DOMContentLoaded', ensureDebugBanner);
+      return;
+    }
+    var banner = document.createElement('div');
+    banner.id = 'map-debug-banner';
+    banner.className = 'map-debug-banner';
+    banner.setAttribute('aria-live', 'polite');
+    banner.textContent = 'Map debug active — build 20260219a';
+    body.insertBefore(banner, body.firstChild);
+    debugBannerEl = banner;
+  }
+
+  if (debugMode) {
+    ensureDebugBanner();
+    window.addEventListener('error', function (e) {
+      if (firstRuntimeErrorShown || !debugBannerEl) return;
+      firstRuntimeErrorShown = true;
+      debugBannerEl.textContent = debugBannerEl.textContent + '\nRuntime error: ' + (e.message || String(e));
+    });
+    window.addEventListener('unhandledrejection', function (e) {
+      if (firstRuntimeErrorShown || !debugBannerEl) return;
+      firstRuntimeErrorShown = true;
+      var msg = (e.reason && (e.reason.message || e.reason)) || 'Unhandled promise rejection';
+      debugBannerEl.textContent = debugBannerEl.textContent + '\nRuntime error: ' + String(msg).slice(0, 200);
+    });
+  }
 
   function isDebug() {
     return typeof window !== 'undefined' && window.location && window.location.search.indexOf('debug=1') !== -1;
