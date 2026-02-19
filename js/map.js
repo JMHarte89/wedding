@@ -225,6 +225,16 @@
     setTimeout(function () { map.invalidateSize(); }, 250);
     window.addEventListener('resize', function () { map.invalidateSize(); });
 
+    if (isDebug()) {
+      var debugPreEl = container.parentNode && container.parentNode.querySelector('.map-debug-panel pre');
+      if (debugPreEl) {
+        var w = container.offsetWidth;
+        var h = container.offsetHeight;
+        var leafletPresent = map.getContainer() ? 'yes' : 'no';
+        debugPreEl.textContent = debugPreEl.textContent + '\nMap container size: ' + w + 'x' + h + '\nLeaflet container present: ' + leafletPresent;
+      }
+    }
+
     layers.forEach(function (layer) {
       var group = L.layerGroup();
       layerMap[layer.id] = { group: group, label: layer.label, emoji: layer.emoji || '' };

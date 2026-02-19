@@ -324,6 +324,14 @@ footer .year {
   background: var(--card-bg);
 }
 
+/* Leaflet compatibility: prevent global img rules breaking map tiles */
+.leaflet-container img {
+  max-width: none !important;
+}
+.leaflet-container .leaflet-tile {
+  max-width: none !important;
+}
+
 @media (max-width: 480px) {
   .leaflet-map {
     height: 360px;
