@@ -287,6 +287,23 @@ footer .year {
   background: var(--card-bg);
 }
 
+.map-debug-panel {
+  margin-bottom: 0.75em;
+  padding: var(--space);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--text-muted);
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: var(--radius);
+  overflow-x: auto;
+}
+
+.map-debug-panel pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
 .leaflet-map {
   width: 100%;
   height: 420px;

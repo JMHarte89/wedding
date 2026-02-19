@@ -1,11 +1,16 @@
 /**
  * Wedding map — Leaflet-based map with layer toggles and quick navigation.
  * Loads places from data-places-url on the container element.
+ * Add ?debug=1 to the page URL to show a diagnostics panel above the map.
  */
 (function () {
   var KENDAL_CENTRE = [54.3269, -2.7476];
   var DEFAULT_ZOOM = 13;
   var FOCUS_ZOOM = 17;
+
+  function isDebug() {
+    return typeof window !== 'undefined' && window.location && window.location.search.indexOf('debug=1') !== -1;
+  }
 
   function haversine(lat1, lng1, lat2, lng2) {
     var R = 3958.8; // miles
@@ -20,11 +25,32 @@
 
   var MAP_ERROR_MSG = 'Map failed to load. Please refresh, or open Google Maps links from the list below.';
 
-  function showMapError(container, err) {
+  function showMapError(container, err, debugInfo) {
     if (!container) return;
     console.error('map.js: Failed to load map:', err);
-    container.textContent = MAP_ERROR_MSG;
+    var msg = MAP_ERROR_MSG;
+    if (isDebug() && debugInfo) {
+      msg += ' [Debug: ' + (debugInfo.status !== undefined ? 'status ' + debugInfo.status : '') + (debugInfo.contentType ? '; content-type ' + debugInfo.contentType : '') + ']';
+    }
+    container.textContent = msg;
     container.classList.add('map-load-error');
+  }
+
+  function renderDebugPanel(container, data) {
+    if (!isDebug() || !container || !container.parentNode) return;
+    var wrap = document.createElement('div');
+    wrap.className = 'map-debug-panel';
+    wrap.setAttribute('aria-live', 'polite');
+    var lines = [
+      'Leaflet loaded? ' + (typeof L !== 'undefined' ? 'yes' : 'no'),
+      'places.json URL: ' + (container.getAttribute('data-places-url') || '—'),
+      'Fetch: ' + (data.fetchStatus !== undefined ? data.fetchStatus : '—'),
+      'Content-Type: ' + (data.contentType !== undefined ? data.contentType : '—'),
+      'JSON parse: ' + (data.jsonOk === true ? 'ok' : data.jsonOk === false ? 'failed' : '—'),
+      'Places loaded: ' + (typeof data.placeCount === 'number' ? data.placeCount : '—')
+    ];
+    wrap.innerHTML = '<pre>' + lines.map(function (s) { return escapeHtml(s); }).join('\n') + '</pre>';
+    container.parentNode.insertBefore(wrap, container);
   }
 
   function initMap() {
@@ -42,18 +68,59 @@
       return;
     }
 
+    if (isDebug()) {
+      renderDebugPanel(container, {
+        fetchStatus: 'pending',
+        contentType: '—',
+        jsonOk: '—',
+        placeCount: '—'
+      });
+    }
+
     fetch(placesUrl)
       .then(function (r) {
-        if (!r.ok) throw new Error('Fetch failed: ' + r.status + ' ' + r.statusText);
-        return r.json();
+        var ct = (r.headers.get('content-type') || '').toLowerCase();
+        var debugInfo = { status: r.status, contentType: (r.headers.get('content-type') || '—') };
+        if (ct.indexOf('text/html') !== -1) {
+          var e = new Error('Server returned HTML instead of JSON (often a 404 page). Check the places URL.');
+          e.debugInfo = debugInfo;
+          throw e;
+        }
+        if (!r.ok) {
+          var e2 = new Error('Fetch failed: ' + r.status + ' ' + r.statusText);
+          e2.debugInfo = debugInfo;
+          throw e2;
+        }
+        return r.json().then(
+          function (data) { return { response: r, data: data, contentType: ct }; },
+          function (parseErr) {
+            parseErr.debugInfo = debugInfo;
+            throw parseErr;
+          }
+        );
       })
-      .then(function (data) {
+      .then(function (result) {
+        var data = result.data;
         if (!data || !Array.isArray(data.places)) throw new Error('Invalid places data');
+        if (isDebug()) {
+          var panel = container.parentNode.querySelector('.map-debug-panel');
+          if (panel) {
+            panel.querySelector('pre').textContent = [
+              'Leaflet loaded? yes',
+              'places.json URL: ' + placesUrl,
+              'Fetch: ' + result.response.status + ' ' + result.response.statusText,
+              'Content-Type: ' + result.contentType,
+              'JSON parse: ok',
+              'Places loaded: ' + data.places.length,
+              'Tile errors: 0'
+            ].join('\n');
+          }
+        }
         renderMap(container, data);
         bindQuickNav(data);
       })
       .catch(function (err) {
-        showMapError(container, err);
+        showMapError(container, err, isDebug() && err && err.debugInfo ? err.debugInfo : null);
       });
   }
 
@@ -95,9 +162,30 @@
     var map = L.map(container).setView(KENDAL_CENTRE, DEFAULT_ZOOM);
     window._weddingMap = map;
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    var tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
+
+    if (isDebug()) {
+      var tileErrorCount = 0;
+      var debugPre = container.parentNode && container.parentNode.querySelector('.map-debug-panel pre');
+      tileLayer.on('tileerror', function () {
+        tileErrorCount += 1;
+        if (debugPre) {
+          var lines = debugPre.textContent.split('\n');
+          for (var i = 0; i < lines.length; i += 1) {
+            if (lines[i].indexOf('Tile errors:') === 0) {
+              lines[i] = 'Tile errors: ' + tileErrorCount;
+              break;
+            }
+          }
+          debugPre.textContent = lines.join('\n');
+        }
+      });
+    }
+
+    setTimeout(function () { map.invalidateSize(); }, 250);
+    window.addEventListener('resize', function () { map.invalidateSize(); });
 
     layers.forEach(function (layer) {
       var group = L.layerGroup();
