@@ -276,6 +276,20 @@ input[type="button"]:focus-visible,
   border-color: #cbd5e1;
 }
 
+.btn--gofundme {
+  background: #02A95C;
+  color: #fff;
+  border-color: #02A95C;
+}
+.btn--gofundme:hover {
+  background: #028a4b;
+  border-color: #028a4b;
+}
+.btn--gofundme:focus-visible {
+  outline: 3px solid rgba(2, 169, 92, 0.35);
+  outline-offset: 3px;
+}
+
 .actions,
 .btn-row {
   display: flex;
