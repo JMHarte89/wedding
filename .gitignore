@@ -15,3 +15,6 @@ encrypted/
 index.source.html
 .env
 
+# Local secrets / IDs
+js/config.js
+

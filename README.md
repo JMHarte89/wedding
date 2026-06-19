@@ -14,7 +14,7 @@ Build encrypted landing page:
 ```powershell
 npm install
 npm run salt
-$env:STATICRYPT_PASSWORD='beckijase2026'
+Password set via STATICRYPT_PASSWORD environment variable — do not commit.
 npm run encrypt
 ```
 
@@ -23,7 +23,7 @@ npm run encrypt
 ```cmd
 npm install
 npm run salt
-set STATICRYPT_PASSWORD=beckijase2026 && npm run encrypt
+Password set via STATICRYPT_PASSWORD environment variable — do not commit.
 ```
 
 Note: Staticrypt v3 uses WebCrypto and requires HTTPS or localhost, which GitHub Pages provides.

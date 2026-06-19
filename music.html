@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Suggest songs for the Jason Harte &amp; Rebecca Blackshaw wedding playlist. Saturday 29 August 2026.">
+  <title>Music — Jason &amp; Rebecca</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="js/config.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <h1>Music</h1>
+    <p class="tagline">Build the wedding playlist with us</p>
+    <p class="location">Saturday 29 August 2026 — Kendal, Cumbria</p>
+  </header>
+
+  <main>
+    <section class="content-section" aria-labelledby="clock-heading">
+      <h2 id="clock-heading">Playlist so far</h2>
+      <div class="music-stats" role="group" aria-label="Playlist totals">
+        <div class="music-stat">
+          <span class="music-stat__num" id="stat-count">0</span>
+          <span class="music-stat__label">Songs suggested</span>
+        </div>
+        <div class="music-stat">
+          <span class="music-stat__num" id="stat-total">0m</span>
+          <span class="music-stat__label">Time on the clock</span>
+        </div>
+        <div class="music-stat">
+          <span class="music-stat__num" id="stat-remaining">5h 0m</span>
+          <span class="music-stat__label">Remaining of 5h target</span>
+        </div>
+      </div>
+      <div class="music-progress" aria-hidden="true">
+        <div class="music-progress__bar" id="progress-bar"></div>
+      </div>
+      <p class="music-progress__status" id="progress-status">0% of the 5h target.</p>
+    </section>
+
+    <section class="content-section" aria-labelledby="search-heading">
+      <h2 id="search-heading">Find a song on Spotify</h2>
+      <form class="music-search" id="search-form" autocomplete="off">
+        <label for="search-input" class="visually-hidden">Search Spotify</label>
+        <input type="search" id="search-input" name="q" placeholder="Song or artist…" required>
+        <button type="submit" class="btn btn-primary">Search</button>
+      </form>
+      <p class="music-status" id="search-status" role="status" aria-live="polite"></p>
+      <ul class="music-results" id="search-results" aria-label="Search results"></ul>
+    </section>
+
+    <section class="content-section" aria-labelledby="paste-heading">
+      <h2 id="paste-heading">On Apple Music or YouTube?</h2>
+      <p>Type the song title and we'll find it on Spotify.</p>
+      <form class="music-search" id="paste-form" autocomplete="off">
+        <label for="paste-input" class="visually-hidden">Paste a title</label>
+        <input type="search" id="paste-input" name="q" placeholder="e.g. Fleetwood Mac — Dreams" required>
+        <button type="submit" class="btn btn-secondary">Match on Spotify</button>
+      </form>
+      <p class="music-status" id="paste-status" role="status" aria-live="polite"></p>
+      <ul class="music-results" id="paste-results" aria-label="Match suggestions"></ul>
+    </section>
+
+    <section class="content-section" aria-labelledby="collab-heading">
+      <h2 id="collab-heading">Got a Spotify account?</h2>
+      <p>Add tracks straight into the shared playlist. The band has the same link — add your request and they may play it live.</p>
+      <p>
+        <a id="collab-link" class="btn btn-primary" href="#" target="_blank" rel="noopener">Add directly in Spotify →</a>
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <div class="page-nav">
+      <a class="btn btn-secondary" href="index.html">Home</a>
+      <a class="btn btn-secondary" href="rsvp.html">RSVP</a>
+      <a class="btn btn-secondary" href="travel.html">Travel &amp; stay</a>
+    </div>
+    <p class="year">2026</p>
+  </footer>
+
+  <script src="js/music.js" defer></script>
+</body>
+</html>
