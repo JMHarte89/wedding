@@ -1,0 +1,368 @@
+[
+  {
+    "code": "CBlackshaw",
+    "greeting": "Carole & Robert",
+    "members": [
+      "Carole Blackshaw",
+      "Robert Blackshaw"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": ""
+  },
+  {
+    "code": "EHarte",
+    "greeting": "Emma, Ben, Jerome & Ruby",
+    "members": [
+      "Emma Harte",
+      "Ben Maguire",
+      "Jerome (12)",
+      "Ruby (7)"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": ""
+  },
+  {
+    "code": "jharte",
+    "greeting": "Jase, Becki, Robin & Archie",
+    "members": [
+      "Jase Harte",
+      "Becki Harte",
+      "Robin (3)",
+      "Archie (1)"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": ""
+  },
+  {
+    "code": "VBlackshaw",
+    "greeting": "Vicky & Jon",
+    "members": [
+      "Vicky Blackshaw",
+      "Jon Abbotts"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": ""
+  },
+  {
+    "code": "JByrne",
+    "greeting": "Jill & Bob",
+    "members": [
+      "Jill Byrne",
+      "Bob Parkinson"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": ""
+  },
+  {
+    "code": "AHarte",
+    "greeting": "Allan",
+    "members": [
+      "Allan Harte"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": ""
+  },
+  {
+    "code": "RBlackshaw",
+    "greeting": "Robert & Marie",
+    "members": [
+      "Robert Blackshaw",
+      "Marie Blackshaw"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": ""
+  },
+  {
+    "code": "kristinadaniel",
+    "greeting": "Kristina, Daniel, Olivia & Charlotte",
+    "members": [
+      "Kristina",
+      "Daniel",
+      "Olivia (3)",
+      "Charlotte (1)"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": "SURNAME TBC - check Facebook"
+  },
+  {
+    "code": "CGould",
+    "greeting": "Claire",
+    "members": [
+      "Claire Gould"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": ""
+  },
+  {
+    "code": "JHoar",
+    "greeting": "Rach, James, Catherine, Harry & Lily",
+    "members": [
+      "Rach Hoar",
+      "James Hoar",
+      "Catherine",
+      "Harry (7)",
+      "Lily (5)"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": ""
+  },
+  {
+    "code": "HHarte",
+    "greeting": "Helen & Noel",
+    "members": [
+      "Helen Harte",
+      "Noel Harte"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": ""
+  },
+  {
+    "code": "RArnold",
+    "greeting": "Rachael, Chris, Penelope & Bonnie",
+    "members": [
+      "Rachael Arnold",
+      "Chris Arnold",
+      "Penelope (7)",
+      "Bonnie (3)"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": ""
+  },
+  {
+    "code": "HLovatt",
+    "greeting": "Helen & Dave",
+    "members": [
+      "Helen Lovatt",
+      "Dave Lovatt"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": ""
+  },
+  {
+    "code": "GSlater",
+    "greeting": "George & Kayleigh",
+    "members": [
+      "George Slater",
+      "Kayleigh Thomas"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": ""
+  },
+  {
+    "code": "MSlater",
+    "greeting": "Mandy & Steve",
+    "members": [
+      "Mandy Slater",
+      "Steve Slater"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": ""
+  },
+  {
+    "code": "HGirvan",
+    "greeting": "Hannah",
+    "members": [
+      "Hannah Girvan"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": ""
+  },
+  {
+    "code": "UCarey",
+    "greeting": "Ursula & Martin",
+    "members": [
+      "Ursula Carey",
+      "Martin Carey"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": ""
+  },
+  {
+    "code": "KHumphries",
+    "greeting": "Kathleen",
+    "members": [
+      "Kathleen Humphries",
+      "Plus-one"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": "Surname uncertain; +1 name unknown"
+  },
+  {
+    "code": "DGeorge",
+    "greeting": "Diane & Matthew",
+    "members": [
+      "Diane George",
+      "Matthew George"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": ""
+  },
+  {
+    "code": "KWearing",
+    "greeting": "Kenny & Trevor",
+    "members": [
+      "Kenny Wearing",
+      "Trevor Kenwright Wearing"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": ""
+  },
+  {
+    "code": "BBlackshaw",
+    "greeting": "Beth & Taz",
+    "members": [
+      "Beth Blackshaw",
+      "Taz Glover"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": ""
+  },
+  {
+    "code": "JTzu",
+    "greeting": "Jojo, Tony & Max",
+    "members": [
+      "Jojo Tzu",
+      "Tony Tzu",
+      "Max (2)"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": ""
+  },
+  {
+    "code": "HThompson",
+    "greeting": "Hannah, Luke & their daughter",
+    "members": [
+      "Hannah Lovatt-Thompson",
+      "Luke Lovatt-Thompson",
+      "daughter"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": "Daughter's name TBC"
+  },
+  {
+    "code": "WHarling",
+    "greeting": "Wayne & Lissie",
+    "members": [
+      "Wayne Harling",
+      "Lissie Harling"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": ""
+  },
+  {
+    "code": "GBlackshaw",
+    "greeting": "Guy, Lu, Oliver & Henry",
+    "members": [
+      "Guy Blackshaw",
+      "Lu Blackshaw",
+      "Oliver",
+      "Henry"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": ""
+  },
+  {
+    "code": "CHargreaves",
+    "greeting": "Craig, Dawn & Florence",
+    "members": [
+      "Craig Hargreaves",
+      "Dawn Porter Hargreaves",
+      "Florence"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": ""
+  },
+  {
+    "code": "TPorter",
+    "greeting": "Thomas",
+    "members": [
+      "Thomas Porter"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": "Dawn's son"
+  },
+  {
+    "code": "JGould",
+    "greeting": "James, Zoe, Prim & Felicity",
+    "members": [
+      "James Gould",
+      "Zoe Gould",
+      "Prim (4)",
+      "Felicity (2)"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": ""
+  },
+  {
+    "code": "MaryHarte",
+    "greeting": "Mary, Donald & Dónal",
+    "members": [
+      "Mary Harte",
+      "Donald Harte",
+      "Dónal Harte"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": ""
+  },
+  {
+    "code": "JustinHarte",
+    "greeting": "Justin & Nolene",
+    "members": [
+      "Justin Harte",
+      "Nolene Harte"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": ""
+  },
+  {
+    "code": "DarrenHarte",
+    "greeting": "Darren",
+    "members": [
+      "Darren Harte"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": ""
+  },
+  {
+    "code": "MarkHarte",
+    "greeting": "Mark",
+    "members": [
+      "Mark Harte",
+      "Plus-one"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": "Plus-one"
+  }
+]

@@ -1,0 +1,718 @@
+/* ------------------------------------------------------------
+   Becki & Jase — Invitation landing
+   Self-contained styles for the new index.html.
+------------------------------------------------------------ */
+
+:root {
+  --slate: #1d2a2c;
+  --limestone: #ece5d6;
+  --petrol: #2c5d63;
+  --wax: #883a2d;
+  --wax-dark: #6b2c22;
+  --ink: #222d2a;
+  --paper: #f6efe0;
+  --paper-shadow: rgba(34, 45, 42, 0.18);
+  --rule: rgba(34, 45, 42, 0.16);
+  --rule-strong: rgba(34, 45, 42, 0.32);
+  --seal-text: #f2e3d5;
+
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-body: 'EB Garamond', Georgia, 'Times New Roman', serif;
+  --font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
+
+  --maxw: 720px;
+  --gap: 1.5rem;
+  --gap-lg: 2.5rem;
+  --gap-xl: 4rem;
+  --radius: 4px;
+
+  --t-fast: 220ms;
+  --t-med: 480ms;
+  --t-slow: 1100ms;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--slate);
+  transition: background-color var(--t-slow) var(--ease), color var(--t-slow) var(--ease);
+  -webkit-font-smoothing: antialiased;
+}
+
+body.is-open { background: var(--limestone); }
+
+p { margin: 0 0 1rem; }
+a { color: var(--petrol); }
+a:hover { color: var(--wax); }
+button { font: inherit; cursor: pointer; }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+/* ------------------------------------------------------------
+   GATE
+------------------------------------------------------------ */
+
+.gate {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap);
+  padding: var(--gap);
+  color: var(--limestone);
+  background: var(--slate);
+  transition: opacity var(--t-med) var(--ease), visibility var(--t-med) step-end;
+}
+
+.gate.is-gone {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.postmark {
+  font-family: var(--font-display);
+  letter-spacing: 0.25em;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: rgba(236, 229, 214, 0.7);
+  border: 1px solid rgba(236, 229, 214, 0.35);
+  padding: 0.45em 1em;
+  border-radius: 999px;
+}
+
+.envelope {
+  position: relative;
+  width: min(360px, 80vw);
+  aspect-ratio: 16 / 10;
+  perspective: 1200px;
+}
+
+.envelope__body {
+  position: absolute;
+  inset: 0;
+  background: var(--paper);
+  border-radius: var(--radius);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
+.envelope__body::before,
+.envelope__body::after {
+  content: "";
+  position: absolute;
+  background: rgba(34, 45, 42, 0.06);
+}
+.envelope__body::before {
+  top: 0; bottom: 0; left: 50%; width: 50%;
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+.envelope__body::after {
+  top: 0; bottom: 0; right: 50%; width: 50%;
+  clip-path: polygon(100% 0, 0 50%, 100% 100%);
+}
+
+.envelope__flap {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 60%;
+  background: linear-gradient(180deg, #f6efe0 0%, #e9dfc7 100%);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  transform-origin: top center;
+  transform: rotateX(0deg);
+  transition: transform var(--t-slow) var(--ease);
+  z-index: 2;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) inset;
+}
+
+.envelope.is-open .envelope__flap {
+  transform: rotateX(-180deg);
+}
+
+/* ---- Wax seal ---- */
+
+.wax-seal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 110px;
+  height: 110px;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.wax-seal__half {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #a8463a 0%, var(--wax) 55%, var(--wax-dark) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    inset 0 0 8px rgba(0,0,0,0.35),
+    0 4px 10px rgba(0,0,0,0.35);
+  transition: transform var(--t-slow) var(--ease), opacity var(--t-med) var(--ease);
+}
+
+.wax-seal__half--left  { clip-path: inset(0 50% 0 0); }
+.wax-seal__half--right { clip-path: inset(0 0 0 50%); }
+
+.envelope.is-open .wax-seal__half--left {
+  transform: translateX(-40%) rotate(-22deg);
+  opacity: 0;
+}
+.envelope.is-open .wax-seal__half--right {
+  transform: translateX(40%) rotate(22deg);
+  opacity: 0;
+}
+
+.wax-seal__text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.05;
+  text-align: center;
+  font-family: var(--font-display);
+  color: var(--seal-text);
+}
+.wax-seal__line { display: block; }
+.wax-seal__line--name {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.wax-seal__line--amp {
+  font-size: 11px;
+  font-style: italic;
+  margin: 0.12em 0;
+  opacity: 0.92;
+}
+
+/* ---- Gate form ---- */
+
+.gate__form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  width: min(360px, 80vw);
+}
+
+.gate__input {
+  width: 100%;
+  padding: 0.7rem 1rem;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--limestone);
+  background: transparent;
+  border: 1px solid rgba(236, 229, 214, 0.4);
+  border-radius: var(--radius);
+  text-align: center;
+  letter-spacing: 0.08em;
+}
+.gate__input:focus-visible {
+  outline: 2px solid rgba(236, 229, 214, 0.85);
+  outline-offset: 2px;
+}
+.gate__input::placeholder { color: rgba(236, 229, 214, 0.55); }
+
+.gate__button {
+  padding: 0.7rem 1.6rem;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--slate);
+  background: var(--limestone);
+  border: 0;
+  border-radius: var(--radius);
+  transition: background-color var(--t-fast) var(--ease), transform var(--t-fast) var(--ease);
+}
+.gate__button:hover  { background: #fff; }
+.gate__button:active { transform: translateY(1px); }
+
+.gate__error {
+  margin: 0;
+  min-height: 1.4em;
+  font-size: 0.9rem;
+  color: #f0b9a8;
+  font-style: italic;
+}
+
+.gate.is-shake .envelope { animation: gate-shake 0.35s var(--ease); }
+@keyframes gate-shake {
+  0%, 100% { transform: translateX(0); }
+  25%      { transform: translateX(-6px); }
+  75%      { transform: translateX(6px); }
+}
+
+/* ------------------------------------------------------------
+   LETTER + main site
+------------------------------------------------------------ */
+
+.site { display: none; }
+body.is-open .site { display: block; }
+
+.letter {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: clamp(2rem, 6vw, 4rem) clamp(1rem, 5vw, 2rem) var(--gap-lg);
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity var(--t-slow) var(--ease) 200ms,
+    transform var(--t-slow) var(--ease) 200ms;
+}
+body.is-open .letter {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.letter__paper {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: clamp(1.5rem, 5vw, 3rem);
+  box-shadow: 0 8px 24px var(--paper-shadow);
+  font-family: var(--font-body);
+}
+
+.letter__salutation {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  margin: 0 0 1.5rem;
+  font-style: italic;
+}
+
+.letter p { font-size: 1.125rem; line-height: 1.6; }
+
+.letter__names {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 8vw, 4rem);
+  text-align: center;
+  margin: 1.5rem 0 0.75rem;
+  letter-spacing: -0.01em;
+  color: var(--petrol);
+}
+
+.letter__meta {
+  text-align: center;
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--ink);
+  margin: 0 0 2rem;
+  letter-spacing: 0.05em;
+}
+
+.letter__sign {
+  margin-top: 2rem;
+  font-style: italic;
+}
+
+/* ------------------------------------------------------------
+   STICKY NAV
+------------------------------------------------------------ */
+
+.site-nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(236, 229, 214, 0.92);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--rule);
+}
+
+.site-nav__inner {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  padding: 0.85rem clamp(1rem, 5vw, 2rem);
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.site-nav a {
+  color: var(--ink);
+  text-decoration: none;
+  padding: 0.25rem 0.4rem;
+  border-bottom: 1px solid transparent;
+}
+.site-nav a:hover { color: var(--petrol); border-bottom-color: var(--petrol); }
+
+/* ------------------------------------------------------------
+   SECTIONS
+------------------------------------------------------------ */
+
+.section {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: var(--gap-xl) clamp(1rem, 5vw, 2rem);
+}
+
+.section + .section { border-top: 1px solid var(--rule); position: relative; }
+.section + .section::before {
+  content: "";
+  position: absolute;
+  top: -1px; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--rule-strong) 50%, transparent);
+  opacity: 0.7;
+}
+
+.section__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  margin: 0 0 0.35rem;
+  color: var(--ink);
+}
+.section__kicker {
+  font-family: var(--font-display);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  color: var(--petrol);
+  margin: 0 0 0.75rem;
+}
+.section__intro {
+  font-style: italic;
+  margin: 0 0 var(--gap);
+  color: var(--ink);
+}
+
+/* ---- Timeline ---- */
+
+.timeline {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-left: 1px solid var(--rule-strong);
+}
+.timeline__item {
+  position: relative;
+  padding: 0.6rem 0 1.4rem 1.4rem;
+}
+.timeline__item::before {
+  content: "";
+  position: absolute;
+  left: -5px; top: 1rem;
+  width: 9px; height: 9px;
+  background: var(--petrol);
+  border-radius: 50%;
+}
+.timeline__time {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  color: var(--petrol);
+  letter-spacing: 0.04em;
+  margin-right: 0.6rem;
+  min-width: 6.5ch;
+}
+.timeline__event {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+.timeline__note {
+  display: block;
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--ink);
+  margin-top: 0.15rem;
+}
+
+.timeline-note {
+  margin: 0 0 var(--gap);
+  font-style: italic;
+  color: var(--petrol);
+}
+
+/* ---- Getting Here ---- */
+
+.map-wrap {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin: var(--gap) 0;
+  box-shadow: 0 4px 12px var(--paper-shadow);
+  background: var(--paper);
+}
+
+#getting-here-map {
+  width: 100%;
+  height: 340px;
+}
+@media (min-width: 640px) {
+  #getting-here-map { height: 420px; }
+}
+
+/* Leaflet popup polish */
+.leaflet-popup-content {
+  font-family: var(--font-body);
+  color: var(--ink);
+  margin: 10px 14px;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+.leaflet-popup-content h4 {
+  font-family: var(--font-display);
+  margin: 0 0 0.25em;
+  font-size: 1.05rem;
+  color: var(--ink);
+}
+.leaflet-popup-content p {
+  margin: 0 0 0.5em;
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+.popup-link {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--petrol);
+  text-decoration: none;
+}
+.popup-link:hover { color: var(--wax); }
+
+/* Map view tabs — mirror the .venue-card styling */
+.map-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+  list-style: none;
+  padding: 0;
+}
+
+.map-tab {
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 1.6rem 1.4rem;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  color: var(--ink);
+  box-shadow: 0 4px 12px var(--paper-shadow);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.map-tab:hover {
+  border-color: var(--petrol);
+  transform: translateY(-1px);
+}
+
+.map-tab.is-active {
+  border-color: var(--petrol);
+  border-left: 3px solid var(--petrol);
+}
+
+.map-tab__icon {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.map-tab__label {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  color: var(--ink);
+  margin: 0 0 0.35rem;
+}
+
+.map-tab__desc {
+  display: block;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 0.95rem;
+  color: var(--ink);
+  line-height: 1.5;
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .map-tabs {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- No Gifts: GoFundMe button ---- */
+
+.btn--gofundme {
+  display: inline-block;
+  padding: 0.85rem 1.7rem;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #fff;
+  background: #02A95C;
+  border: 1px solid #02A95C;
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition:
+    background-color var(--t-fast) var(--ease),
+    border-color var(--t-fast) var(--ease),
+    transform var(--t-fast) var(--ease);
+}
+.btn--gofundme:hover {
+  background: #028a4b;
+  border-color: #028a4b;
+  color: #fff;
+}
+.btn--gofundme:active { transform: translateY(1px); }
+.btn--gofundme:focus-visible {
+  outline: 3px solid rgba(2, 169, 92, 0.35);
+  outline-offset: 3px;
+}
+
+/* ---- Evening: venue card ---- */
+
+.venue-card {
+  display: block;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 1.6rem 1.4rem;
+  color: var(--ink);
+  text-decoration: none;
+  box-shadow: 0 4px 12px var(--paper-shadow);
+  transition: border-color var(--t-fast) var(--ease), transform var(--t-fast) var(--ease);
+}
+.venue-card:hover {
+  border-color: var(--petrol);
+  color: var(--ink);
+  transform: translateY(-1px);
+}
+.venue-card__name {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  margin: 0 0 0.35rem;
+  color: var(--ink);
+}
+.venue-card__address {
+  margin: 0 0 0.6rem;
+  font-style: italic;
+  color: var(--ink);
+}
+.venue-card__cta {
+  display: inline-block;
+  font-family: var(--font-display);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--petrol);
+}
+
+/* ---- Map markers (Leaflet divIcon) ---- */
+
+.wedding-marker {
+  background: none !important;
+  border: none !important;
+}
+
+.pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  border: 3px solid white;
+  filter: drop-shadow(0 3px 6px rgba(0,0,0,0.4));
+}
+
+.pin__symbol {
+  transform: rotate(45deg);
+  font-weight: 700;
+  color: white;
+  line-height: 1;
+}
+
+.pin--church  { width:48px; height:48px; background:#2c5d63; }
+.pin--church .pin__symbol  { font-size:22px; }
+
+.pin--venue   { width:48px; height:48px; background:#883a2d; }
+.pin--venue .pin__symbol   { font-size:22px; }
+
+.pin--parking { width:36px; height:36px; background:#4a5568; }
+.pin--parking .pin__symbol { font-size:16px; font-family:var(--font-display); }
+
+.pin--station { width:36px; height:36px; background:#1a5276; }
+.pin--station .pin__symbol { font-size:13px; font-family:var(--font-display); }
+
+.pin--bus { width:34px; height:34px; background:#6b4423; }
+.pin--bus .pin__symbol { font-size:16px; font-family:var(--font-display); }
+
+/* ---- Map legend (single inline line below the tabs) ---- */
+
+.map-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.4em 0.6em;
+  margin: 0.25rem 0 var(--gap);
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: #4a564f;
+}
+.map-legend__item { display: inline-flex; align-items: baseline; gap: 0.3em; }
+.map-legend__icon { font-family: var(--font-display); font-weight: 700; }
+.map-legend__sep  { color: rgba(34, 45, 42, 0.4); }
+
+/* ---- Footer ---- */
+
+.site-footer {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: var(--gap-xl) clamp(1rem, 5vw, 2rem) 3rem;
+  text-align: center;
+  font-style: italic;
+  font-size: 0.95rem;
+  color: var(--petrol);
+  border-top: 1px solid var(--rule);
+}
+
+/* ------------------------------------------------------------
+   Reduced motion
+------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

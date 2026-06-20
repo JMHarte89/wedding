@@ -1,29 +1,41 @@
 # wedding
 wedding invite
 
-## Landing page password protection (Staticrypt)
+## Guest list — source of truth
 
-The live landing page served at `/index.html` is encrypted.
+**`data/guestlist.csv` is the SINGLE SOURCE OF TRUTH for the guest list.**
+Edit this file to add, remove, or change guests.
 
-Edit **index.source.html** locally (this file is gitignored).
+### Columns
 
-Build encrypted landing page:
+| Column | Meaning |
+| --- | --- |
+| `code` | Login code, first initial + surname (e.g. `JHarte`). **Must be unique.** Used at the gate; matched **case-insensitively**. |
+| `greeting` | How the letter addresses the household — the page shows `Dear [greeting],` (e.g. `Jase, Becki, Robin & Archie`). Quote it if it contains commas. |
+| `members` | Everyone in the household, **pipe-separated** (e.g. `Jase Harte\|Becki Harte\|Robin (3)`). |
+| `day` | `TRUE`/`FALSE` — invited to the full day. |
+| `evening` | `TRUE`/`FALSE` — invited to the evening. |
+| `notes` | Free-text notes (e.g. "surname TBC"). |
 
-**PowerShell:**
+### Regenerating the site data
 
-```powershell
-npm install
-npm run salt
-Password set via STATICRYPT_PASSWORD environment variable — do not commit.
-npm run encrypt
+The website reads `data/guests.json`, which is **auto-generated** — do **NOT**
+edit `guests.json` by hand.
+
+After editing the CSV, run:
+
+```bash
+node scripts/build-guests.js
 ```
 
-**Cmd:**
+This regenerates `data/guests.json` from `data/guestlist.csv`. The script
+warns if any two codes collide (case-insensitively).
 
-```cmd
-npm install
-npm run salt
-Password set via STATICRYPT_PASSWORD environment variable — do not commit.
-```
+Then commit **both** `guestlist.csv` and `guests.json` and push.
 
-Note: Staticrypt v3 uses WebCrypto and requires HTTPS or localhost, which GitHub Pages provides.
+### Notes
+
+- Codes are matched **case-insensitively** — `JHARTE`, `jharte`, and `JHarte`
+  all open the same invitation.
+- The login placeholder shows a deliberately fake example (`BSanderson`) so no
+  real guest's code is suggested.

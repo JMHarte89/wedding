@@ -41,6 +41,9 @@
     { "layer": "camping", "name": "Kendal Camping & Caravanning Club Site", "lat": 54.3465, "lng": -2.7307, "note": "Camping near Kendal.", "url": "https://www.campingandcaravanningclub.co.uk/campsites/uk/cumbria/kendal/kendal/", "price": "££" },
     { "layer": "camping", "name": "Park Cliffe", "lat": 54.312059, "lng": -2.937711, "note": "Camping option near Windermere.", "url": "https://www.parkcliffe.co.uk/", "price": "££" },
     { "layer": "camping", "name": "Low Wray Campsite", "lat": 54.400864, "lng": -2.96611, "note": "National Trust camping.", "url": "https://www.nationaltrust.org.uk/visit/lakes/low-wray-campsite", "price": "££" },
-    { "layer": "camping", "name": "Skelwith Fold Caravan Park", "lat": 54.411763, "lng": -2.985365, "note": "Camping / caravans, Ambleside area.", "url": "https://www.skelwithfold.co.uk/", "price": "££" }
+    { "layer": "camping", "name": "Skelwith Fold Caravan Park", "lat": 54.411763, "lng": -2.985365, "note": "Camping / caravans, Ambleside area.", "url": "https://www.skelwithfold.co.uk/", "price": "££" },
+    { "name": "Oxenholme Lake District Station", "category": "station", "lat": 54.3089, "lng": -2.7160, "description": "Nearest mainline station. Taxis available from the rank outside — about 10 minutes to Kendal town centre.", "url": "https://www.google.com/maps/dir/?api=1&destination=54.3089,-2.7160" },
+    { "category": "station", "name": "Kendal Railway Station", "lat": 54.3322, "lng": -2.7403, "description": "Local branch line — the Windermere shuttle stops here. Closer to the town centre but fewer services than Oxenholme." },
+    { "category": "bus", "name": "Kendal Bus Station", "lat": 54.3295, "lng": -2.7452, "description": "Blackhall Road. The 555 (Lancaster–Windermere) and other main services stop here. A short walk to the church and venue." }
   ]
 }
