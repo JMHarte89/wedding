@@ -251,6 +251,16 @@ button { font: inherit; cursor: pointer; }
 .gate__button:hover  { background: #fff; }
 .gate__button:active { transform: translateY(1px); }
 
+.gate__hint {
+  margin: 0;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  text-align: center;
+  color: rgba(236, 229, 214, 0.7);
+}
+
 .gate__error {
   margin: 0;
   min-height: 1.4em;

@@ -68,6 +68,40 @@ function toBool(v) {
   return String(v).trim().toUpperCase() === 'TRUE';
 }
 
+// Names that aren't real people / have no usable surname.
+var SKIP_NAMES = ['plus-one', 'daughter', 'their daughter', '+5 children', ''];
+
+// Generate login codes (first-initial + surname) from a household's members.
+// e.g. "Olivia (3)" -> skipped (no surname); "Ben Maguire" -> "BMaguire";
+// "Luke Lovatt-Thompson" -> "LLovatt", "LThompson", "LLovatt-Thompson".
+function memberAliases(members) {
+  var out = [];
+  members.forEach(function (raw) {
+    var name = String(raw).replace(/\([^)]*\)/g, '').replace(/\s+/g, ' ').trim();
+    if (SKIP_NAMES.indexOf(name.toLowerCase()) !== -1) return;
+
+    var words = name.split(' ').filter(Boolean);
+    if (words.length < 2) return; // no surname to build a code from
+
+    var initial = words[0].charAt(0);
+    var surname = words[words.length - 1];
+    var lettersOnly = function (s) { return s.replace(/[^A-Za-z]/g, ''); };
+
+    var base = lettersOnly(initial + surname);
+    if (base) out.push(base);
+
+    if (surname.indexOf('-') !== -1) {
+      // Keep the hyphenated form, plus a code per hyphen segment.
+      out.push(lettersOnly(initial) + surname); // e.g. LLovatt-Thompson
+      surname.split('-').forEach(function (seg) {
+        var c = lettersOnly(initial + seg);
+        if (c) out.push(c);
+      });
+    }
+  });
+  return out;
+}
+
 function main() {
   var raw = fs.readFileSync(CSV_PATH, 'utf8');
   var rows = parseCsv(raw).filter(function (r) {
@@ -125,29 +159,42 @@ function main() {
       if (confirmElse) entry.confirmElse = confirmElse;
     }
 
-    // Optional alternative login codes (pipe-separated), e.g. a second surname.
-    var aliases = [];
+    // Login aliases = manual (CSV "aliases" column) + auto-generated from the
+    // members list (each member's first-initial + surname).
+    var manualAliases = [];
     if ('aliases' in idx) {
-      aliases = (cols[idx.aliases] || '')
+      manualAliases = (cols[idx.aliases] || '')
         .split('|')
         .map(function (a) { return a.trim(); })
         .filter(function (a) { return a !== ''; });
-      if (aliases.length) entry.aliases = aliases;
     }
+    var allAliases = manualAliases.concat(memberAliases(members));
+
+    // Lowercase-dedupe, and drop any alias equal to this household's own code.
+    var aliasSeen = {};
+    aliasSeen[code.toLowerCase()] = true; // exclude own primary code
+    var aliases = [];
+    allAliases.forEach(function (a) {
+      var lc2 = a.toLowerCase();
+      if (aliasSeen[lc2]) return;
+      aliasSeen[lc2] = true;
+      aliases.push(a);
+    });
+    if (aliases.length) entry.aliases = aliases;
+
     if ('label' in idx) {
       var label = (cols[idx.label] || '').trim();
       if (label) entry.label = label;
     }
 
-    // Every code AND alias must be unique (case-insensitive).
-    [code].concat(aliases).forEach(function (key) {
-      var lc = key.toLowerCase();
-      if (Object.prototype.hasOwnProperty.call(seen, lc)) {
-        duplicates.push({ code: key, collidesWith: seen[lc] });
-      } else {
-        seen[lc] = key;
-      }
-    });
+    // Only PRIMARY codes must be unique. Aliases intentionally overlap across
+    // households (e.g. two "RBlackshaw"s) — that drives the household chooser.
+    var lc = code.toLowerCase();
+    if (Object.prototype.hasOwnProperty.call(seen, lc)) {
+      duplicates.push({ code: code, collidesWith: seen[lc] });
+    } else {
+      seen[lc] = code;
+    }
 
     guests.push(entry);
   }

@@ -10,7 +10,10 @@
     "evening": true,
     "notes": "",
     "confirm": "Just checking — are you married to Carole?",
-    "confirmElse": "If you're Robert married to Marie, your code is RBlackshaw."
+    "confirmElse": "If you're Robert married to Marie, your code is RBlackshaw.",
+    "aliases": [
+      "RBlackshaw"
+    ]
   },
   {
     "code": "EHarte",
@@ -23,7 +26,10 @@
     ],
     "day": true,
     "evening": true,
-    "notes": ""
+    "notes": "",
+    "aliases": [
+      "BMaguire"
+    ]
   },
   {
     "code": "jharte",
@@ -36,7 +42,10 @@
     ],
     "day": true,
     "evening": true,
-    "notes": ""
+    "notes": "",
+    "aliases": [
+      "BHarte"
+    ]
   },
   {
     "code": "VBlackshaw",
@@ -47,7 +56,10 @@
     ],
     "day": true,
     "evening": true,
-    "notes": ""
+    "notes": "",
+    "aliases": [
+      "JAbbotts"
+    ]
   },
   {
     "code": "JByrne",
@@ -58,7 +70,10 @@
     ],
     "day": true,
     "evening": true,
-    "notes": ""
+    "notes": "",
+    "aliases": [
+      "BParkinson"
+    ]
   },
   {
     "code": "AHarte",
@@ -81,7 +96,10 @@
     "evening": true,
     "notes": "",
     "confirm": "Just checking — are you married to Marie?",
-    "confirmElse": "If you're Robert married to Carole, your code is CBlackshaw."
+    "confirmElse": "If you're Robert married to Carole, your code is CBlackshaw.",
+    "aliases": [
+      "MBlackshaw"
+    ]
   },
   {
     "code": "KRowe",
@@ -95,7 +113,11 @@
     ],
     "day": true,
     "evening": true,
-    "notes": ""
+    "notes": "",
+    "aliases": [
+      "DEnglish",
+      "JNicholson"
+    ]
   },
   {
     "code": "CGould",
@@ -108,7 +130,7 @@
     "notes": ""
   },
   {
-    "code": "JHoar",
+    "code": "RHoar",
     "greeting": "Rach, James, Catherine, Harry & Lily",
     "members": [
       "Rach Hoar",
@@ -119,7 +141,10 @@
     ],
     "day": true,
     "evening": true,
-    "notes": ""
+    "notes": "",
+    "aliases": [
+      "JHoar"
+    ]
   },
   {
     "code": "HHarte",
@@ -130,7 +155,10 @@
     ],
     "day": true,
     "evening": true,
-    "notes": ""
+    "notes": "",
+    "aliases": [
+      "NHarte"
+    ]
   },
   {
     "code": "RArnold",
@@ -143,7 +171,10 @@
     ],
     "day": true,
     "evening": true,
-    "notes": ""
+    "notes": "",
+    "aliases": [
+      "CArnold"
+    ]
   },
   {
     "code": "HLovatt",
@@ -154,7 +185,10 @@
     ],
     "day": true,
     "evening": true,
-    "notes": ""
+    "notes": "",
+    "aliases": [
+      "DLovatt"
+    ]
   },
   {
     "code": "GSlater",
@@ -165,7 +199,10 @@
     ],
     "day": true,
     "evening": true,
-    "notes": ""
+    "notes": "",
+    "aliases": [
+      "KThomas"
+    ]
   },
   {
     "code": "MSlater",
@@ -176,7 +213,10 @@
     ],
     "day": true,
     "evening": true,
-    "notes": ""
+    "notes": "",
+    "aliases": [
+      "SSlater"
+    ]
   },
   {
     "code": "HGirvan",
@@ -197,7 +237,10 @@
     ],
     "day": true,
     "evening": true,
-    "notes": ""
+    "notes": "",
+    "aliases": [
+      "MCarey"
+    ]
   },
   {
     "code": "KHumphries",
@@ -219,7 +262,10 @@
     ],
     "day": true,
     "evening": true,
-    "notes": ""
+    "notes": "",
+    "aliases": [
+      "MGeorge"
+    ]
   },
   {
     "code": "KWearing",
@@ -230,7 +276,10 @@
     ],
     "day": true,
     "evening": true,
-    "notes": ""
+    "notes": "",
+    "aliases": [
+      "TWearing"
+    ]
   },
   {
     "code": "BBlackshaw",
@@ -242,7 +291,10 @@
     "day": true,
     "evening": true,
     "notes": "",
-    "confirm": "Just checking — are you Beth?"
+    "confirm": "Just checking — are you Beth?",
+    "aliases": [
+      "TGlover"
+    ]
   },
   {
     "code": "JTzu",
@@ -254,7 +306,10 @@
     ],
     "day": true,
     "evening": true,
-    "notes": ""
+    "notes": "",
+    "aliases": [
+      "TTzu"
+    ]
   },
   {
     "code": "HThompson",
@@ -266,7 +321,16 @@
     ],
     "day": true,
     "evening": true,
-    "notes": "Daughter's name TBC"
+    "notes": "Daughter's name TBC",
+    "aliases": [
+      "HLovattThompson",
+      "HLovatt-Thompson",
+      "HLovatt",
+      "LLovattThompson",
+      "LLovatt-Thompson",
+      "LLovatt",
+      "LThompson"
+    ]
   },
   {
     "code": "WHarling",
@@ -277,7 +341,10 @@
     ],
     "day": true,
     "evening": true,
-    "notes": ""
+    "notes": "",
+    "aliases": [
+      "LHarling"
+    ]
   },
   {
     "code": "GBlackshaw",
@@ -290,7 +357,10 @@
     ],
     "day": true,
     "evening": true,
-    "notes": ""
+    "notes": "",
+    "aliases": [
+      "LBlackshaw"
+    ]
   },
   {
     "code": "CHargreaves",
@@ -302,7 +372,10 @@
     ],
     "day": true,
     "evening": true,
-    "notes": ""
+    "notes": "",
+    "aliases": [
+      "DHargreaves"
+    ]
   },
   {
     "code": "TPorter",
@@ -325,7 +398,10 @@
     ],
     "day": true,
     "evening": true,
-    "notes": ""
+    "notes": "",
+    "aliases": [
+      "ZGould"
+    ]
   },
   {
     "code": "MaryHarte",
@@ -337,7 +413,11 @@
     ],
     "day": true,
     "evening": true,
-    "notes": ""
+    "notes": "",
+    "aliases": [
+      "MHarte",
+      "DHarte"
+    ]
   },
   {
     "code": "JustinHarte",
@@ -348,7 +428,11 @@
     ],
     "day": true,
     "evening": true,
-    "notes": ""
+    "notes": "",
+    "aliases": [
+      "JHarte",
+      "NHarte"
+    ]
   },
   {
     "code": "DarrenHarte",
@@ -358,7 +442,10 @@
     ],
     "day": true,
     "evening": true,
-    "notes": ""
+    "notes": "",
+    "aliases": [
+      "DHarte"
+    ]
   },
   {
     "code": "MarkHarte",
@@ -369,7 +456,10 @@
     ],
     "day": true,
     "evening": true,
-    "notes": "Plus-one"
+    "notes": "Plus-one",
+    "aliases": [
+      "MHarte"
+    ]
   },
   {
     "code": "GBennett",

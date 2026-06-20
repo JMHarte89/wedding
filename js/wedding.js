@@ -16,7 +16,7 @@
   ];
 
   var EVENING_START_INDEX = TIMELINE.findIndex(function (s) { return s.time === '5:30'; });
-  var FAIL_LIMIT = 3;
+  var FAIL_LIMIT = 1;
   var failures = 0;
   var guests = [];
 
@@ -37,29 +37,31 @@
   function onGateSubmit(ev) {
     ev.preventDefault();
     clearConfirm();
+    clearHouseholdChooser();
     var input = document.getElementById('gate-input');
     var errorEl = document.getElementById('gate-error');
     var raw = (input.value || '').trim().toLowerCase();
     if (!raw) return;
 
-    // Case-insensitive code match: both the typed input and the stored code
-    // are trimmed and lowercased. "JHARTE", "jharte", "JHarte" all match.
-    // Also matches any alternative codes listed in a guest's "aliases".
-    var guest = guests.find(function (g) {
-      if (String(g.code || '').trim().toLowerCase() === raw) return true;
-      return Array.isArray(g.aliases) && g.aliases.some(function (a) {
-        return String(a || '').trim().toLowerCase() === raw;
-      });
-    });
+    // Find every household whose primary code OR an alias equals the typed
+    // code (all compared lowercased + trimmed), deduped by household.
+    var matches = matchHouseholds(raw);
 
-    if (guest) {
-      // Some codes are shared by similarly-named households (e.g. two Robert
-      // Blackshaws). If this guest has a confirm question, check before opening.
-      if (guest.confirm) {
-        askConfirm(guest);
+    if (matches.length === 1) {
+      var only = matches[0];
+      // Keep the friendly confirm step for any single household that has one.
+      if (only.confirm) {
+        askConfirm(only);
       } else {
-        unseal(guest);
+        unseal(only);
       }
+      return;
+    }
+
+    if (matches.length > 1) {
+      // The same initial+surname belongs to more than one household —
+      // let the guest pick which one they are.
+      showHouseholdChooser(matches);
       return;
     }
 
@@ -138,6 +140,69 @@
   function clearConfirm() {
     var existing = document.getElementById('gate-confirm');
     if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
+  }
+
+  // All households whose primary code or an alias equals the typed code.
+  function matchHouseholds(raw) {
+    var out = [];
+    var seen = {};
+    guests.forEach(function (g) {
+      var hit = String(g.code || '').trim().toLowerCase() === raw;
+      if (!hit && Array.isArray(g.aliases)) {
+        hit = g.aliases.some(function (a) {
+          return String(a || '').trim().toLowerCase() === raw;
+        });
+      }
+      if (!hit) return;
+      var key = String(g.code || '').toLowerCase();
+      if (seen[key]) return;
+      seen[key] = true;
+      out.push(g);
+    });
+    return out;
+  }
+
+  function clearHouseholdChooser() {
+    var existing = document.getElementById('gate-household-chooser');
+    if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
+  }
+
+  // When a code matches more than one household, ask which one they are.
+  function showHouseholdChooser(matches) {
+    var gate = document.getElementById('gate');
+    var form = document.getElementById('gate-form');
+    clearConfirm();
+    clearHouseholdChooser();
+    if (form) form.style.display = 'none';
+
+    var box = document.createElement('div');
+    box.id = 'gate-household-chooser';
+    box.className = 'gate__chooser';
+
+    var h = document.createElement('h2');
+    h.className = 'gate__chooser-title';
+    h.textContent = 'Which one are you?';
+
+    var p = document.createElement('p');
+    p.className = 'gate__chooser-body';
+    p.textContent = 'That code matches more than one of you — pick your household.';
+
+    var actions = document.createElement('div');
+    actions.className = 'gate__chooser-actions';
+
+    matches.forEach(function (g) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'gate__choice';
+      b.textContent = (g.label && String(g.label).trim()) ? g.label : g.greeting;
+      b.addEventListener('click', function () { unseal(g); });
+      actions.appendChild(b);
+    });
+
+    box.appendChild(h);
+    box.appendChild(p);
+    box.appendChild(actions);
+    gate.appendChild(box);
   }
 
   // Friendly "are you the right person?" step for shared/ambiguous codes.
