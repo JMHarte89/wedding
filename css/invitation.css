@@ -259,6 +259,88 @@ button { font: inherit; cursor: pointer; }
   font-style: italic;
 }
 
+/* ---- Gate confirmation prompt (ambiguous / shared codes) ---- */
+
+.gate__confirm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+.gate__confirm-q {
+  margin: 0;
+  font-family: var(--font-body);
+  font-style: italic;
+  text-align: center;
+  color: var(--limestone);
+}
+.gate__confirm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+}
+.gate__button--ghost {
+  background: transparent;
+  color: var(--limestone);
+  border: 1px solid rgba(236, 229, 214, 0.5);
+}
+.gate__button--ghost:hover {
+  background: rgba(236, 229, 214, 0.12);
+}
+
+/* ---- Gate fallback chooser (after repeated unrecognised codes) ---- */
+
+.gate__chooser {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap);
+  width: min(540px, 88vw);
+  text-align: center;
+}
+.gate__chooser-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.3rem, 4vw, 1.85rem);
+  line-height: 1.2;
+  color: var(--limestone);
+}
+.gate__chooser-body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-style: italic;
+  line-height: 1.5;
+  color: rgba(236, 229, 214, 0.8);
+}
+.gate__chooser-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+.gate__choice {
+  padding: 1.2rem 1.6rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: border-color var(--t-fast) var(--ease), transform var(--t-fast) var(--ease);
+}
+.gate__choice:hover {
+  border-color: var(--petrol);
+  transform: translateY(-1px);
+}
+@media (min-width: 520px) {
+  .gate__chooser-actions { flex-direction: row; }
+  .gate__choice { flex: 1; }
+}
+
 .gate.is-shake .envelope { animation: gate-shake 0.35s var(--ease); }
 @keyframes gate-shake {
   0%, 100% { transform: translateX(0); }
@@ -328,6 +410,15 @@ body.is-open .letter {
   margin-top: 2rem;
   font-style: italic;
 }
+
+.letter__ps {
+  margin-top: 1.25rem;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 0.95rem;
+  color: rgba(34, 45, 42, 0.6);
+}
+.letter__ps[hidden] { display: none; }
 
 /* ------------------------------------------------------------
    STICKY NAV

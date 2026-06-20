@@ -8,7 +8,9 @@
     ],
     "day": true,
     "evening": true,
-    "notes": ""
+    "notes": "",
+    "confirm": "Just checking — are you married to Carole?",
+    "confirmElse": "If you're Robert married to Marie, your code is RBlackshaw."
   },
   {
     "code": "EHarte",
@@ -77,20 +79,23 @@
     ],
     "day": true,
     "evening": true,
-    "notes": ""
+    "notes": "",
+    "confirm": "Just checking — are you married to Marie?",
+    "confirmElse": "If you're Robert married to Carole, your code is CBlackshaw."
   },
   {
-    "code": "kristinadaniel",
-    "greeting": "Kristina, Daniel, Olivia & Charlotte",
+    "code": "KRowe",
+    "greeting": "Kristina, Daniel, Jan, Olivia & Charlotte",
     "members": [
-      "Kristina",
-      "Daniel",
+      "Kristina Rowe",
+      "Daniel English",
+      "Jan Nicholson",
       "Olivia (3)",
       "Charlotte (1)"
     ],
     "day": true,
     "evening": true,
-    "notes": "SURNAME TBC - check Facebook"
+    "notes": ""
   },
   {
     "code": "CGould",
@@ -236,7 +241,8 @@
     ],
     "day": true,
     "evening": true,
-    "notes": ""
+    "notes": "",
+    "confirm": "Just checking — are you Beth?"
   },
   {
     "code": "JTzu",
@@ -264,10 +270,10 @@
   },
   {
     "code": "WHarling",
-    "greeting": "Wayne & Lissie",
+    "greeting": "Wayne & Lizzie",
     "members": [
       "Wayne Harling",
-      "Lissie Harling"
+      "Lizzie Harling"
     ],
     "day": true,
     "evening": true,
@@ -364,5 +370,19 @@
     "day": true,
     "evening": true,
     "notes": "Plus-one"
+  },
+  {
+    "code": "GBennett",
+    "greeting": "Gill & Tim",
+    "members": [
+      "Gill Bennett",
+      "Tim Bennett"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": "",
+    "aliases": [
+      "TBennett"
+    ]
   }
 ]

@@ -36,6 +36,7 @@
   // ---------- Gate ----------
   function onGateSubmit(ev) {
     ev.preventDefault();
+    clearConfirm();
     var input = document.getElementById('gate-input');
     var errorEl = document.getElementById('gate-error');
     var raw = (input.value || '').trim().toLowerCase();
@@ -43,19 +44,28 @@
 
     // Case-insensitive code match: both the typed input and the stored code
     // are trimmed and lowercased. "JHARTE", "jharte", "JHarte" all match.
+    // Also matches any alternative codes listed in a guest's "aliases".
     var guest = guests.find(function (g) {
-      return String(g.code || '').trim().toLowerCase() === raw;
+      if (String(g.code || '').trim().toLowerCase() === raw) return true;
+      return Array.isArray(g.aliases) && g.aliases.some(function (a) {
+        return String(a || '').trim().toLowerCase() === raw;
+      });
     });
 
     if (guest) {
-      unseal(guest);
+      // Some codes are shared by similarly-named households (e.g. two Robert
+      // Blackshaws). If this guest has a confirm question, check before opening.
+      if (guest.confirm) {
+        askConfirm(guest);
+      } else {
+        unseal(guest);
+      }
       return;
     }
 
     failures += 1;
     if (failures >= FAIL_LIMIT) {
-      errorEl.textContent = "Let's not worry about the code — come in.";
-      unseal(friendFallback());
+      showChooser();
       return;
     }
     errorEl.textContent = "We don't recognise that one — try again?";
@@ -66,16 +76,116 @@
     input.select();
   }
 
-  // After FAIL_LIMIT misses we let people in anyway with a generic greeting.
-  function friendFallback() {
-    return {
-      code: '',
-      greeting: 'friend',
-      members: [],
-      day: true,
-      evening: true,
-      notes: ''
-    };
+  // After FAIL_LIMIT misses we show a friendly chooser instead of guessing.
+  // Each choice maps to a generic "fallback" guest, flagged so the letter
+  // shows a P.S. that real, matched guests never see.
+  function fallbackGuest(kind) {
+    if (kind === 'day') {
+      return { code: '', greeting: 'mystery guest', members: [], day: true,  evening: true, notes: '', isFallback: true };
+    }
+    if (kind === 'evening') {
+      return { code: '', greeting: 'evening guest', members: [], day: false, evening: true, notes: '', isFallback: true };
+    }
+    // 'unsure'
+    return { code: '', greeting: 'friend', members: [], day: true, evening: true, notes: '', isFallback: true };
+  }
+
+  // Friendly chooser shown after FAIL_LIMIT unrecognised attempts: hides the
+  // code input and offers day / evening / not-sure entry.
+  function showChooser() {
+    var gate = document.getElementById('gate');
+    var form = document.getElementById('gate-form');
+    clearConfirm();
+    if (form) form.style.display = 'none';
+    if (document.getElementById('gate-chooser')) return;
+
+    var box = document.createElement('div');
+    box.id = 'gate-chooser';
+    box.className = 'gate__chooser';
+
+    var h = document.createElement('h2');
+    h.className = 'gate__chooser-title';
+    h.textContent = "Hmm, we can't place you — but that's on us, not you.";
+
+    var p = document.createElement('p');
+    p.className = 'gate__chooser-body';
+    p.textContent = "We may have your code slightly wrong in our very sophisticated system. No judgement. Are you joining us for the full day, or sneaking in for the evening do?";
+
+    var actions = document.createElement('div');
+    actions.className = 'gate__chooser-actions';
+
+    var choices = [
+      { label: 'Here for the whole day', kind: 'day' },
+      { label: 'Evening only', kind: 'evening' },
+      { label: "I'm not sure yet", kind: 'unsure' }
+    ];
+    choices.forEach(function (c) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'gate__choice';
+      b.textContent = c.label;
+      b.addEventListener('click', function () { unseal(fallbackGuest(c.kind)); });
+      actions.appendChild(b);
+    });
+
+    box.appendChild(h);
+    box.appendChild(p);
+    box.appendChild(actions);
+    gate.appendChild(box);
+  }
+
+  // Remove any open confirmation prompt.
+  function clearConfirm() {
+    var existing = document.getElementById('gate-confirm');
+    if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
+  }
+
+  // Friendly "are you the right person?" step for shared/ambiguous codes.
+  function askConfirm(guest) {
+    clearConfirm();
+    var form = document.getElementById('gate-form');
+    var errorEl = document.getElementById('gate-error');
+    if (!form) { unseal(guest); return; }
+    if (errorEl) errorEl.textContent = '';
+
+    var box = document.createElement('div');
+    box.id = 'gate-confirm';
+    box.className = 'gate__confirm';
+
+    var q = document.createElement('p');
+    q.className = 'gate__confirm-q';
+    q.textContent = guest.confirm;
+    box.appendChild(q);
+
+    var actions = document.createElement('div');
+    actions.className = 'gate__confirm-actions';
+
+    var yes = document.createElement('button');
+    yes.type = 'button';
+    yes.className = 'gate__button';
+    yes.textContent = 'Yes, that’s me';
+    yes.addEventListener('click', function () {
+      clearConfirm();
+      unseal(guest);
+    });
+
+    var no = document.createElement('button');
+    no.type = 'button';
+    no.className = 'gate__button gate__button--ghost';
+    no.textContent = 'No, that’s not me';
+    no.addEventListener('click', function () {
+      clearConfirm();
+      if (errorEl) {
+        errorEl.textContent = guest.confirmElse || 'No problem — double-check your code and try again.';
+      }
+      var input = document.getElementById('gate-input');
+      if (input) { input.value = ''; input.focus(); }
+    });
+
+    actions.appendChild(yes);
+    actions.appendChild(no);
+    box.appendChild(actions);
+    form.appendChild(box);
   }
 
   function unseal(guest) {
@@ -97,6 +207,9 @@
     // The letter salutation is "Dear <greeting>," — the span holds the greeting.
     var greetEl = document.getElementById('guest-name');
     if (greetEl) greetEl.textContent = guest.greeting || 'friend';
+    // The P.S. note appears only for fallback guests, never for real matches.
+    var ps = document.getElementById('letter-ps');
+    if (ps) ps.hidden = !guest.isFallback;
     renderDay(guest);
   }
 

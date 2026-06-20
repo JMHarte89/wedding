@@ -101,26 +101,55 @@ function main() {
     var code = (cols[idx.code] || '').trim();
     if (!code) continue;
 
-    var lc = code.toLowerCase();
-    if (Object.prototype.hasOwnProperty.call(seen, lc)) {
-      duplicates.push({ code: code, collidesWith: seen[lc] });
-    } else {
-      seen[lc] = code;
-    }
-
     var members = (cols[idx.members] || '')
       .split('|')
       .map(function (m) { return m.trim(); })
       .filter(function (m) { return m !== ''; });
 
-    guests.push({
+    var entry = {
       code: code,
       greeting: (cols[idx.greeting] || '').trim(),
       members: members,
       day: toBool(cols[idx.day]),
       evening: toBool(cols[idx.evening]),
       notes: (cols[idx.notes] || '').trim()
+    };
+
+    // Optional disambiguation prompt (only emitted when present in the CSV).
+    if ('confirm' in idx) {
+      var confirm = (cols[idx.confirm] || '').trim();
+      if (confirm) entry.confirm = confirm;
+    }
+    if ('confirmElse' in idx) {
+      var confirmElse = (cols[idx.confirmElse] || '').trim();
+      if (confirmElse) entry.confirmElse = confirmElse;
+    }
+
+    // Optional alternative login codes (pipe-separated), e.g. a second surname.
+    var aliases = [];
+    if ('aliases' in idx) {
+      aliases = (cols[idx.aliases] || '')
+        .split('|')
+        .map(function (a) { return a.trim(); })
+        .filter(function (a) { return a !== ''; });
+      if (aliases.length) entry.aliases = aliases;
+    }
+    if ('label' in idx) {
+      var label = (cols[idx.label] || '').trim();
+      if (label) entry.label = label;
+    }
+
+    // Every code AND alias must be unique (case-insensitive).
+    [code].concat(aliases).forEach(function (key) {
+      var lc = key.toLowerCase();
+      if (Object.prototype.hasOwnProperty.call(seen, lc)) {
+        duplicates.push({ code: key, collidesWith: seen[lc] });
+      } else {
+        seen[lc] = key;
+      }
     });
+
+    guests.push(entry);
   }
 
   fs.writeFileSync(JSON_PATH, JSON.stringify(guests, null, 2) + '\n', 'utf8');

@@ -16,6 +16,10 @@ Edit this file to add, remove, or change guests.
 | `day` | `TRUE`/`FALSE` — invited to the full day. |
 | `evening` | `TRUE`/`FALSE` — invited to the evening. |
 | `notes` | Free-text notes (e.g. "surname TBC"). |
+| `confirm` | *(optional)* A friendly yes/no question shown before the invitation opens, for similarly-named households (e.g. two Robert Blackshaws): "Just checking — are you married to Carole?". Leave blank for everyone else. |
+| `confirmElse` | *(optional)* Hint shown if they answer "No" to `confirm` (e.g. "If you're Robert married to Marie, your code is RBlackshaw."). Optional even when `confirm` is set. |
+| `aliases` | *(optional)* Extra login codes that also open this invitation, pipe-separated (e.g. `TBennett` so either partner's initial works). Must be unique like `code`. |
+| `label` | *(optional)* Free-text tag for your own admin use; not shown on the site. |
 
 ### Regenerating the site data
 
