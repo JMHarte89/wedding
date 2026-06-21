@@ -499,5 +499,21 @@
     "aliases": [
       "TCaruthers"
     ]
+  },
+  {
+    "code": "EHyndman",
+    "greeting": "Elliott, Britt, River & Oakley",
+    "members": [
+      "Elliott Hyndman",
+      "Britt Hyndman",
+      "River",
+      "Oakley"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": "River and Oakley are their children — daughter 10, son 4 (which name is which TBC); Elliott is an old friend of Jase",
+    "aliases": [
+      "BHyndman"
+    ]
   }
 ]
