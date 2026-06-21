@@ -9,8 +9,6 @@
     "day": true,
     "evening": true,
     "notes": "",
-    "confirm": "Just checking — are you married to Carole?",
-    "confirmElse": "If you're Robert married to Marie, your code is RBlackshaw.",
     "aliases": [
       "RBlackshaw"
     ]
@@ -44,6 +42,7 @@
     "evening": true,
     "notes": "",
     "aliases": [
+      "BBlackshaw",
       "BHarte"
     ]
   },
@@ -95,8 +94,6 @@
     "day": true,
     "evening": true,
     "notes": "",
-    "confirm": "Just checking — are you married to Marie?",
-    "confirmElse": "If you're Robert married to Carole, your code is CBlackshaw.",
     "aliases": [
       "MBlackshaw"
     ]
@@ -291,7 +288,6 @@
     "day": true,
     "evening": true,
     "notes": "",
-    "confirm": "Just checking — are you Beth?",
     "aliases": [
       "TGlover"
     ]
@@ -473,6 +469,35 @@
     "notes": "",
     "aliases": [
       "TBennett"
+    ]
+  },
+  {
+    "code": "RHarte",
+    "greeting": "Raya & Archie",
+    "members": [
+      "Raya Harte",
+      "Archie Burt"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": "Emma's daughter (Jase's niece); Archie Burt is Raya's boyfriend",
+    "aliases": [
+      "ABurt"
+    ]
+  },
+  {
+    "code": "ACaruthers",
+    "greeting": "Anna, Craig & Thomas",
+    "members": [
+      "Anna Caruthers",
+      "Craig",
+      "Thomas Caruthers"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": "Anna is maid of honour; Craig is her partner (surname unknown); Thomas Caruthers is their son",
+    "aliases": [
+      "TCaruthers"
     ]
   }
 ]
