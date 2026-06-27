@@ -515,5 +515,45 @@
     "aliases": [
       "BHyndman"
     ]
+  },
+  {
+    "code": "GWright",
+    "greeting": "Graham",
+    "members": [
+      "Graham Wright"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": "Helen's brother"
+  },
+  {
+    "code": "TBurke",
+    "greeting": "Tina",
+    "members": [
+      "Tina Burke"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": "Helen's friend"
+  },
+  {
+    "code": "MWard",
+    "greeting": "Marina",
+    "members": [
+      "Marina Ward"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": "Helen's friend"
+  },
+  {
+    "code": "PMcCrann",
+    "greeting": "Pauline",
+    "members": [
+      "Pauline McCrann"
+    ],
+    "day": true,
+    "evening": true,
+    "notes": "Helen's friend"
   }
 ]
