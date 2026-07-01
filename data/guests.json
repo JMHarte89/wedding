@@ -268,14 +268,15 @@
     "code": "KWearing",
     "greeting": "Kenny & Trevor",
     "members": [
-      "Kenny Wearing",
-      "Trevor Kenwright Wearing"
+      "Kenny Earthling",
+      "Trevor Earthling"
     ],
     "day": true,
     "evening": true,
-    "notes": "",
+    "notes": "Real surname uncertain (possibly McKormick); Earthling is the nickname they go by",
     "aliases": [
-      "TWearing"
+      "KEarthling",
+      "TEarthling"
     ]
   },
   {
