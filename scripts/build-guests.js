@@ -187,6 +187,13 @@ function main() {
       if (label) entry.label = label;
     }
 
+    // Optional access level (e.g. "couple") — unlocks couple-only sections
+    // client-side. Soft gate only: guests.json is publicly readable.
+    if ('access' in idx) {
+      var access = (cols[idx.access] || '').trim();
+      if (access) entry.access = access;
+    }
+
     // Only PRIMARY codes must be unique. Aliases intentionally overlap across
     // households (e.g. two "RBlackshaw"s) — that drives the household chooser.
     var lc = code.toLowerCase();

@@ -1,7 +1,7 @@
-code,greeting,members,day,evening,notes,confirm,confirmElse,aliases,label
+code,greeting,members,day,evening,notes,confirm,confirmElse,aliases,label,access
 CBlackshaw,Carole & Robert,Carole Blackshaw|Robert Blackshaw,TRUE,TRUE,,,,,
 EHarte,"Emma, Ben, Jerome & Ruby",Emma Harte|Ben Maguire|Jerome (12)|Ruby (7),TRUE,TRUE,,,,,
-jharte,"Jase, Becki, Robin & Archie",Jase Harte|Becki Harte|Robin (3)|Archie (1),TRUE,TRUE,,,,BBlackshaw,
+jharte,"Jase, Becki, Robin & Archie",Jase Harte|Becki Harte|Robin (3)|Archie (1),TRUE,TRUE,,,,BBlackshaw,,couple
 VBlackshaw,Vicky & Jon,Vicky Blackshaw|Jon Abbotts,TRUE,TRUE,,,,,
 JByrne,Jill & Bob,Jill Byrne|Bob Parkinson,TRUE,TRUE,,,,,
 AHarte,Allan,Allan Harte,TRUE,TRUE,,,,,

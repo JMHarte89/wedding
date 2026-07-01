@@ -276,6 +276,18 @@
     var ps = document.getElementById('letter-ps');
     if (ps) ps.hidden = !guest.isFallback;
     renderDay(guest);
+    revealCoupleContent(guest);
+  }
+
+  // Soft gate: households flagged access:"couple" (Jase & Becki) see the
+  // extra couple-only sections (seating, order of service). Not real security
+  // — guests.json is public — just hidden from ordinary guests.
+  function revealCoupleContent(guest) {
+    var isCouple = guest && String(guest.access || '').toLowerCase() === 'couple';
+    if (!isCouple) return;
+    document.body.classList.add('is-couple');
+    var hidden = document.querySelectorAll('.couple-only[hidden]');
+    for (var i = 0; i < hidden.length; i++) { hidden[i].hidden = false; }
   }
 
   function renderDay(guest) {
