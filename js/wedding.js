@@ -2,7 +2,7 @@
   'use strict';
 
   var TIMELINE = [
-    { time: '11:45',      event: 'Arrive at church',                  note: 'Holy Trinity Church, Kendal. Find a pew, say your hellos, grab a service sheet.' },
+    { time: '11:00',      event: 'Arrive at church',                  note: 'Holy Trinity Church, Kendal. Doors open from 11am — find a pew, say your hellos, and grab a service sheet before the 12:00 start.' },
     { time: '12:00',      event: 'The ceremony',                      note: 'The bit we’re most nervous about.' },
     { time: '1:00',       event: 'Photographs outside the church',    note: 'The bridal party will guide everyone out. Confetti welcome — biodegradable only please.' },
     { time: '1:30',       event: 'Make your way to the venue',        note: 'The groomsmen and bridesmaids will point you in the right direction. It’s not far.' },
