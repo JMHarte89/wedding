@@ -20,4 +20,5 @@ js/config.js
 
 # Private planning (never commit — holds personal seating notes)
 data/seating-plan.xlsx
+plans/
 
