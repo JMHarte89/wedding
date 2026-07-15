@@ -488,7 +488,7 @@
     ]
   },
   {
-    "code": "ACaruthers",
+    "code": "ACarruthers",
     "greeting": "Anna, Craig & Thomas",
     "members": [
       "Anna Carruthers",
@@ -499,7 +499,6 @@
     "evening": true,
     "notes": "Anna is maid of honour; Craig Ferguson is her partner; Thomas Carruthers is their son",
     "aliases": [
-      "ACarruthers",
       "CFerguson",
       "TCarruthers"
     ]
