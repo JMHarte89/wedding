@@ -2,10 +2,10 @@
   'use strict';
 
   var TIMELINE = [
-    { time: '11:00',      event: 'Arrive at church',                  note: 'Holy Trinity Church, Kendal. Doors open from 11am — find a pew, say your hellos, and grab a service sheet before the 12:00 start.' },
-    { time: '12:00',      event: 'The ceremony',                      note: 'The bit we’re most nervous about.' },
-    { time: '1:00',       event: 'Photographs outside the church',    note: 'The bridal party will guide everyone out. Confetti welcome — biodegradable only please.' },
-    { time: '1:30',       event: 'Make your way to the venue',        note: 'The groomsmen and bridesmaids will point you in the right direction. It’s not far.' },
+    { time: '11:00',      event: 'Arrive at church',                  note: 'Holy Trinity Church, Kendal. Doors open from 11am — find a pew, say your hellos, and grab a service sheet before the 11:30 start.' },
+    { time: '11:30',      event: 'The ceremony',                      note: 'The bit we’re most nervous about.' },
+    { time: '12:30',      event: 'Photographs outside the church',    note: 'The bridal party will guide everyone out. Confetti welcome — biodegradable only please.' },
+    { time: '1:00–1:30',  event: 'Make your way to the venue',        note: 'The groomsmen and bridesmaids will point you in the right direction. It’s not far.' },
     { time: '2:00',       event: 'Welcome drinks — the newlyweds arrive', note: 'Raise a glass. The hard part is done.' },
     { time: '2:00–4:00',  event: 'Grazing, pizza & pancakes',         note: 'A sharing grazing buffet — [BUFFET DETAIL TO BE ADDED], plus wood-fired pizza and fresh pancakes. There’s also a magician wandering about — yes, really.' },
     { time: '4:30',       event: 'Speeches',                          note: 'Sit down, top up your glass, and be kind.' },

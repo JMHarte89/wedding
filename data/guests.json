@@ -491,15 +491,17 @@
     "code": "ACaruthers",
     "greeting": "Anna, Craig & Thomas",
     "members": [
-      "Anna Caruthers",
-      "Craig",
-      "Thomas Caruthers"
+      "Anna Carruthers",
+      "Craig Ferguson",
+      "Thomas Carruthers"
     ],
     "day": true,
     "evening": true,
-    "notes": "Anna is maid of honour; Craig is her partner (surname unknown); Thomas Caruthers is their son",
+    "notes": "Anna is maid of honour; Craig Ferguson is her partner; Thomas Carruthers is their son",
     "aliases": [
-      "TCaruthers"
+      "ACarruthers",
+      "CFerguson",
+      "TCarruthers"
     ]
   },
   {
