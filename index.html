@@ -135,38 +135,26 @@
     <section id="tables" class="section">
       <p class="section__kicker">The wedding breakfast</p>
       <h2 class="section__title">Where you're sitting</h2>
-      <p class="section__intro">Every table is named after a tree. Yours is marked below — the room is laid out as you'll walk into it.</p>
-      <figure class="floorplan-wrap">
-        <div class="floorplan">
-          <div class="floorplan__strip">
-            <div class="ftable" data-table="Kids"><span class="ftable__name">Kids</span></div>
-            <div class="ftable" data-table="Willow"><span class="ftable__name">Willow</span></div>
-            <div class="ftable" data-table="Elm"><span class="ftable__name">Elm</span></div>
-            <div class="ftable" data-table="Ash"><span class="ftable__name">Ash</span></div>
-            <div class="ftable" data-table="Magnolia"><span class="ftable__name">Magnolia</span></div>
-            <div class="ftable ftable--fixture"><span class="ftable__name">Entrance</span></div>
-          </div>
-          <div class="floorplan__body">
-            <div class="floorplan__col">
-              <div class="ftable ftable--fixture ftable--quiet"><span class="ftable__name">Bar</span></div>
-              <div class="ftable" data-table="Maple"><span class="ftable__name">Maple</span></div>
-              <div class="ftable" data-table="Oak"><span class="ftable__name">Oak</span></div>
-            </div>
-            <div class="floorplan__col floorplan__col--centre">
-              <div class="ftable ftable--head" data-table="Top Table"><span class="ftable__name">Top Table</span></div>
-              <div class="ftable ftable--fixture ftable--wide"><span class="ftable__name">Stage / Food</span></div>
-            </div>
-            <div class="floorplan__col">
-              <div class="ftable" data-table="Acer"><span class="ftable__name">Acer</span></div>
-              <div class="ftable" data-table="Rowan"><span class="ftable__name">Rowan</span></div>
-              <div class="ftable" data-table="Holly"><span class="ftable__name">Holly</span></div>
-            </div>
-          </div>
+      <p class="section__intro">Every table is named after a tree. Pop your invitation code in below and we'll tell you which one is yours, and who you're sharing it with.</p>
+
+      <form id="seat-form" class="seat-form" autocomplete="off" novalidate>
+        <label for="seat-input" class="seat-form__label">Your invitation code</label>
+        <div class="seat-form__row">
+          <input id="seat-input" class="seat-form__input" type="text"
+                 autocapitalize="none" autocorrect="off" spellcheck="false">
+          <button type="submit" class="seat-form__button">Find my table</button>
         </div>
-        <figcaption class="floorplan__caption">
-          The Kids table is there for the little ones to escape to — nobody is seated there.
-          <a href="pictures/final_table_layout.jpg" target="_blank" rel="noopener noreferrer">See the illustrated plan &#8599;</a>
-        </figcaption>
+        <p class="seat-form__hint">The letter of your first name, followed by your last name in full.</p>
+      </form>
+
+      <div id="seat-result" class="seat-result" role="status" aria-live="polite"></div>
+
+      <figure class="seat-plan">
+        <a class="seat-plan__link" href="pictures/final_table_layout.jpg" target="_blank" rel="noopener">
+          <img class="seat-plan__img" src="pictures/final_table_layout.jpg" loading="lazy"
+               alt="Illustrated seating plan showing every table named after a tree, with the entrance, bar, top table and stage marked">
+        </a>
+        <figcaption class="seat-plan__caption">The Kids table is there for the little ones to escape to — nobody is seated there.</figcaption>
       </figure>
     </section>
 
@@ -237,6 +225,7 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="js/wedding.js"></script>
+  <script src="js/seating.js"></script>
   <script>
     (function () {
       'use strict';

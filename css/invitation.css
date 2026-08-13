@@ -884,123 +884,6 @@ body.is-open .place-card {
 }
 
 /* ------------------------------------------------------------
-   FLOOR PLAN — the room as you walk into it
------------------------------------------------------------- */
-
-.floorplan-wrap { margin: 0; }
-
-.floorplan {
-  border: 1px solid var(--rule);
-  border-radius: var(--radius);
-  background: var(--paper);
-  padding: clamp(0.75rem, 3vw, 1.25rem);
-  display: flex;
-  flex-direction: column;
-  gap: clamp(0.75rem, 3vw, 1.25rem);
-}
-
-.floorplan__strip {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.5rem;
-}
-
-.floorplan__body {
-  display: grid;
-  grid-template-columns: 1fr 1.25fr 1fr;
-  gap: 0.5rem;
-  align-items: start;
-}
-
-.floorplan__col {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-.floorplan__col--centre { gap: 0.75rem; }
-
-.ftable {
-  position: relative;
-  border: 1px solid var(--rule-strong);
-  border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.4);
-  padding: 0.7rem 0.4rem;
-  text-align: center;
-  min-height: 3.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.ftable__name {
-  font-family: var(--font-display);
-  font-size: clamp(0.8rem, 2.6vw, 1rem);
-  line-height: 1.2;
-  color: var(--ink);
-}
-
-/* Entrance, Bar, Stage — room furniture, not tables. */
-.ftable--fixture {
-  border-style: dashed;
-  border-color: var(--rule);
-  background: transparent;
-}
-.ftable--fixture .ftable__name {
-  font-family: var(--font-body);
-  font-style: italic;
-  color: rgba(34, 45, 42, 0.55);
-}
-.ftable--quiet .ftable__name { color: var(--wax); opacity: 0.7; }
-
-/* The top table — the U at the heart of the room. */
-.ftable--head {
-  min-height: 8rem;
-  border-width: 2px;
-  border-color: var(--petrol);
-  border-bottom-left-radius: 45%;
-  border-bottom-right-radius: 45%;
-  background: rgba(44, 93, 99, 0.06);
-}
-.ftable--head .ftable__name {
-  color: var(--petrol);
-  font-size: clamp(0.9rem, 3vw, 1.15rem);
-}
-
-/* Your table. */
-.ftable.is-yours {
-  border-color: var(--wax);
-  border-width: 2px;
-  background: rgba(136, 58, 45, 0.07);
-  box-shadow: 0 2px 10px rgba(136, 58, 45, 0.14);
-  flex-direction: column;
-  gap: 0.3rem;
-}
-.ftable.is-yours .ftable__name { color: var(--wax); }
-
-.ftable__you {
-  font-family: var(--font-display);
-  font-size: 0.6rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--wax);
-  opacity: 0.85;
-}
-
-.floorplan__caption {
-  margin: 0.9rem 0 0;
-  font-size: 0.9rem;
-  font-style: italic;
-  color: rgba(34, 45, 42, 0.65);
-  text-align: center;
-}
-.floorplan__caption a { font-style: normal; }
-
-@media (max-width: 400px) {
-  .floorplan__body { grid-template-columns: 1fr 1fr; }
-  .floorplan__col--centre { grid-column: 1 / -1; order: -1; }
-}
-
-/* ------------------------------------------------------------
    SEATING PLAN — couple-only, built from the guest list
 ------------------------------------------------------------ */
 
@@ -1050,6 +933,310 @@ body.is-open .place-card {
   margin-left: -0.85rem;
 }
 .seating-plan__table.is-yours .seating-plan__name { color: var(--wax); }
+
+/* ------------------------------------------------------------
+   SEATING LOOKUP — "Your Table" (#tables)
+   Palette, fonts and card treatment all come from the tokens above.
+------------------------------------------------------------ */
+
+.seat-form { margin: 0 0 var(--gap); }
+
+.seat-form__label {
+  display: block;
+  font-family: var(--font-display);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  color: var(--petrol);
+  margin-bottom: 0.5rem;
+}
+
+.seat-form__row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.seat-form__input {
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  padding: 0.7rem 0.85rem;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  width: 100%;
+  min-width: 0;
+}
+.seat-form__input:focus-visible {
+  outline: 2px solid var(--petrol);
+  outline-offset: 2px;
+}
+
+.seat-form__button {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  padding: 0.7rem 1.25rem;
+  color: var(--paper);
+  background: var(--petrol);
+  border: 1px solid var(--petrol);
+  border-radius: var(--radius);
+  white-space: nowrap;
+}
+.seat-form__button:hover { background: var(--wax); border-color: var(--wax); }
+.seat-form__button:focus-visible {
+  outline: 2px solid var(--wax);
+  outline-offset: 2px;
+}
+
+.seat-form__hint {
+  margin: 0.55rem 0 0;
+  font-size: 0.9rem;
+  font-style: italic;
+  color: rgba(34, 45, 42, 0.6);
+}
+
+.seat-result:empty { display: none; }
+
+/* ---- The answer ---- */
+
+.seat-card {
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  box-shadow: 0 6px 18px var(--paper-shadow);
+  padding: clamp(1.25rem, 5vw, 2rem);
+  text-align: center;
+}
+
+.seat-card__hello {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(1.15rem, 4vw, 1.4rem);
+  margin: 0 0 0.75rem;
+}
+
+.seat-leaf {
+  display: block;
+  width: 3rem;
+  height: auto;
+  margin: 0 auto 0.6rem;
+  fill: none;
+  stroke: var(--petrol);
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  opacity: 0.75;
+}
+
+.seat-label {
+  font-family: var(--font-display);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+  color: var(--petrol);
+  margin: 0 0 0.3rem;
+}
+
+.seat-card__tree {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 8vw, 2.9rem);
+  line-height: 1.1;
+  color: var(--wax);
+  margin: 0 0 0.35rem;
+}
+
+.seat-card__where {
+  margin: 0;
+  font-size: 0.9rem;
+  font-style: italic;
+  color: rgba(34, 45, 42, 0.6);
+}
+
+.seat-rule {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 1.4rem auto;
+  width: 100%;
+}
+
+.seat-card__people {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+.seat-card__sep { color: var(--rule-strong); }
+.seat-card__you { color: var(--wax); }
+.seat-card__you-tag {
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ---- Same name, more than one of them ---- */
+
+.seat-choice {
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  padding: clamp(1.1rem, 4vw, 1.6rem);
+}
+
+.seat-choice__title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  margin: 0 0 1rem;
+}
+
+.seat-choice__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.seat-choice__btn {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  text-align: left;
+  padding: 0.7rem 0.9rem;
+  background: transparent;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  color: var(--ink);
+}
+.seat-choice__btn:hover { border-color: var(--petrol); }
+.seat-choice__btn:focus-visible {
+  outline: 2px solid var(--petrol);
+  outline-offset: 2px;
+}
+
+.seat-choice__name { font-family: var(--font-body); font-size: 1rem; }
+.seat-choice__tree {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--petrol);
+  white-space: nowrap;
+}
+
+/* ---- Not found ---- */
+
+.seat-miss {
+  border: 1px solid var(--rule);
+  border-left: 2px solid var(--wax);
+  border-radius: var(--radius);
+  padding: clamp(1rem, 4vw, 1.4rem);
+}
+.seat-miss p { margin: 0 0 0.6rem; font-size: 0.95rem; }
+.seat-miss p:last-child { margin-bottom: 0; }
+.seat-miss__title {
+  font-family: var(--font-display);
+  color: var(--wax);
+  font-size: 1.05rem;
+}
+.seat-miss__foot { font-style: italic; color: rgba(34, 45, 42, 0.65); }
+
+/* ---- Admin: every table ---- */
+
+.seat-all { display: flex; flex-direction: column; gap: 1rem; }
+
+.seat-all__table {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: clamp(1rem, 4vw, 1.4rem);
+}
+
+.seat-all__tree {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  color: var(--petrol);
+  margin: 0 0 0.2rem;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.seat-all__count {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 0.85rem;
+  color: rgba(34, 45, 42, 0.55);
+  white-space: nowrap;
+}
+
+.seat-all__where {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: rgba(34, 45, 42, 0.55);
+}
+
+.seat-all__note {
+  margin: 0;
+  font-size: 0.95rem;
+  font-style: italic;
+  color: rgba(34, 45, 42, 0.65);
+}
+
+.seat-all__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  columns: 1;
+}
+.seat-all__name { font-size: 0.98rem; line-height: 1.6; break-inside: avoid; }
+.seat-all__age { color: rgba(34, 45, 42, 0.5); font-size: 0.85rem; }
+
+/* ---- The illustrated plan ----
+   The artwork is the source of truth for the room, so it is shown whole:
+   full container width, natural aspect ratio, no crop, no fixed height and
+   no object-fit. Tapping it opens the file full size. */
+
+.seat-plan {
+  margin: var(--gap-lg) 0 0;
+}
+
+.seat-plan__link {
+  display: block;
+  border-radius: var(--radius);
+}
+.seat-plan__link:focus-visible {
+  outline: 2px solid var(--petrol);
+  outline-offset: 3px;
+}
+
+.seat-plan__img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  /* --petrol at low opacity: a sage hairline that doesn't fight the artwork. */
+  border: 1px solid rgba(44, 93, 99, 0.35);
+  border-radius: var(--radius);
+}
+
+.seat-plan__caption {
+  margin: 0.9rem 0 0;
+  font-size: 0.9rem;
+  font-style: italic;
+  color: rgba(34, 45, 42, 0.65);
+  text-align: center;
+}
+
+@media (min-width: 480px) {
+  .seat-all__list { columns: 2; column-gap: 1.5rem; }
+}
+
+@media (min-width: 520px) {
+  .seat-form__row { flex-direction: row; }
+  .seat-form__input { flex: 1; }
+}
 
 /* ------------------------------------------------------------
    Reduced motion
