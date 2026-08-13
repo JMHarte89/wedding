@@ -939,63 +939,6 @@ body.is-open .place-card {
    Palette, fonts and card treatment all come from the tokens above.
 ------------------------------------------------------------ */
 
-.seat-form { margin: 0 0 var(--gap); }
-
-.seat-form__label {
-  display: block;
-  font-family: var(--font-display);
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  font-size: 0.68rem;
-  color: var(--petrol);
-  margin-bottom: 0.5rem;
-}
-
-.seat-form__row {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.seat-form__input {
-  font-family: var(--font-body);
-  font-size: 1.05rem;
-  padding: 0.7rem 0.85rem;
-  color: var(--ink);
-  background: var(--paper);
-  border: 1px solid var(--rule-strong);
-  border-radius: var(--radius);
-  width: 100%;
-  min-width: 0;
-}
-.seat-form__input:focus-visible {
-  outline: 2px solid var(--petrol);
-  outline-offset: 2px;
-}
-
-.seat-form__button {
-  font-family: var(--font-display);
-  font-size: 0.95rem;
-  padding: 0.7rem 1.25rem;
-  color: var(--paper);
-  background: var(--petrol);
-  border: 1px solid var(--petrol);
-  border-radius: var(--radius);
-  white-space: nowrap;
-}
-.seat-form__button:hover { background: var(--wax); border-color: var(--wax); }
-.seat-form__button:focus-visible {
-  outline: 2px solid var(--wax);
-  outline-offset: 2px;
-}
-
-.seat-form__hint {
-  margin: 0.55rem 0 0;
-  font-size: 0.9rem;
-  font-style: italic;
-  color: rgba(34, 45, 42, 0.6);
-}
-
 .seat-result:empty { display: none; }
 
 /* ---- The answer ---- */
@@ -1123,23 +1066,6 @@ body.is-open .place-card {
   white-space: nowrap;
 }
 
-/* ---- Not found ---- */
-
-.seat-miss {
-  border: 1px solid var(--rule);
-  border-left: 2px solid var(--wax);
-  border-radius: var(--radius);
-  padding: clamp(1rem, 4vw, 1.4rem);
-}
-.seat-miss p { margin: 0 0 0.6rem; font-size: 0.95rem; }
-.seat-miss p:last-child { margin-bottom: 0; }
-.seat-miss__title {
-  font-family: var(--font-display);
-  color: var(--wax);
-  font-size: 1.05rem;
-}
-.seat-miss__foot { font-style: italic; color: rgba(34, 45, 42, 0.65); }
-
 /* ---- Admin: every table ---- */
 
 .seat-all { display: flex; flex-direction: column; gap: 1rem; }
@@ -1211,14 +1137,14 @@ body.is-open .place-card {
   outline-offset: 3px;
 }
 
+/* No border, no frame — the section background below is the same cream as
+   the artwork's own, so the image reads as part of the page, not a pasted-in
+   picture. Whole image, always: no crop, no fixed height, no object-fit. */
 .seat-plan__img {
   display: block;
   width: 100%;
   max-width: 100%;
   height: auto;
-  /* --petrol at low opacity: a sage hairline that doesn't fight the artwork. */
-  border: 1px solid rgba(44, 93, 99, 0.35);
-  border-radius: var(--radius);
 }
 
 .seat-plan__caption {
@@ -1229,13 +1155,12 @@ body.is-open .place-card {
   text-align: center;
 }
 
+/* Sampled from the artwork's own margin (#FDF9F0) so there is no seam
+   where the JPEG meets the page. */
+#tables { background: #FDF9F0; }
+
 @media (min-width: 480px) {
   .seat-all__list { columns: 2; column-gap: 1.5rem; }
-}
-
-@media (min-width: 520px) {
-  .seat-form__row { flex-direction: row; }
-  .seat-form__input { flex: 1; }
 }
 
 /* ------------------------------------------------------------

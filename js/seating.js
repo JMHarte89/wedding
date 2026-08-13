@@ -34,6 +34,14 @@
      on load and a console warning is logged if the data drifts.
      ====================================================================== */
 
+  // Invitation codes the gate accepts that can't be derived from the name on
+  // the plan. KWearing is the household's old surname — Kenny and Trevor go
+  // by Earthling, so nothing about "KWearing" is reachable from their names.
+  // Add an entry here whenever a code and a printed name disagree.
+  var ALSO_KNOWN_AS = {
+    'KWearing': ['Kenny Earthling', 'Trevor Earthling']
+  };
+
   var ADMIN_CODES = [
     // Non-guest codes, deliberately not derived from anyone's name so they
     // can't be reached by guessing. Change these freely.
@@ -234,14 +242,38 @@
     (index[key] = index[key] || []).push(guest);
   }
 
+  var everyone = [];
+
   SEATING.forEach(function (t) {
     t.guests.forEach(function (g) {
       if (g.placeholder) return;
+      everyone.push(g);
       var words = g.name.split(/\s+/).filter(Boolean);
       var first = words[0];
       var last = words.length > 1 ? words[words.length - 1] : '';
-      if (last) addToIndex(normalise(first.charAt(0) + last), g);
+
       addToIndex(normalise(first), g);
+      if (!last) return;
+
+      addToIndex(normalise(first.charAt(0) + last), g);  // CGould
+      addToIndex(normalise(first + last), g);            // MaryHarte, JustinHarte
+
+      // Hyphenated surnames also answer to each half, matching how the
+      // invitation codes in guestlist.csv are generated (HThompson, LLovatt).
+      if (last.indexOf('-') !== -1) {
+        last.split('-').forEach(function (seg) {
+          addToIndex(normalise(first.charAt(0) + seg), g);
+          addToIndex(normalise(first + seg), g);
+        });
+      }
+    });
+  });
+
+  Object.keys(ALSO_KNOWN_AS).forEach(function (code) {
+    ALSO_KNOWN_AS[code].forEach(function (name) {
+      var who = everyone.filter(function (g) { return g.name === name; })[0];
+      if (who) addToIndex(normalise(code), who);
+      else console.warn('[seating] ALSO_KNOWN_AS points at an unknown guest: ' + name);
     });
   });
 
@@ -355,16 +387,6 @@
     out.appendChild(box);
   }
 
-  // Deliberately says nothing about who is or isn't on the list.
-  function renderMiss() {
-    clear();
-    var box = el('div', 'seat-miss');
-    box.appendChild(el('p', 'seat-miss__title', 'We can’t place that one — but that’s on us, not you.'));
-    box.appendChild(el('p', null, 'Your code is the letter of your first name followed by your last name in full — Claire Gould would be CGould.'));
-    box.appendChild(el('p', 'seat-miss__foot', 'Still nothing? Give Jase a nudge and we’ll sort it.'));
-    out.appendChild(box);
-  }
-
   function renderAll() {
     clear();
     var wrap = el('div', 'seat-all');
@@ -391,21 +413,38 @@
     out.appendChild(wrap);
   }
 
-  function onSubmit(ev) {
-    ev.preventDefault();
-    var input = document.getElementById('seat-input');
-    var raw = (input.value || '').trim();
-    if (!raw) { clear(); return; }
-    if (isAdmin(raw)) { renderAll(); return; }
-    var matches = lookup(raw);
+  // The guest is never asked for their code twice. The unlock gate in
+  // js/wedding.js validates it against the real guest list and hands it over
+  // here the moment it succeeds; this section just answers with their table.
+  //
+  // Two candidates arrive: the code the guest actually typed, and the
+  // canonical code of the household the gate matched it to. The typed one is
+  // tried first because it's the more specific of the two — someone entering
+  // their own alias (MBlackshaw) should get themselves, not whoever the
+  // household is filed under.
+  function onUnlocked(detail) {
+    out = out || document.getElementById('seat-result');
+    if (!out) return;
+    clear();
+
+    var tried = [detail.code, detail.householdCode];
+    var matches = [];
+    for (var i = 0; i < tried.length && !matches.length; i++) {
+      if (tried[i]) matches = lookup(tried[i]);
+    }
+
     if (matches.length === 1) renderGuest(matches[0]);
     else if (matches.length > 1) renderChoice(matches);
-    else renderMiss();
+    // No match — an evening guest, an unnamed "+ guest", or someone who came
+    // in through the gate's generic fallback. Show nothing: the illustration
+    // and footnote stand on their own, and nobody is told they have no table.
   }
 
   document.addEventListener('DOMContentLoaded', function () {
     out = document.getElementById('seat-result');
-    var form = document.getElementById('seat-form');
-    if (form) form.addEventListener('submit', onSubmit);
+  });
+
+  document.addEventListener('wedding:unlocked', function (ev) {
+    onUnlocked(ev.detail || {});
   });
 })();

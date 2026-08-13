@@ -135,18 +135,9 @@
     <section id="tables" class="section">
       <p class="section__kicker">The wedding breakfast</p>
       <h2 class="section__title">Where you're sitting</h2>
-      <p class="section__intro">Every table is named after a tree. Pop your invitation code in below and we'll tell you which one is yours, and who you're sharing it with.</p>
+      <p class="section__intro">Every table is named after a tree. Here's yours, and the room as you'll walk into it.</p>
 
-      <form id="seat-form" class="seat-form" autocomplete="off" novalidate>
-        <label for="seat-input" class="seat-form__label">Your invitation code</label>
-        <div class="seat-form__row">
-          <input id="seat-input" class="seat-form__input" type="text"
-                 autocapitalize="none" autocorrect="off" spellcheck="false">
-          <button type="submit" class="seat-form__button">Find my table</button>
-        </div>
-        <p class="seat-form__hint">The letter of your first name, followed by your last name in full.</p>
-      </form>
-
+      <!-- Filled in by js/seating.js from the code entered at the gate. -->
       <div id="seat-result" class="seat-result" role="status" aria-live="polite"></div>
 
       <figure class="seat-plan">

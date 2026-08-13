@@ -20,6 +20,12 @@
   var failures = 0;
   var guests = [];
 
+  // The accepted invitation code, remembered once when the gate succeeds so
+  // the rest of the page (the seating card) never has to ask for it again.
+  // Held in memory only — nothing is written to localStorage or sessionStorage.
+  var currentGuestCode = null;
+  var lastTyped = null;
+
   // ---------- Boot ----------
   document.addEventListener('DOMContentLoaded', function () {
     var form = document.getElementById('gate-form');
@@ -42,6 +48,7 @@
     var errorEl = document.getElementById('gate-error');
     var raw = (input.value || '').trim().toLowerCase();
     if (!raw) return;
+    lastTyped = raw;
 
     // Find every household whose primary code OR an alias equals the typed
     // code (all compared lowercased + trimmed), deduped by household.
@@ -258,7 +265,20 @@
     var envelope = gate.querySelector('.envelope');
     envelope.classList.add('is-open');
 
+    // Fallback guests came in through the "we can't place you" chooser, so
+    // there is no real code behind them — leave it null rather than guess.
+    var identified = guest && !guest.isFallback;
+    currentGuestCode = identified ? (lastTyped || guest.code || null) : null;
+
     populate(guest);
+
+    // Hand the code to anything else on the page that needs it (js/seating.js).
+    document.dispatchEvent(new CustomEvent('wedding:unlocked', {
+      detail: {
+        code: currentGuestCode,
+        householdCode: identified ? (guest.code || null) : null
+      }
+    }));
 
     // Crack + flap lift first, then fade the gate away and open the page.
     setTimeout(function () {
