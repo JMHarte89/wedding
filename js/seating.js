@@ -354,15 +354,22 @@
     return line;
   }
 
+  // The table name lives in the section heading. The em dash is part of the
+  // span, so clearing the span can never leave a dangling dash behind.
+  function setHeadingTable(tree) {
+    var span = document.getElementById('seat-heading-table');
+    if (!span) return;
+    span.textContent = tree ? '— ' + tree : '';
+  }
+
   function renderGuest(guest) {
     var table = tableOf(guest.tree);
     clear();
+    setHeadingTable(table.tree);
 
     var card = el('div', 'seat-card');
     card.appendChild(el('p', 'seat-card__hello', 'Hello ' + firstNameOf(guest)));
     card.appendChild(leaf());
-    card.appendChild(el('p', 'seat-label', 'You’re on'));
-    card.appendChild(el('p', 'seat-card__tree', table.tree));
     if (table.where) card.appendChild(el('p', 'seat-card__where', table.where));
     card.appendChild(el('hr', 'seat-rule'));
     card.appendChild(el('p', 'seat-label', 'Sharing your table'));
@@ -426,6 +433,8 @@
     out = out || document.getElementById('seat-result');
     if (!out) return;
     clear();
+    // Plain heading until (and unless) we land on exactly one seated guest.
+    setHeadingTable('');
 
     var tried = [detail.code, detail.householdCode];
     var matches = [];

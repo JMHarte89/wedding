@@ -939,6 +939,15 @@ body.is-open .place-card {
    Palette, fonts and card treatment all come from the tokens above.
 ------------------------------------------------------------ */
 
+/* The guest's table, appended to the section heading. Empty until the code
+   resolves to exactly one seated guest — and the em dash is part of the
+   span's text, so an empty span leaves no dangling punctuation. */
+.section__title-table {
+  color: var(--wax);
+  white-space: nowrap;
+}
+.section__title-table:not(:empty) { margin-left: 0.35em; }
+
 .seat-result:empty { display: none; }
 
 /* ---- The answer ---- */
@@ -978,14 +987,6 @@ body.is-open .place-card {
   font-size: 0.65rem;
   color: var(--petrol);
   margin: 0 0 0.3rem;
-}
-
-.seat-card__tree {
-  font-family: var(--font-display);
-  font-size: clamp(2rem, 8vw, 2.9rem);
-  line-height: 1.1;
-  color: var(--wax);
-  margin: 0 0 0.35rem;
 }
 
 .seat-card__where {
@@ -1130,16 +1131,14 @@ body.is-open .place-card {
 
 .seat-plan__link {
   display: block;
-  border-radius: var(--radius);
 }
 .seat-plan__link:focus-visible {
   outline: 2px solid var(--petrol);
   outline-offset: 3px;
 }
 
-/* No border, no frame — the section background below is the same cream as
-   the artwork's own, so the image reads as part of the page, not a pasted-in
-   picture. Whole image, always: no crop, no fixed height, no object-fit. */
+/* Sits flat on the page: no border, no radius, no shadow, no edge of any
+   kind. Whole image, always — no crop, no fixed height, no object-fit. */
 .seat-plan__img {
   display: block;
   width: 100%;
@@ -1154,10 +1153,6 @@ body.is-open .place-card {
   color: rgba(34, 45, 42, 0.65);
   text-align: center;
 }
-
-/* Sampled from the artwork's own margin (#FDF9F0) so there is no seam
-   where the JPEG meets the page. */
-#tables { background: #FDF9F0; }
 
 @media (min-width: 480px) {
   .seat-all__list { columns: 2; column-gap: 1.5rem; }
