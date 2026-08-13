@@ -194,6 +194,14 @@ function main() {
       if (access) entry.access = access;
     }
 
+    // Optional table assignment — the tree name from the seating plan
+    // (e.g. "Oak"). Shown on the guest's place card once they unseal, and
+    // highlighted on the table plan.
+    if ('table' in idx) {
+      var table = (cols[idx.table] || '').trim();
+      if (table) entry.table = table;
+    }
+
     // Only PRIMARY codes must be unique. Aliases intentionally overlap across
     // households (e.g. two "RBlackshaw"s) — that drives the household chooser.
     var lc = code.toLowerCase();

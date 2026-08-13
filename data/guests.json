@@ -11,7 +11,8 @@
     "notes": "",
     "aliases": [
       "RBlackshaw"
-    ]
+    ],
+    "table": "Top Table"
   },
   {
     "code": "EHarte",
@@ -27,7 +28,8 @@
     "notes": "",
     "aliases": [
       "BMaguire"
-    ]
+    ],
+    "table": "Oak"
   },
   {
     "code": "jharte",
@@ -45,7 +47,8 @@
       "BBlackshaw",
       "BHarte"
     ],
-    "access": "couple"
+    "access": "couple",
+    "table": "Top Table"
   },
   {
     "code": "VBlackshaw",
@@ -59,7 +62,8 @@
     "notes": "",
     "aliases": [
       "JAbbotts"
-    ]
+    ],
+    "table": "Maple"
   },
   {
     "code": "JByrne",
@@ -73,7 +77,8 @@
     "notes": "",
     "aliases": [
       "BParkinson"
-    ]
+    ],
+    "table": "Maple"
   },
   {
     "code": "AHarte",
@@ -83,7 +88,8 @@
     ],
     "day": true,
     "evening": true,
-    "notes": ""
+    "notes": "",
+    "table": "Top Table"
   },
   {
     "code": "RBlackshaw",
@@ -97,7 +103,8 @@
     "notes": "",
     "aliases": [
       "MBlackshaw"
-    ]
+    ],
+    "table": "Elm"
   },
   {
     "code": "KRowe",
@@ -115,7 +122,8 @@
     "aliases": [
       "DEnglish",
       "JNicholson"
-    ]
+    ],
+    "table": "Willow"
   },
   {
     "code": "CGould",
@@ -125,7 +133,8 @@
     ],
     "day": true,
     "evening": true,
-    "notes": ""
+    "notes": "",
+    "table": "Willow"
   },
   {
     "code": "RHoar",
@@ -142,7 +151,8 @@
     "notes": "",
     "aliases": [
       "JHoar"
-    ]
+    ],
+    "table": "Holly"
   },
   {
     "code": "HHarte",
@@ -156,7 +166,8 @@
     "notes": "",
     "aliases": [
       "NHarte"
-    ]
+    ],
+    "table": "Top Table"
   },
   {
     "code": "RArnold",
@@ -172,7 +183,8 @@
     "notes": "",
     "aliases": [
       "CArnold"
-    ]
+    ],
+    "table": "Magnolia"
   },
   {
     "code": "HLovatt",
@@ -186,7 +198,8 @@
     "notes": "",
     "aliases": [
       "DLovatt"
-    ]
+    ],
+    "table": "Magnolia"
   },
   {
     "code": "GSlater",
@@ -200,7 +213,8 @@
     "notes": "",
     "aliases": [
       "KThomas"
-    ]
+    ],
+    "table": "Ash"
   },
   {
     "code": "MSlater",
@@ -214,7 +228,8 @@
     "notes": "",
     "aliases": [
       "SSlater"
-    ]
+    ],
+    "table": "Ash"
   },
   {
     "code": "HGirvan",
@@ -224,7 +239,8 @@
     ],
     "day": true,
     "evening": true,
-    "notes": ""
+    "notes": "",
+    "table": "Willow"
   },
   {
     "code": "UCarey",
@@ -238,7 +254,8 @@
     "notes": "",
     "aliases": [
       "MCarey"
-    ]
+    ],
+    "table": "Holly"
   },
   {
     "code": "KHumphries",
@@ -249,7 +266,8 @@
     ],
     "day": true,
     "evening": true,
-    "notes": "Surname uncertain; +1 name unknown"
+    "notes": "Surname uncertain; +1 name unknown",
+    "table": "Rowan"
   },
   {
     "code": "DGeorge",
@@ -263,7 +281,8 @@
     "notes": "",
     "aliases": [
       "MGeorge"
-    ]
+    ],
+    "table": "Maple"
   },
   {
     "code": "KWearing",
@@ -278,7 +297,8 @@
     "aliases": [
       "KEarthling",
       "TEarthling"
-    ]
+    ],
+    "table": "Rowan"
   },
   {
     "code": "BBlackshaw",
@@ -292,7 +312,8 @@
     "notes": "",
     "aliases": [
       "TGlover"
-    ]
+    ],
+    "table": "Top Table"
   },
   {
     "code": "JTzu",
@@ -307,7 +328,8 @@
     "notes": "",
     "aliases": [
       "TTzu"
-    ]
+    ],
+    "table": "Top Table"
   },
   {
     "code": "HThompson",
@@ -328,7 +350,8 @@
       "LLovatt-Thompson",
       "LLovatt",
       "LThompson"
-    ]
+    ],
+    "table": "Magnolia"
   },
   {
     "code": "WHarling",
@@ -342,15 +365,17 @@
     "notes": "",
     "aliases": [
       "LHarling"
-    ]
+    ],
+    "table": "Holly"
   },
   {
     "code": "GBlackshaw",
-    "greeting": "Guy, Lu, Oliver & Henry",
+    "greeting": "Guy, Lu, Oliver, Rhys & Henry",
     "members": [
       "Guy Blackshaw",
       "Lu Blackshaw",
       "Oliver",
+      "Rhys",
       "Henry"
     ],
     "day": true,
@@ -358,7 +383,8 @@
     "notes": "",
     "aliases": [
       "LBlackshaw"
-    ]
+    ],
+    "table": "Elm"
   },
   {
     "code": "CHargreaves",
@@ -373,17 +399,20 @@
     "notes": "",
     "aliases": [
       "DHargreaves"
-    ]
+    ],
+    "table": "Ash"
   },
   {
     "code": "TPorter",
     "greeting": "Thomas",
     "members": [
-      "Thomas Porter"
+      "Thomas Porter",
+      "Plus-one"
     ],
     "day": true,
     "evening": true,
-    "notes": "Dawn's son"
+    "notes": "Dawn's son; +1 name unknown",
+    "table": "Ash"
   },
   {
     "code": "JGould",
@@ -399,7 +428,8 @@
     "notes": "",
     "aliases": [
       "ZGould"
-    ]
+    ],
+    "table": "Top Table"
   },
   {
     "code": "MaryHarte",
@@ -415,7 +445,8 @@
     "aliases": [
       "MHarte",
       "DHarte"
-    ]
+    ],
+    "table": "Holly"
   },
   {
     "code": "JustinHarte",
@@ -430,7 +461,8 @@
     "aliases": [
       "JHarte",
       "NHarte"
-    ]
+    ],
+    "table": "Acer"
   },
   {
     "code": "DarrenHarte",
@@ -443,7 +475,8 @@
     "notes": "",
     "aliases": [
       "DHarte"
-    ]
+    ],
+    "table": "Acer"
   },
   {
     "code": "MarkHarte",
@@ -457,7 +490,8 @@
     "notes": "Plus-one",
     "aliases": [
       "MHarte"
-    ]
+    ],
+    "table": "Acer"
   },
   {
     "code": "GBennett",
@@ -471,7 +505,8 @@
     "notes": "",
     "aliases": [
       "TBennett"
-    ]
+    ],
+    "table": "Rowan"
   },
   {
     "code": "RHarte",
@@ -485,7 +520,8 @@
     "notes": "Emma's daughter (Jase's niece); Archie Burt is Raya's boyfriend",
     "aliases": [
       "ABurt"
-    ]
+    ],
+    "table": "Oak"
   },
   {
     "code": "ACarruthers",
@@ -501,7 +537,8 @@
     "aliases": [
       "CFerguson",
       "TCarruthers"
-    ]
+    ],
+    "table": "Top Table"
   },
   {
     "code": "EHyndman",
@@ -517,7 +554,8 @@
     "notes": "River and Oakley are their children — daughter 10, son 4 (which name is which TBC); Elliott is an old friend of Jase",
     "aliases": [
       "BHyndman"
-    ]
+    ],
+    "table": "Acer"
   },
   {
     "code": "GWright",
@@ -527,7 +565,8 @@
     ],
     "day": true,
     "evening": true,
-    "notes": "Helen's brother"
+    "notes": "Helen's brother",
+    "table": "Maple"
   },
   {
     "code": "TBurke",
@@ -537,7 +576,8 @@
     ],
     "day": true,
     "evening": true,
-    "notes": "Helen's friend"
+    "notes": "Helen's friend",
+    "table": "Rowan"
   },
   {
     "code": "MWard",
@@ -547,7 +587,8 @@
     ],
     "day": true,
     "evening": true,
-    "notes": "Helen's friend"
+    "notes": "Helen's friend",
+    "table": "Rowan"
   },
   {
     "code": "PMcCrann",
@@ -557,6 +598,7 @@
     ],
     "day": true,
     "evening": true,
-    "notes": "Helen's friend"
+    "notes": "Helen's friend",
+    "table": "Rowan"
   }
 ]

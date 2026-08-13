@@ -22,3 +22,7 @@ js/config.js
 data/seating-plan.xlsx
 plans/
 
+
+# Draft table layouts — only the final published plan is committed
+pictures/Table arrangement.jpeg
+pictures/seating plan.jpeg

@@ -276,18 +276,125 @@
     var ps = document.getElementById('letter-ps');
     if (ps) ps.hidden = !guest.isFallback;
     renderDay(guest);
+    renderPlaceCard(guest);
     revealCoupleContent(guest);
   }
 
-  // Soft gate: households flagged access:"couple" (Jase & Becki) see the
-  // extra couple-only sections (seating, order of service). Not real security
-  // — guests.json is public — just hidden from ordinary guests.
+  // ---------- Table ----------
+  // Room order, top of the plan first — also the order the couple-only
+  // seating list is rendered in.
+  var TABLE_ORDER = ['Top Table', 'Oak', 'Maple', 'Willow', 'Elm', 'Ash',
+                     'Magnolia', 'Acer', 'Rowan', 'Holly'];
+
+  // The place card behind the letter, plus the matching table on the plan.
+  // Anyone without a table (evening-only, fallback guests) simply sees neither.
+  function renderPlaceCard(guest) {
+    var card = document.getElementById('place-card');
+    var table = String((guest && guest.table) || '').trim();
+    if (!card) return;
+    if (!table) { card.hidden = true; return; }
+
+    var nameEl = document.getElementById('place-card-name');
+    var noteEl = document.getElementById('place-card-note');
+    var isTop = table.toLowerCase() === 'top table';
+
+    if (nameEl) nameEl.textContent = isTop ? 'Top Table' : table;
+    if (noteEl) {
+      noteEl.textContent = isTop
+        ? 'You\u2019re up with us on the top table \u2014 no escape.'
+        : 'Look for the ' + table + ' branch on the table, and your name alongside it.';
+    }
+    card.hidden = false;
+
+    var seat = document.querySelector('.ftable[data-table="' + cssEscape(table) + '"]');
+    if (seat) {
+      seat.classList.add('is-yours');
+      if (!seat.querySelector('.ftable__you')) {
+        var tag = document.createElement('span');
+        tag.className = 'ftable__you';
+        tag.textContent = 'You\u2019re here';
+        seat.appendChild(tag);
+      }
+    }
+  }
+
+  // data-table values are plain words, but quote them defensively anyway.
+  function cssEscape(s) { return String(s).replace(/["\\]/g, '\\$&'); }
+
+  // Couple-only: the whole plan, grouped by table, built from the same
+  // guests.json the place cards read — so the two can never disagree.
+  function renderSeatingPlan(guest) {
+    var wrap = document.getElementById('seating-plan');
+    if (!wrap || wrap.dataset.built === 'yes') return;
+    var yours = String((guest && guest.table) || '').trim().toLowerCase();
+
+    var seated = guests.filter(function (g) { return String(g.table || '').trim(); });
+    if (!seated.length) return;
+
+    var byTable = {};
+    seated.forEach(function (g) {
+      var t = String(g.table).trim();
+      (byTable[t] = byTable[t] || []).push(g);
+    });
+
+    var names = Object.keys(byTable).sort(function (a, b) {
+      var ia = TABLE_ORDER.indexOf(a), ib = TABLE_ORDER.indexOf(b);
+      return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+    });
+
+    var total = 0;
+    wrap.innerHTML = '';
+    names.forEach(function (t) {
+      var people = [];
+      byTable[t].forEach(function (g) { people = people.concat(g.members || []); });
+      total += people.length;
+
+      var block = document.createElement('div');
+      block.className = 'seating-plan__table';
+      if (t.toLowerCase() === yours) block.className += ' is-yours';
+
+      var h = document.createElement('h3');
+      h.className = 'seating-plan__name';
+      h.textContent = t;
+
+      var count = document.createElement('span');
+      count.className = 'seating-plan__count';
+      count.textContent = people.length + (people.length === 1 ? ' seat' : ' seats');
+      h.appendChild(count);
+
+      var list = document.createElement('p');
+      list.className = 'seating-plan__people';
+      list.textContent = people.join(', ');
+
+      block.appendChild(h);
+      block.appendChild(list);
+      wrap.appendChild(block);
+    });
+
+    var meta = document.getElementById('seating-plan-meta');
+    if (meta) {
+      meta.textContent = total + ' people across ' + names.length + ' tables. ' +
+        'Generated from the guest list — edit data/guestlist.csv and rebuild.';
+    }
+    wrap.dataset.built = 'yes';
+  }
+
+  // Soft gate: the wedding party — anyone on the top table, plus households
+  // flagged access:"couple" — see the extra sections (full seating plan,
+  // order of service). Not real security: guests.json is public, so this is
+  // simply hidden from ordinary guests rather than protected from them.
+  function hasExtendedAccess(guest) {
+    if (!guest) return false;
+    if (String(guest.access || '').toLowerCase() === 'couple') return true;
+    return String(guest.table || '').trim().toLowerCase() === 'top table';
+  }
+
   function revealCoupleContent(guest) {
-    var isCouple = guest && String(guest.access || '').toLowerCase() === 'couple';
-    if (!isCouple) return;
-    document.body.classList.add('is-couple');
-    var hidden = document.querySelectorAll('.couple-only[hidden]');
+    if (!hasExtendedAccess(guest)) return;
+    document.body.classList.add('is-top-table');
+    var hidden = document.querySelectorAll('.top-table-only[hidden]');
     for (var i = 0; i < hidden.length; i++) { hidden[i].hidden = false; }
+    renderSeatingPlan(guest);
   }
 
   function renderDay(guest) {

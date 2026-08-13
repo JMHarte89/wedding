@@ -61,14 +61,30 @@
       </div>
     </article>
 
+    <!-- Slipped in behind the letter, like a place card in the envelope.
+         Populated by wedding.js from the household's "table" field; stays
+         hidden for anyone without a table (evening-only, fallback guests). -->
+    <aside id="place-card" class="place-card" hidden>
+      <svg class="place-card__leaf" viewBox="0 0 48 24" aria-hidden="true" focusable="false">
+        <path d="M2 12c8-9 20-9 28-9 0 9-6 15-14 15-6 0-11-3-14-6Z"/>
+        <path d="M2 12c9 0 18 2 26 6"/>
+        <path d="M46 12h-8"/>
+      </svg>
+      <p class="place-card__kicker">Your table</p>
+      <p class="place-card__name" id="place-card-name">Oak</p>
+      <p class="place-card__note" id="place-card-note"></p>
+      <a class="place-card__link" href="#tables">See where it sits &darr;</a>
+    </aside>
+
     <nav class="site-nav" aria-label="Sections">
       <div class="site-nav__inner">
         <a href="#day">The Day</a>
         <a href="#getting-here">Getting Here</a>
+        <a href="#tables">Your Table</a>
         <a href="#no-gifts">Gifts</a>
         <a href="#evening">Evening</a>
-        <a href="#seating" class="couple-only" hidden>Seating</a>
-        <a href="#service" class="couple-only" hidden>Order of Service</a>
+        <a href="#seating" class="top-table-only" hidden>Seating</a>
+        <a href="#service" class="top-table-only" hidden>Order of Service</a>
       </div>
     </nav>
 
@@ -116,6 +132,44 @@
       </p>
     </section>
 
+    <section id="tables" class="section">
+      <p class="section__kicker">The wedding breakfast</p>
+      <h2 class="section__title">Where you're sitting</h2>
+      <p class="section__intro">Every table is named after a tree. Yours is marked below — the room is laid out as you'll walk into it.</p>
+      <figure class="floorplan-wrap">
+        <div class="floorplan">
+          <div class="floorplan__strip">
+            <div class="ftable" data-table="Kids"><span class="ftable__name">Kids</span></div>
+            <div class="ftable" data-table="Willow"><span class="ftable__name">Willow</span></div>
+            <div class="ftable" data-table="Elm"><span class="ftable__name">Elm</span></div>
+            <div class="ftable" data-table="Ash"><span class="ftable__name">Ash</span></div>
+            <div class="ftable" data-table="Magnolia"><span class="ftable__name">Magnolia</span></div>
+            <div class="ftable ftable--fixture"><span class="ftable__name">Entrance</span></div>
+          </div>
+          <div class="floorplan__body">
+            <div class="floorplan__col">
+              <div class="ftable ftable--fixture ftable--quiet"><span class="ftable__name">Bar</span></div>
+              <div class="ftable" data-table="Maple"><span class="ftable__name">Maple</span></div>
+              <div class="ftable" data-table="Oak"><span class="ftable__name">Oak</span></div>
+            </div>
+            <div class="floorplan__col floorplan__col--centre">
+              <div class="ftable ftable--head" data-table="Top Table"><span class="ftable__name">Top Table</span></div>
+              <div class="ftable ftable--fixture ftable--wide"><span class="ftable__name">Stage / Food</span></div>
+            </div>
+            <div class="floorplan__col">
+              <div class="ftable" data-table="Acer"><span class="ftable__name">Acer</span></div>
+              <div class="ftable" data-table="Rowan"><span class="ftable__name">Rowan</span></div>
+              <div class="ftable" data-table="Holly"><span class="ftable__name">Holly</span></div>
+            </div>
+          </div>
+        </div>
+        <figcaption class="floorplan__caption">
+          The Kids table is there for the little ones to escape to — nobody is seated there.
+          <a href="pictures/final_table_layout.jpg" target="_blank" rel="noopener noreferrer">See the illustrated plan &#8599;</a>
+        </figcaption>
+      </figure>
+    </section>
+
     <section id="no-gifts" class="section">
       <p class="section__kicker">Gifts</p>
       <h2 class="section__title">Gifts</h2>
@@ -140,15 +194,18 @@
       </a>
     </section>
 
-    <section id="seating" class="section couple-only" hidden>
-      <p class="section__kicker">Just for you two</p>
-      <h2 class="section__title">Seating plan</h2>
-      <p class="section__intro">Only visible when you or Becki are logged in — guests don't see this.</p>
-      <p><em>Placeholder — the table plan will be sketched out and added here later.</em> When it's ready, this is where the finalised seating (tables and who sits where) will live, generated from the private planning spreadsheet.</p>
+    <section id="seating" class="section top-table-only" hidden>
+      <p class="section__kicker">The wedding party</p>
+      <h2 class="section__title">The full seating plan</h2>
+      <p class="section__intro">You're on the top table, so here's everything — every table and who's on it. Ordinary guests only see their own.</p>
+      <p class="seating-plan__meta" id="seating-plan-meta"></p>
+      <!-- Built by wedding.js from data/guests.json, so it can never drift
+           out of step with the table each household is actually shown. -->
+      <div id="seating-plan" class="seating-plan"></div>
     </section>
 
-    <section id="service" class="section couple-only" hidden>
-      <p class="section__kicker">Just for you two</p>
+    <section id="service" class="section top-table-only" hidden>
+      <p class="section__kicker">The wedding party</p>
       <h2 class="section__title">Order of service</h2>
       <p class="section__intro">Placeholder based on the standard Church of England (Common Worship) marriage service that Holy Trinity Kendal Parish Church would use. To be finalised with the vicar — hymns, readings and names still to be chosen.</p>
       <ol class="timeline order-of-service">

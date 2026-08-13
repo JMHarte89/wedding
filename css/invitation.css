@@ -809,6 +809,249 @@ body.is-open .letter {
 }
 
 /* ------------------------------------------------------------
+   PLACE CARD — the guest's table, tucked in behind the letter
+------------------------------------------------------------ */
+
+.place-card {
+  max-width: 22rem;
+  margin: 0 auto var(--gap-lg);
+  padding: 1.75rem 1.5rem 1.5rem;
+  text-align: center;
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  box-shadow: 0 6px 18px var(--paper-shadow);
+  /* Second hairline, a couple of millimetres in — the way a place card is cut. */
+  outline: 1px solid var(--rule);
+  outline-offset: -6px;
+  transform: rotate(-0.7deg) translateY(16px);
+  opacity: 0;
+  transition:
+    opacity var(--t-slow) var(--ease) 620ms,
+    transform var(--t-slow) var(--ease) 620ms;
+}
+body.is-open .place-card {
+  opacity: 1;
+  transform: rotate(-0.7deg) translateY(0);
+}
+.place-card[hidden] { display: none; }
+
+.place-card__leaf {
+  display: block;
+  width: 3rem;
+  height: auto;
+  margin: 0 auto 0.75rem;
+  fill: none;
+  stroke: var(--petrol);
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  opacity: 0.75;
+}
+
+.place-card__kicker {
+  font-family: var(--font-display);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+  color: var(--petrol);
+  margin: 0 0 0.35rem;
+}
+
+.place-card__name {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 7vw, 2.75rem);
+  line-height: 1.1;
+  color: var(--wax);
+  margin: 0 0 0.6rem;
+}
+
+.place-card__note {
+  font-size: 0.95rem;
+  font-style: italic;
+  line-height: 1.5;
+  margin: 0 0 0.9rem;
+  color: rgba(34, 45, 42, 0.75);
+}
+
+.place-card__link {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 1px;
+}
+
+/* ------------------------------------------------------------
+   FLOOR PLAN — the room as you walk into it
+------------------------------------------------------------ */
+
+.floorplan-wrap { margin: 0; }
+
+.floorplan {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--paper);
+  padding: clamp(0.75rem, 3vw, 1.25rem);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.75rem, 3vw, 1.25rem);
+}
+
+.floorplan__strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.floorplan__body {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr 1fr;
+  gap: 0.5rem;
+  align-items: start;
+}
+
+.floorplan__col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.floorplan__col--centre { gap: 0.75rem; }
+
+.ftable {
+  position: relative;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.4);
+  padding: 0.7rem 0.4rem;
+  text-align: center;
+  min-height: 3.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ftable__name {
+  font-family: var(--font-display);
+  font-size: clamp(0.8rem, 2.6vw, 1rem);
+  line-height: 1.2;
+  color: var(--ink);
+}
+
+/* Entrance, Bar, Stage — room furniture, not tables. */
+.ftable--fixture {
+  border-style: dashed;
+  border-color: var(--rule);
+  background: transparent;
+}
+.ftable--fixture .ftable__name {
+  font-family: var(--font-body);
+  font-style: italic;
+  color: rgba(34, 45, 42, 0.55);
+}
+.ftable--quiet .ftable__name { color: var(--wax); opacity: 0.7; }
+
+/* The top table — the U at the heart of the room. */
+.ftable--head {
+  min-height: 8rem;
+  border-width: 2px;
+  border-color: var(--petrol);
+  border-bottom-left-radius: 45%;
+  border-bottom-right-radius: 45%;
+  background: rgba(44, 93, 99, 0.06);
+}
+.ftable--head .ftable__name {
+  color: var(--petrol);
+  font-size: clamp(0.9rem, 3vw, 1.15rem);
+}
+
+/* Your table. */
+.ftable.is-yours {
+  border-color: var(--wax);
+  border-width: 2px;
+  background: rgba(136, 58, 45, 0.07);
+  box-shadow: 0 2px 10px rgba(136, 58, 45, 0.14);
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.ftable.is-yours .ftable__name { color: var(--wax); }
+
+.ftable__you {
+  font-family: var(--font-display);
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--wax);
+  opacity: 0.85;
+}
+
+.floorplan__caption {
+  margin: 0.9rem 0 0;
+  font-size: 0.9rem;
+  font-style: italic;
+  color: rgba(34, 45, 42, 0.65);
+  text-align: center;
+}
+.floorplan__caption a { font-style: normal; }
+
+@media (max-width: 400px) {
+  .floorplan__body { grid-template-columns: 1fr 1fr; }
+  .floorplan__col--centre { grid-column: 1 / -1; order: -1; }
+}
+
+/* ------------------------------------------------------------
+   SEATING PLAN — couple-only, built from the guest list
+------------------------------------------------------------ */
+
+.seating-plan__meta {
+  font-size: 0.85rem;
+  font-style: italic;
+  color: rgba(34, 45, 42, 0.6);
+  margin: 0 0 var(--gap);
+}
+
+.seating-plan__table {
+  padding: 0.9rem 0;
+  border-top: 1px solid var(--rule);
+}
+.seating-plan__table:last-child { border-bottom: 1px solid var(--rule); }
+
+.seating-plan__name {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  margin: 0 0 0.3rem;
+  color: var(--petrol);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.seating-plan__count {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 0.85rem;
+  color: rgba(34, 45, 42, 0.55);
+  white-space: nowrap;
+}
+
+.seating-plan__people {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.5;
+}
+
+/* The viewer's own table, marked within the full plan. */
+.seating-plan__table.is-yours {
+  background: rgba(136, 58, 45, 0.05);
+  border-left: 2px solid var(--wax);
+  padding-left: 0.85rem;
+  margin-left: -0.85rem;
+}
+.seating-plan__table.is-yours .seating-plan__name { color: var(--wax); }
+
+/* ------------------------------------------------------------
    Reduced motion
 ------------------------------------------------------------ */
 @media (prefers-reduced-motion: reduce) {
