@@ -4,33 +4,39 @@ Build the printed materials for the day into print/*.docx.
 
     python scripts/build-print.py
 
-Table cards are generated from data/guestlist.csv, so re-run this after any
-change to the guest list or the seating. Nothing here is hand-keyed.
+Table cards are generated from data/guestlist.csv and the menu is read from
+js/menu.js — the same file the website renders from — so re-run this after any
+change to the guest list, the seating or the menu. Nothing here is hand-keyed.
+
+Run scripts/extract-border.py first (or after changing print/sunflower.jpg) to
+regenerate the watercolour border in assets/.
 
 Design rules (these print onto coloured stock):
   * No shading or background fill anywhere — the paper must show through.
+    The border art is keyed to transparency for exactly this reason.
   * Ink only, in the site palette: ink #222d2a, petrol #2c5d63, wax #883a2d.
   * Fraunces / EB Garamond aren't installed on this machine, so we use the
     same fallbacks the site's CSS declares: Georgia for display, Garamond
     for body.
 """
 
-import bisect
 import csv
 import io
-import math
+import json
 import re
+import shutil
+import subprocess
 import sys
 from pathlib import Path
 
 import qrcode
 from qrcode.constants import ERROR_CORRECT_Q
-from PIL import Image, ImageDraw
+from PIL import Image
 
 from docx import Document
 from docx.enum.section import WD_ORIENT
 from docx.enum.table import WD_TABLE_ALIGNMENT
-from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK, WD_TAB_ALIGNMENT
+from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK
 from docx.oxml import parse_xml
 from docx.oxml.ns import qn
 from docx.shared import Inches, Mm, Pt, RGBColor
@@ -38,7 +44,13 @@ from lxml import etree
 
 ROOT = Path(__file__).resolve().parent.parent
 CSV_PATH = ROOT / "data" / "guestlist.csv"
+MENU_PATH = ROOT / "js" / "menu.js"
 OUT_DIR = ROOT / "print"
+
+# Watercolour border, lifted from print/sunflower.jpg by scripts/extract-border.py.
+# Transparent everywhere except the artwork, so coloured stock still shows through.
+BORDER_LANDSCAPE = ROOT / "assets" / "border-landscape.png"
+BORDER_PORTRAIT = ROOT / "assets" / "border-portrait.png"
 
 AGENDA_URL = "https://jmharte89.github.io/wedding/agenda.html"
 GOFUNDME_URL = "https://gofund.me/c3356285c"
@@ -78,186 +90,38 @@ def _quad(p0, p1, p2, steps=48):
     return out
 
 
-def _leaf(d, bx, by, angle, ll, lw, col, stroke):
-    """A single almond leaf rooted at (bx, by), pointing along `angle`."""
-    ax, ay = math.cos(angle), math.sin(angle)
-    px, py = -ay, ax
-    tip = (bx + ax * ll, by + ay * ll)
-    m = (bx + ax * ll * 0.45, by + ay * ll * 0.45)
-    up = _quad((bx, by), (m[0] + px * lw, m[1] + py * lw), tip, 20)
-    dn = _quad(tip, (m[0] - px * lw, m[1] - py * lw), (bx, by), 20)
-    d.line(up + dn + [up[0]], fill=col, width=stroke, joint="curve")
+def page_ornament(w_mm, h_mm):
+    """The full-page trim: the watercolour sunflower-and-foliage border.
 
+    Sourced from print/sunflower.jpg and prepared by scripts/extract-border.py,
+    which strips the text that was composited into that JPEG and keys the white
+    field to transparent so coloured stock still shows through.
 
-def _rose(d, cx, cy, r, col, stroke, turns=2.4, lobes=5, lobe_amp=0.17):
-    """A rose drawn as ONE continuous lobed spiral.
+    Returned at page size and pinned to the page by corner_trim(), which is
+    what keeps it symmetric — the original tab-stop approach inherited the
+    built-in Header style's centre tab and pulled the right-hand art toward
+    the middle of the page.
 
-    The radius is modulated by a lobe term that grows outward, so the stroke
-    opens from a tight bud into petals without lifting. Building a rose from
-    separate petal arcs was tried first and reads as a star (pointed petal
-    junctions) or a target (concentric rings); the lobed spiral still reads
-    as a rose at the ~4mm the border actually prints at.
+    A-series pages are all 1:root-2, so the landscape scan serves landscape
+    pages and its rotation serves portrait ones. The source is 1.486 against
+    1.414 — a 5% difference, absorbed in the fit and invisible on foliage.
     """
-    pts = []
-    N = 300
-    for i in range(N):
-        t = i / (N - 1)
-        th = t * turns * 2 * math.pi
-        rr = r * (t ** 0.62) * (1 + lobe_amp * t * math.sin(lobes * th))
-        pts.append((cx + rr * math.cos(th), cy + rr * math.sin(th)))
-    d.line(pts, fill=col, width=stroke, joint="curve")
-
-
-def _rr_path(l, t, r, b, R, step):
-    """Points around a rounded rectangle, clockwise, roughly `step` apart."""
-    pts = []
-
-    def seg(x0, y0, x1, y1):
-        n = max(2, int(math.hypot(x1 - x0, y1 - y0) / step))
-        for i in range(n + 1):
-            pts.append((x0 + (x1 - x0) * i / n, y0 + (y1 - y0) * i / n))
-
-    def arc(cx, cy, a0, a1):
-        n = max(6, int(abs(a1 - a0) * R / step))
-        for i in range(n + 1):
-            a = a0 + (a1 - a0) * i / n
-            pts.append((cx + R * math.cos(a), cy + R * math.sin(a)))
-
-    seg(l + R, t, r - R, t)
-    arc(r - R, t + R, -math.pi / 2, 0)
-    seg(r, t + R, r, b - R)
-    arc(r - R, b - R, 0, math.pi / 2)
-    seg(r - R, b, l + R, b)
-    arc(l + R, b - R, math.pi / 2, math.pi)
-    seg(l, b - R, l, t + R)
-    arc(l + R, t + R, math.pi, 3 * math.pi / 2)
-
-    out = [pts[0]]
-    for p in pts[1:]:
-        if math.hypot(p[0] - out[-1][0], p[1] - out[-1][1]) > 1e-6:
-            out.append(p)
-    return out
-
-
-def _path_frame(pts):
-    """Cumulative arc length plus unit tangent and normal at each point."""
-    n = len(pts)
-    s = [0.0]
-    for i in range(1, n):
-        s.append(s[-1] + math.hypot(pts[i][0] - pts[i - 1][0],
-                                    pts[i][1] - pts[i - 1][1]))
-    total = s[-1] + math.hypot(pts[0][0] - pts[-1][0], pts[0][1] - pts[-1][1])
-    tan, nor = [], []
-    for i in range(n):
-        p0, p1 = pts[(i - 1) % n], pts[(i + 1) % n]
-        dx, dy = p1[0] - p0[0], p1[1] - p0[1]
-        L = math.hypot(dx, dy) or 1.0
-        tx, ty = dx / L, dy / L
-        tan.append((tx, ty))
-        nor.append((-ty, tx))
-    return s, total, tan, nor
-
-
-def page_ornament(w_mm, h_mm, dpi=200, ss=2, alpha=205):
-    """The full-page trim: a wandering rose vine round the whole page.
-
-    A rounded-rectangle centreline is displaced along its own normal by a
-    sine wave to make the vine wander, then roses and leaves are placed by
-    arc length along it. The wavelength is forced to a whole number of cycles
-    around the loop so the vine closes on itself seamlessly.
-
-    Drawn once per page size as a single transparent layer, so it can be
-    anchored to the page at an exact offset. That is what keeps it symmetric —
-    the original tab-stop approach inherited the built-in Header style's
-    centre tab and pulled the right-hand art toward the middle.
-
-    Ink only: everything outside the strokes stays fully transparent, so the
-    coloured stock shows through.
-    """
-    mmpx = dpi / 25.4
-    W, H = int(w_mm * mmpx), int(h_mm * mmpx)
-    img = Image.new("RGBA", (W * ss, H * ss), (0, 0, 0, 0))
-    d = ImageDraw.Draw(img)
-
-    def P(v):
-        return v * mmpx * ss
-
-    # Trim scales with the short edge so A4 and A5 look like one family.
-    short = min(w_mm, h_mm)
-    inset = P(max(13.0, short * 0.072))
-    R = P(short * 0.10)
-    amp = P(short * 0.018)
-    wl_target = P(short * 0.20)
-    rose_r = P(short * 0.026)
-    leaf_l = P(short * 0.026)
-
-    # Roses carry full ink so they read as properly red; the vine and leaves
-    # sit a touch back so the greenery stays trim rather than competing.
-    vine_col = PETROL_RGB + (alpha,)
-    rose_col = WAX_RGB + (255,)
-
-    # Stroke widths are whole final-image pixels multiplied back up by `ss`, so
-    # the downsample is an exact area average and the ink keeps its full
-    # density. Fractional widths antialias the hairline into a washed-out grey
-    # that prints badly.
-    #
-    # Both weights floor at 2 final pixels. A 1px-wide CURVE only half-fills
-    # the 2x2 blocks the box filter averages, so it comes out at roughly half
-    # density — which is what made the roses print as pale pink rather than
-    # wax red. Straight runs don't show it; the tightly wound rose does.
-    stroke = max(2, round(0.26 * mmpx)) * ss
-    fine = max(2, round(0.21 * mmpx)) * ss
-
-    Wx, Hy = W * ss, H * ss
-    base = _rr_path(inset, inset, Wx - inset, Hy - inset, R, P(0.7))
-    s, total, tan, nor = _path_frame(base)
-
-    # Whole number of cycles round the loop => the wave meets itself cleanly.
-    cycles = max(8, round(total / wl_target))
-    wl = total / cycles
-
-    vine = []
-    for i, (x, y) in enumerate(base):
-        off = amp * math.sin(2 * math.pi * s[i] / wl)
-        vine.append((x + nor[i][0] * off, y + nor[i][1] * off))
-    d.line(vine + [vine[0]], fill=vine_col, width=stroke, joint="curve")
-
-    def at(q):
-        q %= total
-        i = min(bisect.bisect_left(s, q), len(base) - 1)
-        off = amp * math.sin(2 * math.pi * s[i] / wl)
-        return ((base[i][0] + nor[i][0] * off,
-                 base[i][1] + nor[i][1] * off), tan[i])
-
-    # Leaves first, so a rose always sits on top of them rather than under.
-    for k in range(cycles):
-        for frac, side, scale in ((0.52, 1, 1.0), (0.78, -1, 0.82),
-                                  (0.98, 1, 0.66)):
-            (x, y), (tx, ty) = at((k + frac) * wl)
-            ang = math.atan2(ty, tx) + side * math.radians(52)
-            _leaf(d, x, y, ang, leaf_l * scale, leaf_l * scale * 0.34,
-                  vine_col, fine)
-
-    # A rose on every other crest — one per cycle is too busy and starts to
-    # read as bunting. Alternating full bloom and small bud gives it rhythm.
-    for k in range(0, cycles, 2):
-        (x, y), _ = at((k + 0.25) * wl)
-        _rose(d, x, y, rose_r, rose_col, stroke)
-    for k in range(1, cycles, 4):
-        (x, y), _ = at((k + 0.25) * wl)
-        _rose(d, x, y, rose_r * 0.58, rose_col, stroke, turns=1.9)
-
-    # BOX = exact area average. `ss` is an integer factor and the strokes are
-    # integer multiples of it, so this downsamples without ringing or fading.
-    out = img.resize((W, H), Image.BOX)
+    src = BORDER_LANDSCAPE if w_mm >= h_mm else BORDER_PORTRAIT
+    if not src.exists():
+        sys.exit(f"Missing {src} — run: python scripts/extract-border.py")
     buf = io.BytesIO()
-    out.save(buf, format="PNG")
+    Image.open(src).convert("RGBA").save(buf, format="PNG")
     buf.seek(0)
     return buf
 
 
 def qr_png(url, modules_colour=INK_RGB):
-    """QR with a transparent background so the paper provides the light field."""
+    """QR with a transparent background so the paper provides the light field.
+
+    Keeping the quiet zone transparent rather than white is what lets these
+    sit on coloured stock without a white tile around them. Decoding is
+    verified against the rendered PDF, not just the generated image.
+    """
     qr = qrcode.QRCode(version=None, error_correction=ERROR_CORRECT_Q,
                        box_size=16, border=3)
     qr.add_data(url)
@@ -267,7 +131,7 @@ def qr_png(url, modules_colour=INK_RGB):
     w, h = img.size
     for y in range(h):
         for x in range(w):
-            r, g, b, _ = px[x, y]
+            r, _g, _b, _a = px[x, y]
             if r > 128:                       # light module -> let paper through
                 px[x, y] = (0, 0, 0, 0)
             else:
@@ -344,8 +208,8 @@ _ANCHOR = (
     'simplePos="0" relativeHeight="0" behindDoc="1" locked="0" '
     'layoutInCell="1" allowOverlap="1">'
     '<wp:simplePos x="0" y="0"/>'
-    '<wp:positionH relativeFrom="page"><wp:posOffset>0</wp:posOffset></wp:positionH>'
-    '<wp:positionV relativeFrom="page"><wp:posOffset>0</wp:posOffset></wp:positionV>'
+    '<wp:positionH relativeFrom="page"><wp:posOffset>{x}</wp:posOffset></wp:positionH>'
+    '<wp:positionV relativeFrom="page"><wp:posOffset>{y}</wp:posOffset></wp:positionV>'
     '<wp:extent cx="{cx}" cy="{cy}"/>'
     '<wp:effectExtent l="0" t="0" r="0" b="0"/>'
     '<wp:wrapNone/>'
@@ -356,17 +220,24 @@ _ANCHOR = (
 )
 
 
-def corner_trim(section, did=1):
+def corner_trim(section, did=1, panel=None):
     """Lay the page trim behind the text, pinned to the page itself.
 
-    The image is placed as a floating anchor at page offset (0,0) at exactly
-    page size, so its position cannot be perturbed by margins, paragraph
-    styles or inherited tab stops. Living in the header means it repeats on
-    every page — needed for the multi-page table cards — without taking part
-    in the body's layout.
+    The image is placed as a floating anchor at an exact page offset, so its
+    position cannot be perturbed by margins, paragraph styles or inherited tab
+    stops. Living in the header means it repeats on every page — needed for
+    the multi-page card documents — without taking part in the body's layout.
+
+    `panel` is an optional (x_mm, y_mm, w_mm, h_mm) rectangle. Default is the
+    whole page; the folded place cards pass the bottom half so the border
+    lands only on the face that ends up outward once the card is folded.
     """
-    w_mm = section.page_width.mm
-    h_mm = section.page_height.mm
+    if panel is None:
+        x_mm, y_mm = 0.0, 0.0
+        w_mm, h_mm = section.page_width.mm, section.page_height.mm
+    else:
+        x_mm, y_mm, w_mm, h_mm = panel
+
     stream = page_ornament(w_mm, h_mm)
 
     p = section.header.paragraphs[0]
@@ -376,7 +247,7 @@ def corner_trim(section, did=1):
     p.paragraph_format.line_spacing = Pt(1)
     run = p.add_run()
     run.font.size = Pt(1)                 # keep the header line height at nil
-    run.add_picture(stream, width=section.page_width, height=section.page_height)
+    run.add_picture(stream, width=Mm(w_mm), height=Mm(h_mm))
 
     # Convert the inline drawing python-docx just made into a page anchor.
     inline = run._element.find(qn("w:drawing")).find(qn("wp:inline"))
@@ -384,13 +255,14 @@ def corner_trim(section, did=1):
     extent = inline.find(qn("wp:extent"))
     xml = _ANCHOR.format(
         cx=extent.get("cx"), cy=extent.get("cy"), did=did,
+        x=int(Mm(x_mm)), y=int(Mm(y_mm)),
         graphic=etree.tostring(graphic).decode("utf-8"),
     )
     inline.getparent().replace(inline, parse_xml(xml))
 
 
 def new_doc(width_mm, height_mm, *, landscape=False, margin_mm=18,
-            centre=True, did=1):
+            centre=True, did=1, margins=None, panel=None):
     doc = Document()
     # Document-wide default so nothing falls back to Calibri.
     normal = doc.styles["Normal"]
@@ -407,7 +279,11 @@ def new_doc(width_mm, height_mm, *, landscape=False, margin_mm=18,
 
     sec = doc.sections[0]
     set_page(sec, width_mm, height_mm, landscape=landscape, margin_mm=margin_mm)
-    corner_trim(sec, did=did)
+    if margins:                           # (left, top, right, bottom) in mm
+        l, t, r, b = margins
+        sec.left_margin, sec.top_margin = Mm(l), Mm(t)
+        sec.right_margin, sec.bottom_margin = Mm(r), Mm(b)
+    corner_trim(sec, did=did, panel=panel)
     if centre:
         vertically_centre(sec)
     return doc
@@ -440,6 +316,33 @@ def clean_member(raw):
     if not name or name.lower() in PLACEHOLDERS:
         return None
     return name
+
+
+def read_menu():
+    """Load the menu from js/menu.js — the same file the website renders.
+
+    The file is evaluated with Node rather than parsed here, so the printed
+    menu is by construction the identical object the browser sees. Re-keying
+    it into Python would be a second copy to keep in sync, which is exactly
+    what the shared data file exists to prevent.
+    """
+    node = shutil.which("node")
+    if not node:
+        sys.exit("Node is needed to read js/menu.js (it is the menu's single "
+                 "source of truth). Install Node, or run with --skip-menu.")
+
+    script = (
+        "const fs=require('fs');"
+        "const root={};"
+        "new Function('window',fs.readFileSync(process.argv[1],'utf8'))(root);"
+        "process.stdout.write(JSON.stringify(root.WEDDING_MENU));"
+    )
+    out = subprocess.run([node, "-e", script, str(MENU_PATH)],
+                         capture_output=True, check=True)
+    menu = json.loads(out.stdout.decode("utf-8"))
+    if not menu or not menu.get("blocks"):
+        sys.exit("js/menu.js parsed but contained no blocks.")
+    return menu
 
 
 def read_tables():
@@ -535,6 +438,121 @@ def build_table_cards():
     return tables
 
 
+def build_place_cards(tables):
+    """One folded place card per person on the top table.
+
+    Printed on A5 portrait and folded in half across the middle, giving a
+    148 x 105mm tent card. Everything — border and name — sits in the BOTTOM
+    half of the sheet, so once the top half is folded back it becomes the
+    outward face. The top half is left completely blank: it becomes the back
+    support, and anything printed there would show through on light stock.
+
+    Fold at the halfway point; aligning the sheet's corners lands it exactly
+    on the top edge of the border, so no printed fold guide is needed.
+    """
+    top = next((people for name, people in tables
+                if name.strip().lower() == "top table"), [])
+    if not top:
+        print("  (no top table found — skipping place cards)")
+        return []
+
+    PAGE_W, PAGE_H = 148.0, 210.0
+    HALF = PAGE_H / 2                     # 105mm — the fold line
+
+    doc = new_doc(
+        PAGE_W, PAGE_H,
+        margins=(16, HALF + 12, 16, 16),  # text lives in the lower panel only
+        centre=True, did=61,
+        panel=(0.0, HALF, PAGE_W, HALF),  # border on the bottom half only
+    )
+
+    for idx, person in enumerate(top):
+        kicker = para(doc, "", font=FONT_DISPLAY, size=7.5, colour=PETROL,
+                      space_after=3)
+        if idx:
+            kicker.add_run().add_break(WD_BREAK.PAGE)
+        style_run(kicker.add_run("Top Table"), font=FONT_DISPLAY, size=7.5,
+                  colour=PETROL, spacing=2.4, caps=True)
+
+        # Long names need to step down a size or they crowd the foliage.
+        size = 26 if len(person) <= 15 else (22 if len(person) <= 20 else 19)
+        para(doc, person, font=FONT_DISPLAY, size=size, colour=INK,
+             bold=True, space_after=3)
+        para(doc, "· · ·", font=FONT_DISPLAY, size=8, colour=PETROL,
+             spacing=2.4, space_after=0)
+
+    doc.save(OUT_DIR / "place-cards.docx")
+    return top
+
+
+def build_menu(menu):
+    """The food menu on a single A4 portrait page.
+
+    A5 was the original intent, but it does not survive contact with the
+    content: three courses and twenty-odd dishes with descriptions need about
+    168mm of column, and the watercolour border claims roughly a quarter of an
+    A5 sheet. Fitting it meant 6.9pt descriptions that still collided with the
+    foliage. A4 keeps the same border and the same layout at a size people can
+    actually read at a table.
+
+    Left-aligned rather than centred — a centred ragged list of dish names is
+    hard to scan.
+    """
+    # The border's corner blooms reach much further in than the middle of each
+    # edge, so the margins are asymmetric: wider top and bottom to clear the
+    # sunflowers, tighter left and right where only thin stems run.
+    doc = new_doc(210, 297, centre=False, did=51,
+                  margins=(38, 40, 38, 46))
+
+    para(doc, "Becki & Jase", font=FONT_DISPLAY, size=8, colour=PETROL,
+         spacing=2.4, caps=True, space_after=2)
+    para(doc, "Food on the Day", font=FONT_DISPLAY, size=22, colour=INK,
+         bold=True, space_after=2)
+    para(doc, "· · ·", font=FONT_DISPLAY, size=8.5, colour=PETROL,
+         spacing=2.6, space_after=7)
+
+    for bi, block in enumerate(menu.get("blocks", [])):
+        para(doc, block["heading"], font=FONT_DISPLAY, size=12.5, colour=INK,
+             bold=True, align=WD_ALIGN_PARAGRAPH.LEFT,
+             space_before=(8 if bi else 0), space_after=0)
+        if block.get("time"):
+            # Serving time echoes the website's timeline styling: small,
+            # letter-spaced, petrol.
+            para(doc, block["time"], font=FONT_BODY, size=8.5, colour=PETROL,
+                 italic=True, spacing=0.5, align=WD_ALIGN_PARAGRAPH.LEFT,
+                 space_after=4)
+
+        for group in block.get("groups", []):
+            if group.get("subheading"):
+                para(doc, group["subheading"], font=FONT_DISPLAY, size=7.5,
+                     colour=PETROL, spacing=1.8, caps=True,
+                     align=WD_ALIGN_PARAGRAPH.LEFT,
+                     space_before=4, space_after=2.5)
+            for item in group.get("items", []):
+                has_detail = bool(item.get("detail"))
+                # Gap goes on the name when there's no detail line. An empty
+                # spacer paragraph still costs a full line box, and across the
+                # eleven-item buffet that alone overflowed the page.
+                para(doc, item["name"], font=FONT_BODY, size=9.2, colour=INK,
+                     align=WD_ALIGN_PARAGRAPH.LEFT,
+                     space_after=(0 if has_detail else 2.0))
+                if has_detail:
+                    para(doc, item["detail"], font=FONT_BODY, size=7.8,
+                         colour=INK, italic=True,
+                         align=WD_ALIGN_PARAGRAPH.LEFT, space_after=2.5)
+
+    para(doc, "· · ·", font=FONT_DISPLAY, size=8.5, colour=PETROL,
+         spacing=2.6, space_before=7, space_after=4)
+    para(doc, menu.get("footnote", ""), font=FONT_BODY, size=7.8,
+         colour=PETROL, italic=True, align=WD_ALIGN_PARAGRAPH.LEFT,
+         space_after=0)
+    # No keep_with_next here: welding the closing rule to the last dish makes
+    # Word push the whole group to a second page rather than split it, which
+    # is the opposite of what a one-page menu needs.
+
+    doc.save(OUT_DIR / "menu.docx")
+
+
 def build_ring_blessing():
     doc = new_doc(210, 297, margin_mm=34, centre=True, did=21)
     para(doc, "For Becki & Jase", font=FONT_DISPLAY, size=10, colour=PETROL,
@@ -588,7 +606,10 @@ def build_favours():
 
 
 def build_gifts():
-    doc = new_doc(148, 210, margin_mm=20, centre=True, did=41)
+    # 26mm: the rotated border reaches further in on the short edge of an A5
+    # portrait page than it does on a landscape one, and at 20mm the body copy
+    # was running into the foliage.
+    doc = new_doc(148, 210, margin_mm=26, centre=True, did=41)
     para(doc, "Becki & Jase", font=FONT_DISPLAY, size=8.5, colour=PETROL,
          spacing=2.4, caps=True, space_after=8)
     para(doc, "Gifts", font=FONT_DISPLAY, size=30, colour=INK,
@@ -612,19 +633,29 @@ def build_gifts():
 def main():
     if not CSV_PATH.exists():
         sys.exit(f"Can't find {CSV_PATH}")
+    if not MENU_PATH.exists():
+        sys.exit(f"Can't find {MENU_PATH}")
     OUT_DIR.mkdir(exist_ok=True)
 
+    menu = read_menu()
     tables = build_table_cards()
+    top = build_place_cards(tables)
+    build_menu(menu)
     build_ring_blessing()
     build_favours()
     build_gifts()
 
+    dishes = sum(len(g.get("items", []))
+                 for b in menu["blocks"] for g in b.get("groups", []))
     print(f"Fonts: display={FONT_DISPLAY}, body={FONT_BODY}")
+    print(f"Menu: {len(menu['blocks'])} blocks, {dishes} items "
+          f"(read from js/menu.js)")
     print(f"Table cards: {len(tables)}")
     for name, people in tables:
         print(f"  {name:<12} {len(people):>2} — {', '.join(people)}")
     total = sum(len(p) for _, p in tables)
     print(f"Total seated people: {total}")
+    print(f"Place cards (top table, one per person): {len(top)}")
 
 
 if __name__ == "__main__":

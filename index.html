@@ -79,6 +79,7 @@
     <nav class="site-nav" aria-label="Sections">
       <div class="site-nav__inner">
         <a href="#day">The Day</a>
+        <a href="#food">Food</a>
         <a href="#getting-here">Getting Here</a>
         <a href="#tables">Your Table</a>
         <a href="#no-gifts">Gifts</a>
@@ -93,6 +94,13 @@
       <h2 class="section__title">How the day unfolds</h2>
       <p id="timeline-note" class="timeline-note"></p>
       <ol id="timeline" class="timeline"></ol>
+    </section>
+
+    <section id="food" class="section">
+      <p class="section__kicker" id="menu-kicker"></p>
+      <h2 class="section__title" id="menu-title"></h2>
+      <div id="menu"></div>
+      <p class="menu__footnote" id="menu-footnote"></p>
     </section>
 
     <section id="getting-here" class="section">
@@ -217,7 +225,23 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="js/timeline.js"></script>
+  <script src="js/menu.js"></script>
+  <script src="js/menu-render.js"></script>
   <script src="js/wedding.js"></script>
+  <script>
+    // The Food section is public content — render it on load, not behind the
+    // invitation gate (the gate only hides .site until it's unsealed).
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.renderWeddingMenu) {
+        window.renderWeddingMenu({
+          into: 'menu',
+          kicker: 'menu-kicker',
+          title: 'menu-title',
+          footnote: 'menu-footnote'
+        });
+      }
+    });
+  </script>
   <script src="js/seating.js"></script>
   <script>
     (function () {

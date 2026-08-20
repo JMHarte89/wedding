@@ -95,6 +95,13 @@
       </section>
 
       <section class="section">
+        <p class="section__kicker" id="menu-kicker"></p>
+        <h2 class="section__title" id="menu-title"></h2>
+        <div id="menu"></div>
+        <p class="menu__footnote" id="menu-footnote"></p>
+      </section>
+
+      <section class="section">
         <p class="section__kicker">Where</p>
         <h2 class="section__title">Getting here</h2>
         <p>The ceremony is at <strong>Holy Trinity Church, Kendal</strong>. Everything
@@ -120,10 +127,22 @@
   </div>
 
   <script src="js/timeline.js"></script>
+  <script src="js/menu.js"></script>
+  <script src="js/menu-render.js"></script>
   <script>
     (function () {
       'use strict';
-      // Same array index.html reads — see js/timeline.js. Never hand-copy times.
+      // Same datasets index.html reads — see js/timeline.js and js/menu.js.
+      // Never hand-copy times or menu items into a page.
+      if (window.renderWeddingMenu) {
+        window.renderWeddingMenu({
+          into: 'menu',
+          kicker: 'menu-kicker',
+          title: 'menu-title',
+          footnote: 'menu-footnote'
+        });
+      }
+
       var stops = window.WEDDING_TIMELINE || [];
       var ul = document.getElementById('agenda-timeline');
       if (!ul) return;
