@@ -15,6 +15,7 @@ Design rules (these print onto coloured stock):
     for body.
 """
 
+import bisect
 import csv
 import io
 import math
@@ -49,6 +50,7 @@ WAX = RGBColor(0x88, 0x3A, 0x2D)
 
 PETROL_RGB = (0x2C, 0x5D, 0x63)
 INK_RGB = (0x22, 0x2D, 0x2A)
+WAX_RGB = (0x88, 0x3A, 0x2D)
 
 # Fraunces and EB Garamond are webfonts and aren't installed locally; these
 # are the exact fallbacks --font-display / --font-body name in the CSS.
@@ -76,47 +78,98 @@ def _quad(p0, p1, p2, steps=48):
     return out
 
 
-def _sprig(d, cx, cy, size, angle, col, stroke, leaves=3):
-    """A small olive sprig centred on (cx, cy), lying along `angle`."""
+def _leaf(d, bx, by, angle, ll, lw, col, stroke):
+    """A single almond leaf rooted at (bx, by), pointing along `angle`."""
     ax, ay = math.cos(angle), math.sin(angle)
-    x0, y0 = cx - ax * size / 2, cy - ay * size / 2
-    x1, y1 = cx + ax * size / 2, cy + ay * size / 2
-
-    # Barely-there bow — the stem should read as a crisp chamfer, not a curve.
     px, py = -ay, ax
-    bow = size * 0.045
-    ctrl = ((x0 + x1) / 2 + px * bow, (y0 + y1) / 2 + py * bow)
-    d.line(_quad((x0, y0), ctrl, (x1, y1)), fill=col, width=stroke, joint="curve")
-
-    # Evenly spaced and symmetric about the centre, kept clear of the stem
-    # ends so a leaf never collides with the rule it meets.
-    spread = (0.28, 0.50, 0.72) if leaves == 3 else \
-        tuple(0.26 + i * (0.48 / max(1, leaves - 1)) for i in range(leaves))
-    for i, t in enumerate(spread):
-        u = 1 - t
-        bx = u * u * x0 + 2 * u * t * ctrl[0] + t * t * x1
-        by = u * u * y0 + 2 * u * t * ctrl[1] + t * t * y1
-        side = 1 if i % 2 == 0 else -1
-        la = angle + side * math.radians(50)
-        ll = size * 0.27
-        lw = ll * 0.36
-        lax, lay = math.cos(la), math.sin(la)
-        lpx, lpy = -lay, lax
-        tipx, tipy = bx + lax * ll, by + lay * ll
-        mx, my = bx + lax * ll * 0.45, by + lay * ll * 0.45
-        upper = _quad((bx, by), (mx + lpx * lw, my + lpy * lw), (tipx, tipy), 24)
-        lower = _quad((tipx, tipy), (mx - lpx * lw, my - lpy * lw), (bx, by), 24)
-        d.line(upper + lower + [upper[0]], fill=col, width=stroke, joint="curve")
+    tip = (bx + ax * ll, by + ay * ll)
+    m = (bx + ax * ll * 0.45, by + ay * ll * 0.45)
+    up = _quad((bx, by), (m[0] + px * lw, m[1] + py * lw), tip, 20)
+    dn = _quad(tip, (m[0] - px * lw, m[1] - py * lw), (bx, by), 20)
+    d.line(up + dn + [up[0]], fill=col, width=stroke, joint="curve")
 
 
-def page_ornament(w_mm, h_mm, dpi=200, ss=2, colour=PETROL_RGB, alpha=200):
-    """The full-page trim: a double rule that breaks at each corner, with an
-    olive sprig bridging the break.
+def _rose(d, cx, cy, r, col, stroke, turns=2.4, lobes=5, lobe_amp=0.17):
+    """A rose drawn as ONE continuous lobed spiral.
+
+    The radius is modulated by a lobe term that grows outward, so the stroke
+    opens from a tight bud into petals without lifting. Building a rose from
+    separate petal arcs was tried first and reads as a star (pointed petal
+    junctions) or a target (concentric rings); the lobed spiral still reads
+    as a rose at the ~4mm the border actually prints at.
+    """
+    pts = []
+    N = 300
+    for i in range(N):
+        t = i / (N - 1)
+        th = t * turns * 2 * math.pi
+        rr = r * (t ** 0.62) * (1 + lobe_amp * t * math.sin(lobes * th))
+        pts.append((cx + rr * math.cos(th), cy + rr * math.sin(th)))
+    d.line(pts, fill=col, width=stroke, joint="curve")
+
+
+def _rr_path(l, t, r, b, R, step):
+    """Points around a rounded rectangle, clockwise, roughly `step` apart."""
+    pts = []
+
+    def seg(x0, y0, x1, y1):
+        n = max(2, int(math.hypot(x1 - x0, y1 - y0) / step))
+        for i in range(n + 1):
+            pts.append((x0 + (x1 - x0) * i / n, y0 + (y1 - y0) * i / n))
+
+    def arc(cx, cy, a0, a1):
+        n = max(6, int(abs(a1 - a0) * R / step))
+        for i in range(n + 1):
+            a = a0 + (a1 - a0) * i / n
+            pts.append((cx + R * math.cos(a), cy + R * math.sin(a)))
+
+    seg(l + R, t, r - R, t)
+    arc(r - R, t + R, -math.pi / 2, 0)
+    seg(r, t + R, r, b - R)
+    arc(r - R, b - R, 0, math.pi / 2)
+    seg(r - R, b, l + R, b)
+    arc(l + R, b - R, math.pi / 2, math.pi)
+    seg(l, b - R, l, t + R)
+    arc(l + R, t + R, math.pi, 3 * math.pi / 2)
+
+    out = [pts[0]]
+    for p in pts[1:]:
+        if math.hypot(p[0] - out[-1][0], p[1] - out[-1][1]) > 1e-6:
+            out.append(p)
+    return out
+
+
+def _path_frame(pts):
+    """Cumulative arc length plus unit tangent and normal at each point."""
+    n = len(pts)
+    s = [0.0]
+    for i in range(1, n):
+        s.append(s[-1] + math.hypot(pts[i][0] - pts[i - 1][0],
+                                    pts[i][1] - pts[i - 1][1]))
+    total = s[-1] + math.hypot(pts[0][0] - pts[-1][0], pts[0][1] - pts[-1][1])
+    tan, nor = [], []
+    for i in range(n):
+        p0, p1 = pts[(i - 1) % n], pts[(i + 1) % n]
+        dx, dy = p1[0] - p0[0], p1[1] - p0[1]
+        L = math.hypot(dx, dy) or 1.0
+        tx, ty = dx / L, dy / L
+        tan.append((tx, ty))
+        nor.append((-ty, tx))
+    return s, total, tan, nor
+
+
+def page_ornament(w_mm, h_mm, dpi=200, ss=2, alpha=205):
+    """The full-page trim: a wandering rose vine round the whole page.
+
+    A rounded-rectangle centreline is displaced along its own normal by a
+    sine wave to make the vine wander, then roses and leaves are placed by
+    arc length along it. The wavelength is forced to a whole number of cycles
+    around the loop so the vine closes on itself seamlessly.
 
     Drawn once per page size as a single transparent layer, so it can be
-    anchored to the page at an exact offset. That is what keeps the corners
-    symmetric — the previous tab-stop approach inherited the built-in Header
-    style's centre tab and pulled the right-hand art toward the middle.
+    anchored to the page at an exact offset. That is what keeps it symmetric —
+    the original tab-stop approach inherited the built-in Header style's
+    centre tab and pulled the right-hand art toward the middle.
 
     Ink only: everything outside the strokes stays fully transparent, so the
     coloured stock shows through.
@@ -125,47 +178,74 @@ def page_ornament(w_mm, h_mm, dpi=200, ss=2, colour=PETROL_RGB, alpha=200):
     W, H = int(w_mm * mmpx), int(h_mm * mmpx)
     img = Image.new("RGBA", (W * ss, H * ss), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
-    col = colour + (alpha,)
-    col_soft = colour + (int(alpha * 0.72),)
 
     def P(v):
         return v * mmpx * ss
 
     # Trim scales with the short edge so A4 and A5 look like one family.
     short = min(w_mm, h_mm)
-    inset = P(max(10.0, short * 0.057))
-    gap = P(short * 0.088)
-    sep = P(1.5)
+    inset = P(max(13.0, short * 0.072))
+    R = P(short * 0.10)
+    amp = P(short * 0.018)
+    wl_target = P(short * 0.20)
+    rose_r = P(short * 0.026)
+    leaf_l = P(short * 0.026)
+
+    # Roses carry full ink so they read as properly red; the vine and leaves
+    # sit a touch back so the greenery stays trim rather than competing.
+    vine_col = PETROL_RGB + (alpha,)
+    rose_col = WAX_RGB + (255,)
 
     # Stroke widths are whole final-image pixels multiplied back up by `ss`, so
     # the downsample is an exact area average and the ink keeps its full
-    # density. Letting them land on fractional widths antialiases the hairline
-    # into a washed-out grey that prints badly.
-    px_outer = max(2, round(0.26 * mmpx))     # ~0.74pt
-    px_inner = max(1, round(0.16 * mmpx))     # ~0.45pt
-    w_outer = px_outer * ss
-    w_inner = px_inner * ss
+    # density. Fractional widths antialias the hairline into a washed-out grey
+    # that prints badly.
+    #
+    # Both weights floor at 2 final pixels. A 1px-wide CURVE only half-fills
+    # the 2x2 blocks the box filter averages, so it comes out at roughly half
+    # density — which is what made the roses print as pale pink rather than
+    # wax red. Straight runs don't show it; the tightly wound rose does.
+    stroke = max(2, round(0.26 * mmpx)) * ss
+    fine = max(2, round(0.21 * mmpx)) * ss
 
     Wx, Hy = W * ss, H * ss
-    for off, wt, c in ((inset, w_outer, col), (inset + sep, w_inner, col_soft)):
-        l, t, r, b = off, off, Wx - off, Hy - off
-        d.line([(l + gap, t), (r - gap, t)], fill=c, width=wt)
-        d.line([(l + gap, b), (r - gap, b)], fill=c, width=wt)
-        d.line([(l, t + gap), (l, b - gap)], fill=c, width=wt)
-        d.line([(r, t + gap), (r, b - gap)], fill=c, width=wt)
+    base = _rr_path(inset, inset, Wx - inset, Hy - inset, R, P(0.7))
+    s, total, tan, nor = _path_frame(base)
 
-    # Sprig bridging each corner break: it runs between the two rule-ends,
-    # i.e. perpendicular to the page diagonal, closing the corner.
-    s_stroke = w_outer                        # same weight as the rule it meets
-    s_size = gap * 1.414                      # spans exactly rule-end to rule-end
-    l, t, r, b = inset, inset, Wx - inset, Hy - inset
-    for cx, cy, ang in (
-        (l + gap / 2, t + gap / 2, math.radians(135)),
-        (r - gap / 2, t + gap / 2, math.radians(45)),
-        (l + gap / 2, b - gap / 2, math.radians(-135)),
-        (r - gap / 2, b - gap / 2, math.radians(-45)),
-    ):
-        _sprig(d, cx, cy, s_size, ang, col, s_stroke)
+    # Whole number of cycles round the loop => the wave meets itself cleanly.
+    cycles = max(8, round(total / wl_target))
+    wl = total / cycles
+
+    vine = []
+    for i, (x, y) in enumerate(base):
+        off = amp * math.sin(2 * math.pi * s[i] / wl)
+        vine.append((x + nor[i][0] * off, y + nor[i][1] * off))
+    d.line(vine + [vine[0]], fill=vine_col, width=stroke, joint="curve")
+
+    def at(q):
+        q %= total
+        i = min(bisect.bisect_left(s, q), len(base) - 1)
+        off = amp * math.sin(2 * math.pi * s[i] / wl)
+        return ((base[i][0] + nor[i][0] * off,
+                 base[i][1] + nor[i][1] * off), tan[i])
+
+    # Leaves first, so a rose always sits on top of them rather than under.
+    for k in range(cycles):
+        for frac, side, scale in ((0.52, 1, 1.0), (0.78, -1, 0.82),
+                                  (0.98, 1, 0.66)):
+            (x, y), (tx, ty) = at((k + frac) * wl)
+            ang = math.atan2(ty, tx) + side * math.radians(52)
+            _leaf(d, x, y, ang, leaf_l * scale, leaf_l * scale * 0.34,
+                  vine_col, fine)
+
+    # A rose on every other crest — one per cycle is too busy and starts to
+    # read as bunting. Alternating full bloom and small bud gives it rhythm.
+    for k in range(0, cycles, 2):
+        (x, y), _ = at((k + 0.25) * wl)
+        _rose(d, x, y, rose_r, rose_col, stroke)
+    for k in range(1, cycles, 4):
+        (x, y), _ = at((k + 0.25) * wl)
+        _rose(d, x, y, rose_r * 0.58, rose_col, stroke, turns=1.9)
 
     # BOX = exact area average. `ss` is an integer factor and the strokes are
     # integer multiples of it, so this downsamples without ringing or fading.
@@ -386,10 +466,20 @@ def read_tables():
 
 
 def names_block(doc, names):
-    """Lay the names out in 1–3 borderless columns depending on how many."""
+    """Lay the names out in 1–3 borderless columns depending on how many.
+
+    Type tightens as a table grows so even the 21-name top table stays on its
+    own single card — the row count, not the name count, is what costs height.
+    """
     n = len(names)
     cols = 1 if n <= 6 else (2 if n <= 14 else 3)
     rows = -(-n // cols)
+    if rows >= 7:
+        size, lead = 11.5, 0
+    elif rows >= 6:
+        size, lead = 12.0, 1
+    else:
+        size, lead = 12.5, 1
     table = doc.add_table(rows=rows, cols=cols)
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
     table.autofit = True
@@ -409,9 +499,9 @@ def names_block(doc, names):
         cell = table.cell(i % rows, i // rows)
         p = cell.paragraphs[0]
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        p.paragraph_format.space_before = Pt(1)
-        p.paragraph_format.space_after = Pt(1)
-        style_run(p.add_run(name), font=FONT_BODY, size=12.5, colour=INK)
+        p.paragraph_format.space_before = Pt(lead)
+        p.paragraph_format.space_after = Pt(lead)
+        style_run(p.add_run(name), font=FONT_BODY, size=size, colour=INK)
     return table
 
 
@@ -421,7 +511,9 @@ def names_block(doc, names):
 
 def build_table_cards():
     tables = read_tables()
-    doc = new_doc(148, 210, landscape=True, margin_mm=20, centre=True, did=11)
+    # 22mm clears the vine's deepest inward ink (~19.5mm) with a little air,
+    # while leaving enough height for the 21-name top table on one card.
+    doc = new_doc(148, 210, landscape=True, margin_mm=22, centre=True, did=11)
 
     for idx, (name, people) in enumerate(tables):
         kicker = para(doc, "", font=FONT_DISPLAY, size=8.5, colour=PETROL,
@@ -432,11 +524,11 @@ def build_table_cards():
             kicker.add_run().add_break(WD_BREAK.PAGE)
         style_run(kicker.add_run("You are seated at"), font=FONT_DISPLAY,
                   size=8.5, colour=PETROL, spacing=2.4, caps=True)
-        para(doc, name, font=FONT_DISPLAY, size=30, colour=INK,
+        para(doc, name, font=FONT_DISPLAY, size=28, colour=INK,
              bold=True, space_after=2)
         rule(doc)
         names_block(doc, people)
-        add_qr(doc, AGENDA_URL, "Scan for the order of the day", size_in=0.9)
+        add_qr(doc, AGENDA_URL, "Scan for the order of the day", size_in=0.82)
 
     OUT_DIR.mkdir(exist_ok=True)
     doc.save(OUT_DIR / "table-cards.docx")
@@ -444,7 +536,7 @@ def build_table_cards():
 
 
 def build_ring_blessing():
-    doc = new_doc(210, 297, margin_mm=32, centre=True, did=21)
+    doc = new_doc(210, 297, margin_mm=34, centre=True, did=21)
     para(doc, "For Becki & Jase", font=FONT_DISPLAY, size=10, colour=PETROL,
          spacing=3.0, caps=True, space_after=10)
     para(doc, "Bless These Rings", font=FONT_DISPLAY, size=34, colour=INK,
@@ -471,7 +563,7 @@ def build_ring_blessing():
 
 
 def build_favours():
-    doc = new_doc(210, 297, margin_mm=32, centre=True, did=31)
+    doc = new_doc(210, 297, margin_mm=34, centre=True, did=31)
     para(doc, "With our thanks", font=FONT_DISPLAY, size=10, colour=PETROL,
          spacing=3.0, caps=True, space_after=10)
     para(doc, "A Little Something", font=FONT_DISPLAY, size=34, colour=INK,
@@ -496,8 +588,7 @@ def build_favours():
 
 
 def build_gifts():
-    # 17mm measure rather than 20: at 20 the closing line orphans "world."
-    doc = new_doc(148, 210, margin_mm=17, centre=True, did=41)
+    doc = new_doc(148, 210, margin_mm=20, centre=True, did=41)
     para(doc, "Becki & Jase", font=FONT_DISPLAY, size=8.5, colour=PETROL,
          spacing=2.4, caps=True, space_after=8)
     para(doc, "Gifts", font=FONT_DISPLAY, size=30, colour=INK,
