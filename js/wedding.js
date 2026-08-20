@@ -9,13 +9,13 @@
     { time: '2:00',       event: 'Welcome drinks — the newlyweds arrive', note: 'Raise a glass. The hard part is done.' },
     { time: '2:00–4:00',  event: 'Grazing, pizza & pancakes',         note: 'A sharing grazing buffet — [BUFFET DETAIL TO BE ADDED], plus wood-fired pizza and fresh pancakes. There’s also a magician wandering about — yes, really.' },
     { time: '4:30',       event: 'Speeches',                          note: 'Sit down, top up your glass, and be kind.' },
-    { time: '5:30',       event: 'Evening guests arrive',             note: 'Welcome — you’ve missed the nerves, caught the fun.' },
-    { time: '6:30',       event: 'First dance & the band',            note: 'An acoustic first dance, then the band takes over — dance floor open, no excuses.' },
+    { time: '6:30',       event: 'Evening guests arrive',             note: 'Welcome — you’ve missed the nerves, caught the fun.' },
+    { time: '7:00',       event: 'First dance & the band',            note: 'An acoustic first dance, then the band takes over — dance floor open, no excuses.' },
     { time: '7:30–9:30',  event: 'Ninja Wraps',                       note: 'Evening food. Fuel for the dancefloor.' },
     { time: '12:00',      event: 'Carriages',                         note: 'Taxis turn into pumpkins. Thank you for being here.' }
   ];
 
-  var EVENING_START_INDEX = TIMELINE.findIndex(function (s) { return s.time === '5:30'; });
+  var EVENING_START_INDEX = TIMELINE.findIndex(function (s) { return s.time === '6:30'; });
   var FAIL_LIMIT = 1;
   var failures = 0;
   var guests = [];
@@ -425,7 +425,7 @@
     var stops;
     if (guest.day === false && guest.evening) {
       stops = TIMELINE.slice(EVENING_START_INDEX);
-      if (noteEl) noteEl.textContent = "We'll see you from 5:30pm — the party is just getting started.";
+      if (noteEl) noteEl.textContent = "We'll see you from 6:30pm — the party is just getting started.";
     } else {
       stops = TIMELINE.slice();
       if (noteEl) noteEl.textContent = '';
