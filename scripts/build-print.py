@@ -30,8 +30,10 @@ from docx import Document
 from docx.enum.section import WD_ORIENT
 from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK, WD_TAB_ALIGNMENT
+from docx.oxml import parse_xml
 from docx.oxml.ns import qn
 from docx.shared import Inches, Mm, Pt, RGBColor
+from lxml import etree
 
 ROOT = Path(__file__).resolve().parent.parent
 CSV_PATH = ROOT / "data" / "guestlist.csv"
@@ -74,85 +76,104 @@ def _quad(p0, p1, p2, steps=48):
     return out
 
 
-def _leaf_sprig(size_px=720, colour=PETROL_RGB, alpha=170):
-    """A thin botanical sprig growing up and to the right.
+def _sprig(d, cx, cy, size, angle, col, stroke, leaves=3):
+    """A small olive sprig centred on (cx, cy), lying along `angle`."""
+    ax, ay = math.cos(angle), math.sin(angle)
+    x0, y0 = cx - ax * size / 2, cy - ay * size / 2
+    x1, y1 = cx + ax * size / 2, cy + ay * size / 2
 
-    Drawn at 4x and downsampled so the strokes stay hairline-fine — this is
-    trim, not clip art. Transparent background so coloured paper shows through.
+    # Barely-there bow — the stem should read as a crisp chamfer, not a curve.
+    px, py = -ay, ax
+    bow = size * 0.045
+    ctrl = ((x0 + x1) / 2 + px * bow, (y0 + y1) / 2 + py * bow)
+    d.line(_quad((x0, y0), ctrl, (x1, y1)), fill=col, width=stroke, joint="curve")
+
+    # Evenly spaced and symmetric about the centre, kept clear of the stem
+    # ends so a leaf never collides with the rule it meets.
+    spread = (0.28, 0.50, 0.72) if leaves == 3 else \
+        tuple(0.26 + i * (0.48 / max(1, leaves - 1)) for i in range(leaves))
+    for i, t in enumerate(spread):
+        u = 1 - t
+        bx = u * u * x0 + 2 * u * t * ctrl[0] + t * t * x1
+        by = u * u * y0 + 2 * u * t * ctrl[1] + t * t * y1
+        side = 1 if i % 2 == 0 else -1
+        la = angle + side * math.radians(50)
+        ll = size * 0.27
+        lw = ll * 0.36
+        lax, lay = math.cos(la), math.sin(la)
+        lpx, lpy = -lay, lax
+        tipx, tipy = bx + lax * ll, by + lay * ll
+        mx, my = bx + lax * ll * 0.45, by + lay * ll * 0.45
+        upper = _quad((bx, by), (mx + lpx * lw, my + lpy * lw), (tipx, tipy), 24)
+        lower = _quad((tipx, tipy), (mx - lpx * lw, my - lpy * lw), (bx, by), 24)
+        d.line(upper + lower + [upper[0]], fill=col, width=stroke, joint="curve")
+
+
+def page_ornament(w_mm, h_mm, dpi=200, ss=2, colour=PETROL_RGB, alpha=200):
+    """The full-page trim: a double rule that breaks at each corner, with an
+    olive sprig bridging the break.
+
+    Drawn once per page size as a single transparent layer, so it can be
+    anchored to the page at an exact offset. That is what keeps the corners
+    symmetric — the previous tab-stop approach inherited the built-in Header
+    style's centre tab and pulled the right-hand art toward the middle.
+
+    Ink only: everything outside the strokes stays fully transparent, so the
+    coloured stock shows through.
     """
-    ss = 4
-    S = size_px * ss
-    img = Image.new("RGBA", (S, S), (0, 0, 0, 0))
+    mmpx = dpi / 25.4
+    W, H = int(w_mm * mmpx), int(h_mm * mmpx)
+    img = Image.new("RGBA", (W * ss, H * ss), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
     col = colour + (alpha,)
-    stroke = max(1, int(S * 0.006))
+    col_soft = colour + (int(alpha * 0.72),)
 
-    # Stem: gentle arc from bottom-left to top-right.
-    p0 = (0.10 * S, 0.93 * S)
-    p1 = (0.32 * S, 0.42 * S)
-    p2 = (0.93 * S, 0.10 * S)
-    stem = _quad(p0, p1, p2)
-    d.line(stem, fill=col, width=stroke, joint="curve")
+    def P(v):
+        return v * mmpx * ss
 
-    def tangent(t):
-        u = 1 - t
-        dx = 2 * u * (p1[0] - p0[0]) + 2 * t * (p2[0] - p1[0])
-        dy = 2 * u * (p1[1] - p0[1]) + 2 * t * (p2[1] - p1[1])
-        n = (dx * dx + dy * dy) ** 0.5 or 1.0
-        return dx / n, dy / n
+    # Trim scales with the short edge so A4 and A5 look like one family.
+    short = min(w_mm, h_mm)
+    inset = P(max(10.0, short * 0.057))
+    gap = P(short * 0.088)
+    sep = P(1.5)
 
-    def bez(t):
-        u = 1 - t
-        return (
-            u * u * p0[0] + 2 * u * t * p1[0] + t * t * p2[0],
-            u * u * p0[1] + 2 * u * t * p1[1] + t * t * p2[1],
-        )
+    # Stroke widths are whole final-image pixels multiplied back up by `ss`, so
+    # the downsample is an exact area average and the ink keeps its full
+    # density. Letting them land on fractional widths antialiases the hairline
+    # into a washed-out grey that prints badly.
+    px_outer = max(2, round(0.26 * mmpx))     # ~0.74pt
+    px_inner = max(1, round(0.16 * mmpx))     # ~0.45pt
+    w_outer = px_outer * ss
+    w_inner = px_inner * ss
 
-    # Alternating leaves, tapering towards the tip.
-    for t, side, scale in ((0.20, 1, 1.00), (0.40, -1, 0.92),
-                           (0.60, 1, 0.78), (0.78, -1, 0.62)):
-        bx, by = bez(t)
-        tx, ty = tangent(t)
-        ang = math.atan2(ty, tx) + side * math.radians(42)
-        length = 0.26 * S * scale
-        width = 0.085 * S * scale
-        ax, ay = math.cos(ang), math.sin(ang)
-        px, py = -ay, ax                      # perpendicular
-        tipx, tipy = bx + ax * length, by + ay * length
-        midx, midy = bx + ax * length * 0.45, by + ay * length * 0.45
+    Wx, Hy = W * ss, H * ss
+    for off, wt, c in ((inset, w_outer, col), (inset + sep, w_inner, col_soft)):
+        l, t, r, b = off, off, Wx - off, Hy - off
+        d.line([(l + gap, t), (r - gap, t)], fill=c, width=wt)
+        d.line([(l + gap, b), (r - gap, b)], fill=c, width=wt)
+        d.line([(l, t + gap), (l, b - gap)], fill=c, width=wt)
+        d.line([(r, t + gap), (r, b - gap)], fill=c, width=wt)
 
-        # Almond outline: two arcs bulging either side of the leaf axis.
-        upper = _quad((bx, by), (midx + px * width, midy + py * width), (tipx, tipy), 28)
-        lower = _quad((tipx, tipy), (midx - px * width, midy - py * width), (bx, by), 28)
-        d.line(upper + lower + [upper[0]], fill=col, width=stroke, joint="curve")
-        # Faint midrib.
-        d.line([(bx, by), (tipx, tipy)], fill=colour + (int(alpha * 0.55),),
-               width=max(1, stroke // 2))
+    # Sprig bridging each corner break: it runs between the two rule-ends,
+    # i.e. perpendicular to the page diagonal, closing the corner.
+    s_stroke = w_outer                        # same weight as the rule it meets
+    s_size = gap * 1.414                      # spans exactly rule-end to rule-end
+    l, t, r, b = inset, inset, Wx - inset, Hy - inset
+    for cx, cy, ang in (
+        (l + gap / 2, t + gap / 2, math.radians(135)),
+        (r - gap / 2, t + gap / 2, math.radians(45)),
+        (l + gap / 2, b - gap / 2, math.radians(-135)),
+        (r - gap / 2, b - gap / 2, math.radians(-45)),
+    ):
+        _sprig(d, cx, cy, s_size, ang, col, s_stroke)
 
-    return img.resize((size_px, size_px), Image.LANCZOS)
-
-
-def leaf_variants():
-    """Corner sprigs, keyed by corner. Base grows up-right from bottom-left."""
-    base = _leaf_sprig()
-    bl = base
-    br = base.transpose(Image.FLIP_LEFT_RIGHT)
-    tl = base.transpose(Image.FLIP_TOP_BOTTOM)
-    tr = tl.transpose(Image.FLIP_LEFT_RIGHT)
-    out = {}
-    for key, im in (("tl", tl), ("tr", tr), ("bl", bl), ("br", br)):
-        buf = io.BytesIO()
-        im.save(buf, format="PNG")
-        buf.seek(0)
-        out[key] = buf.getvalue()
-    return out
-
-
-LEAVES = None
-
-
-def leaf_stream(corner):
-    return io.BytesIO(LEAVES[corner])
+    # BOX = exact area average. `ss` is an integer factor and the strokes are
+    # integer multiples of it, so this downsamples without ringing or fading.
+    out = img.resize((W, H), Image.BOX)
+    buf = io.BytesIO()
+    out.save(buf, format="PNG")
+    buf.seek(0)
+    return buf
 
 
 def qr_png(url, modules_colour=INK_RGB):
@@ -237,29 +258,59 @@ def vertically_centre(section):
     sect_pr.append(v)
 
 
-def corner_trim(section, leaf_in=0.52):
-    """Leaf sprigs in all four corners, via the header and footer.
+_ANCHOR = (
+    '<wp:anchor xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/'
+    'wordprocessingDrawing" distT="0" distB="0" distL="0" distR="0" '
+    'simplePos="0" relativeHeight="0" behindDoc="1" locked="0" '
+    'layoutInCell="1" allowOverlap="1">'
+    '<wp:simplePos x="0" y="0"/>'
+    '<wp:positionH relativeFrom="page"><wp:posOffset>0</wp:posOffset></wp:positionH>'
+    '<wp:positionV relativeFrom="page"><wp:posOffset>0</wp:posOffset></wp:positionV>'
+    '<wp:extent cx="{cx}" cy="{cy}"/>'
+    '<wp:effectExtent l="0" t="0" r="0" b="0"/>'
+    '<wp:wrapNone/>'
+    '<wp:docPr id="{did}" name="Trim {did}"/>'
+    '<wp:cNvGraphicFramePr/>'
+    '{graphic}'
+    '</wp:anchor>'
+)
 
-    Header/footer keeps them out of the text flow and repeats them on every
-    page — which is what we want for the multi-page table cards.
+
+def corner_trim(section, did=1):
+    """Lay the page trim behind the text, pinned to the page itself.
+
+    The image is placed as a floating anchor at page offset (0,0) at exactly
+    page size, so its position cannot be perturbed by margins, paragraph
+    styles or inherited tab stops. Living in the header means it repeats on
+    every page — needed for the multi-page table cards — without taking part
+    in the body's layout.
     """
-    col_w = section.page_width - section.left_margin - section.right_margin
+    w_mm = section.page_width.mm
+    h_mm = section.page_height.mm
+    stream = page_ornament(w_mm, h_mm)
 
-    for part, corners in ((section.header, ("tl", "tr")),
-                          (section.footer, ("bl", "br"))):
-        p = part.paragraphs[0]
-        p.alignment = WD_ALIGN_PARAGRAPH.LEFT
-        p.paragraph_format.space_before = Pt(0)
-        p.paragraph_format.space_after = Pt(0)
-        p.paragraph_format.tab_stops.add_tab_stop(col_w, WD_TAB_ALIGNMENT.RIGHT)
-        left, right = corners
-        p.add_run().add_picture(leaf_stream(left), width=Inches(leaf_in))
-        p.add_run().add_tab()
-        p.add_run().add_picture(leaf_stream(right), width=Inches(leaf_in))
+    p = section.header.paragraphs[0]
+    p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    p.paragraph_format.space_before = Pt(0)
+    p.paragraph_format.space_after = Pt(0)
+    p.paragraph_format.line_spacing = Pt(1)
+    run = p.add_run()
+    run.font.size = Pt(1)                 # keep the header line height at nil
+    run.add_picture(stream, width=section.page_width, height=section.page_height)
+
+    # Convert the inline drawing python-docx just made into a page anchor.
+    inline = run._element.find(qn("w:drawing")).find(qn("wp:inline"))
+    graphic = inline.find(qn("a:graphic"))
+    extent = inline.find(qn("wp:extent"))
+    xml = _ANCHOR.format(
+        cx=extent.get("cx"), cy=extent.get("cy"), did=did,
+        graphic=etree.tostring(graphic).decode("utf-8"),
+    )
+    inline.getparent().replace(inline, parse_xml(xml))
 
 
 def new_doc(width_mm, height_mm, *, landscape=False, margin_mm=18,
-            centre=True, leaf_in=0.52):
+            centre=True, did=1):
     doc = Document()
     # Document-wide default so nothing falls back to Calibri.
     normal = doc.styles["Normal"]
@@ -276,7 +327,7 @@ def new_doc(width_mm, height_mm, *, landscape=False, margin_mm=18,
 
     sec = doc.sections[0]
     set_page(sec, width_mm, height_mm, landscape=landscape, margin_mm=margin_mm)
-    corner_trim(sec, leaf_in=leaf_in)
+    corner_trim(sec, did=did)
     if centre:
         vertically_centre(sec)
     return doc
@@ -370,7 +421,7 @@ def names_block(doc, names):
 
 def build_table_cards():
     tables = read_tables()
-    doc = new_doc(148, 210, landscape=True, margin_mm=14, centre=True, leaf_in=0.46)
+    doc = new_doc(148, 210, landscape=True, margin_mm=20, centre=True, did=11)
 
     for idx, (name, people) in enumerate(tables):
         kicker = para(doc, "", font=FONT_DISPLAY, size=8.5, colour=PETROL,
@@ -393,7 +444,7 @@ def build_table_cards():
 
 
 def build_ring_blessing():
-    doc = new_doc(210, 297, margin_mm=28, centre=True, leaf_in=0.7)
+    doc = new_doc(210, 297, margin_mm=32, centre=True, did=21)
     para(doc, "For Becki & Jase", font=FONT_DISPLAY, size=10, colour=PETROL,
          spacing=3.0, caps=True, space_after=10)
     para(doc, "Bless These Rings", font=FONT_DISPLAY, size=34, colour=INK,
@@ -420,7 +471,7 @@ def build_ring_blessing():
 
 
 def build_favours():
-    doc = new_doc(210, 297, margin_mm=28, centre=True, leaf_in=0.7)
+    doc = new_doc(210, 297, margin_mm=32, centre=True, did=31)
     para(doc, "With our thanks", font=FONT_DISPLAY, size=10, colour=PETROL,
          spacing=3.0, caps=True, space_after=10)
     para(doc, "A Little Something", font=FONT_DISPLAY, size=34, colour=INK,
@@ -445,7 +496,8 @@ def build_favours():
 
 
 def build_gifts():
-    doc = new_doc(148, 210, margin_mm=16, centre=True, leaf_in=0.5)
+    # 17mm measure rather than 20: at 20 the closing line orphans "world."
+    doc = new_doc(148, 210, margin_mm=17, centre=True, did=41)
     para(doc, "Becki & Jase", font=FONT_DISPLAY, size=8.5, colour=PETROL,
          spacing=2.4, caps=True, space_after=8)
     para(doc, "Gifts", font=FONT_DISPLAY, size=30, colour=INK,
@@ -461,16 +513,14 @@ def build_gifts():
     para(doc,
          "But if you'd really like to do something, we're saving for our "
          "honeymoon — any contribution, however small, means the world.",
-         font=FONT_BODY, size=12.5, colour=INK, space_after=4)
+         font=FONT_BODY, size=12, colour=INK, space_after=4)
     add_qr(doc, GOFUNDME_URL, "Scan for our honeymoon fund", size_in=1.0)
     doc.save(OUT_DIR / "gifts.docx")
 
 
 def main():
-    global LEAVES
     if not CSV_PATH.exists():
         sys.exit(f"Can't find {CSV_PATH}")
-    LEAVES = leaf_variants()
     OUT_DIR.mkdir(exist_ok=True)
 
     tables = build_table_cards()
