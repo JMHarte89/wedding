@@ -9,6 +9,10 @@ Thumbs.db
 
 Photos/
 
+# Python (scripts/build-print.py)
+__pycache__/
+*.pyc
+
 # Node / Staticrypt
 node_modules/
 encrypted/

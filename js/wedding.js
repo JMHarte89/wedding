@@ -1,21 +1,17 @@
 (function () {
   'use strict';
 
-  var TIMELINE = [
-    { time: '11:00',      event: 'Arrive at church',                  note: 'Holy Trinity Church, Kendal. Doors open from 11am — find a pew, say your hellos, and grab a service sheet before the 11:30 start.' },
-    { time: '11:30',      event: 'The ceremony',                      note: 'The bit we’re most nervous about.' },
-    { time: '12:30',      event: 'Photographs outside the church',    note: 'The bridal party will guide everyone out. Confetti welcome — biodegradable only please.' },
-    { time: '1:00–1:30',  event: 'Make your way to the venue',        note: 'The groomsmen and bridesmaids will point you in the right direction. It’s not far.' },
-    { time: '2:00',       event: 'Welcome drinks — the newlyweds arrive', note: 'Raise a glass. The hard part is done.' },
-    { time: '2:00–4:00',  event: 'Grazing, pizza & pancakes',         note: 'A sharing grazing buffet — [BUFFET DETAIL TO BE ADDED], plus wood-fired pizza and fresh pancakes. There’s also a magician wandering about — yes, really.' },
-    { time: '4:30',       event: 'Speeches',                          note: 'Sit down, top up your glass, and be kind.' },
-    { time: '6:30',       event: 'Evening guests arrive',             note: 'Welcome — you’ve missed the nerves, caught the fun.' },
-    { time: '7:00',       event: 'First dance & the band',            note: 'An acoustic first dance, then the band takes over — dance floor open, no excuses.' },
-    { time: '7:30–9:30',  event: 'Ninja Wraps',                       note: 'Evening food. Fuel for the dancefloor.' },
-    { time: '12:00',      event: 'Carriages',                         note: 'Taxis turn into pumpkins. Thank you for being here.' }
-  ];
+  // The running order lives in js/timeline.js so index.html and agenda.html
+  // can never drift apart. That file must be loaded first.
+  var TIMELINE = window.WEDDING_TIMELINE || [];
+  var EVENING_START_EVENT = window.WEDDING_EVENING_START_EVENT || 'Evening guests arrive';
 
-  var EVENING_START_INDEX = TIMELINE.findIndex(function (s) { return s.time === '6:30'; });
+  // Keyed off the event NAME, not the time — times get edited, and nothing
+  // stops two stops sharing one. Trimmed + lowercased so a later copy tweak
+  // ("Evening Guests Arrive ") doesn't silently break the evening view.
+  var EVENING_START_INDEX = TIMELINE.findIndex(function (s) {
+    return String(s.event).trim().toLowerCase() === EVENING_START_EVENT.trim().toLowerCase();
+  });
   var FAIL_LIMIT = 1;
   var failures = 0;
   var guests = [];
@@ -423,10 +419,20 @@
     ul.innerHTML = '';
     var noteEl = document.getElementById('timeline-note');
     var stops;
-    if (guest.day === false && guest.evening) {
+    if (guest.day === false && guest.evening && EVENING_START_INDEX !== -1) {
       stops = TIMELINE.slice(EVENING_START_INDEX);
-      if (noteEl) noteEl.textContent = "We'll see you from 6:30pm — the party is just getting started.";
+      if (noteEl) {
+        noteEl.textContent = "We'll see you from " + TIMELINE[EVENING_START_INDEX].time +
+          "pm — the party is just getting started.";
+      }
     } else {
+      // Includes the failure case: if the evening stop can't be found we show
+      // the whole day. An evening guest reading about the morning is harmless;
+      // an evening guest staring at a blank timeline is not.
+      if (guest.day === false && guest.evening) {
+        console.warn('[wedding] Timeline stop "' + EVENING_START_EVENT +
+          '" not found in js/timeline.js — falling back to the full timeline.');
+      }
       stops = TIMELINE.slice();
       if (noteEl) noteEl.textContent = '';
     }

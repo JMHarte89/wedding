@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Becki &amp; Jase — the order of the day. Saturday 29 August 2026, Kendal.">
+  <title>The Order of the Day — Becki &amp; Jase</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/invitation.css">
+  <style>
+    /* Public page — no gate, so the shell is always visible. Everything else
+       is inherited from css/invitation.css so this can't drift from the
+       main site's type or palette. */
+    body.is-open { background: var(--limestone); }
+
+    .agenda-head {
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: clamp(2.5rem, 8vw, 4rem) clamp(1rem, 5vw, 2rem) var(--gap);
+      text-align: center;
+    }
+    .agenda-head__names {
+      font-family: var(--font-display);
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      color: var(--petrol);
+      margin: 0 0 0.9rem;
+    }
+    .agenda-head__title {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: clamp(2rem, 8vw, 3rem);
+      line-height: 1.1;
+      margin: 0 0 0.6rem;
+      color: var(--ink);
+    }
+    .agenda-head__date {
+      font-style: italic;
+      color: var(--petrol);
+      margin: 0;
+      font-size: 1.05rem;
+    }
+    .agenda-head__rule {
+      width: 64px;
+      height: 1px;
+      background: var(--rule-strong);
+      border: 0;
+      margin: var(--gap) auto 0;
+    }
+
+    .agenda-body { padding-top: var(--gap); }
+    .agenda-body .section + .section { border-top: 1px solid var(--rule); }
+
+    /* Phone-first: the timeline is the whole point, so give it room and stop
+       the time column squeezing the event onto two lines on narrow screens. */
+    @media (max-width: 30rem) {
+      .timeline__item { padding-left: 1.1rem; }
+      .timeline__time { display: block; margin-bottom: 0.1rem; }
+    }
+
+    @media print {
+      .agenda-actions { display: none; }
+      body.is-open { background: #fff; }
+    }
+  </style>
+</head>
+<body class="is-open">
+
+  <div class="site">
+
+    <header class="agenda-head">
+      <p class="agenda-head__names">Becki &amp; Jase</p>
+      <h1 class="agenda-head__title">The Order of the Day</h1>
+      <p class="agenda-head__date">Saturday 29 August 2026</p>
+      <hr class="agenda-head__rule">
+    </header>
+
+    <main class="agenda-body">
+
+      <section class="section">
+        <p class="section__kicker">Running order</p>
+        <h2 class="section__title">How the day unfolds</h2>
+        <p class="section__intro">Times are a guide — the day will do what it likes.</p>
+        <ol id="agenda-timeline" class="timeline"></ol>
+        <noscript>
+          <!-- Deliberately no times here: they'd be a hand-copy of
+               js/timeline.js and would drift the moment the day changes. -->
+          <p>The running order needs JavaScript switched on to display. If you're
+          reading this, please turn it on and refresh — or ask any of the
+          bridal party, who will happily tell you where to be.</p>
+        </noscript>
+      </section>
+
+      <section class="section">
+        <p class="section__kicker">Where</p>
+        <h2 class="section__title">Getting here</h2>
+        <p>The ceremony is at <strong>Holy Trinity Church, Kendal</strong>. Everything
+        after that happens at the venue, a short way down the road.</p>
+        <a class="venue-card"
+           href="https://www.google.com/maps/dir/?api=1&amp;destination=54.326448,-2.7433071"
+           target="_blank" rel="noopener noreferrer">
+          <p class="venue-card__name">The Venue, Kendal</p>
+          <p class="venue-card__address">Bowness Bay Brewing, Kendal, Cumbria.</p>
+          <span class="venue-card__cta">Open in Google Maps &rarr;</span>
+        </a>
+        <p class="agenda-actions" style="margin-top: var(--gap);">
+          <a href="index.html#getting-here">Maps, parking and travel on the main site &#8599;</a>
+        </p>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Becki &amp; Jase &middot; 29 August 2026 &middot; Made with love in the Lake District
+    </footer>
+
+  </div>
+
+  <script src="js/timeline.js"></script>
+  <script>
+    (function () {
+      'use strict';
+      // Same array index.html reads — see js/timeline.js. Never hand-copy times.
+      var stops = window.WEDDING_TIMELINE || [];
+      var ul = document.getElementById('agenda-timeline');
+      if (!ul) return;
+
+      stops.forEach(function (s) {
+        var li = document.createElement('li');
+        li.className = 'timeline__item';
+        var time = document.createElement('span');
+        time.className = 'timeline__time'; time.textContent = s.time;
+        var event = document.createElement('span');
+        event.className = 'timeline__event'; event.textContent = s.event;
+        var note = document.createElement('span');
+        note.className = 'timeline__note'; note.textContent = s.note;
+        li.appendChild(time); li.appendChild(event); li.appendChild(note);
+        ul.appendChild(li);
+      });
+    })();
+  </script>
+
+</body>
+</html>
