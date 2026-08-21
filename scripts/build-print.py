@@ -72,9 +72,12 @@ FONT_BODY = "Garamond"
 # Members that are placeholders rather than people.
 PLACEHOLDERS = {"plus-one", "plus one", "+1", "daughter", "son", "child", "tbc"}
 
-# Table-card type sizes, taken from the Elm card as hand-edited in the .docx.
+# Table-card type sizes. The table name follows the Elm card as hand-edited in
+# the .docx; the guest names are set as large as the widest name on any card
+# allows, so the block fills the space rather than floating in it.
 TABLE_NAME_SIZE_PT = 48
-NAME_SIZE_PT = 18
+NAME_SIZE_PT = 26
+NAME_LEAD_PT = 6
 
 # Place cards use first names for the couple and their own — a place card is
 # addressed to the person sitting there, not a register entry. Everyone else
@@ -391,7 +394,7 @@ def names_block(doc, names):
     n = len(names)
     cols = 1 if n <= 5 else (2 if n <= 12 else 3)
     rows = -(-n // cols)
-    size, lead = NAME_SIZE_PT, 2
+    size, lead = NAME_SIZE_PT, NAME_LEAD_PT
     table = doc.add_table(rows=rows, cols=cols)
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
     table.autofit = True
