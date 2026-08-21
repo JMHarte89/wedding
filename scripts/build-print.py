@@ -72,6 +72,19 @@ FONT_BODY = "Garamond"
 # Members that are placeholders rather than people.
 PLACEHOLDERS = {"plus-one", "plus one", "+1", "daughter", "son", "child", "tbc"}
 
+# Table-card type sizes, taken from the Elm card as hand-edited in the .docx.
+TABLE_NAME_SIZE_PT = 48
+NAME_SIZE_PT = 18
+
+# Place cards use first names for the couple and their own — a place card is
+# addressed to the person sitting there, not a register entry. Everyone else
+# keeps their full name, so this is a deliberate short list, not a rule.
+PLACE_CARD_NAMES = {
+    "Jase Harte": "Jase",
+    "Becki Harte": "Becki",
+    "Thomas Carruthers": "Thomas",
+}
+
 
 # ----------------------------------------------------------------------
 # Artwork
@@ -371,18 +384,14 @@ def read_tables():
 def names_block(doc, names):
     """Lay the names out in 1–3 borderless columns depending on how many.
 
-    Type tightens as a table grows so even the 21-name top table stays on its
-    own single card — the row count, not the name count, is what costs height.
+    Size is fixed at NAME_SIZE_PT rather than shrinking to fit: the cards are
+    A4 landscape and no table now exceeds twelve people, so there is room to
+    keep every card typographically identical.
     """
     n = len(names)
-    cols = 1 if n <= 6 else (2 if n <= 14 else 3)
+    cols = 1 if n <= 5 else (2 if n <= 12 else 3)
     rows = -(-n // cols)
-    if rows >= 7:
-        size, lead = 11.5, 0
-    elif rows >= 6:
-        size, lead = 12.0, 1
-    else:
-        size, lead = 12.5, 1
+    size, lead = NAME_SIZE_PT, 2
     table = doc.add_table(rows=rows, cols=cols)
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
     table.autofit = True
@@ -413,25 +422,33 @@ def names_block(doc, names):
 # ----------------------------------------------------------------------
 
 def build_table_cards():
-    tables = read_tables()
-    # 22mm clears the vine's deepest inward ink (~19.5mm) with a little air,
-    # while leaving enough height for the 21-name top table on one card.
-    doc = new_doc(148, 210, landscape=True, margin_mm=22, centre=True, did=11)
+    """One A4 landscape card per table.
+
+    No card for the top table: those guests get an individual folded place
+    card instead, so a shared list would be redundant.
+
+    Sizes follow the Elm card as hand-edited in the .docx — 48pt table name,
+    18pt guest names, 11pt kicker, and no dot rule under the heading.
+    """
+    tables = [(name, people) for name, people in read_tables()
+              if name.strip().lower() != "top table"]
+
+    doc = new_doc(297, 210, landscape=True, centre=True, did=11,
+                  margins=(46, 30, 46, 30))
 
     for idx, (name, people) in enumerate(tables):
-        kicker = para(doc, "", font=FONT_DISPLAY, size=8.5, colour=PETROL,
-                      space_after=4)
+        kicker = para(doc, "", font=FONT_DISPLAY, size=11, colour=PETROL,
+                      space_after=6)
         if idx:
             # Break lives on the first run of the new card, not in a spacer
             # paragraph — an empty paragraph would throw off vertical centring.
             kicker.add_run().add_break(WD_BREAK.PAGE)
         style_run(kicker.add_run("You are seated at"), font=FONT_DISPLAY,
-                  size=8.5, colour=PETROL, spacing=2.4, caps=True)
-        para(doc, name, font=FONT_DISPLAY, size=28, colour=INK,
-             bold=True, space_after=2)
-        rule(doc)
+                  size=11, colour=PETROL, spacing=2.6, caps=True)
+        para(doc, name, font=FONT_DISPLAY, size=TABLE_NAME_SIZE_PT,
+             colour=INK, bold=True, space_after=10)
         names_block(doc, people)
-        add_qr(doc, AGENDA_URL, "Scan for the order of the day", size_in=0.82)
+        add_qr(doc, AGENDA_URL, "Scan for the order of the day", size_in=0.95)
 
     OUT_DIR.mkdir(exist_ok=True)
     doc.save(OUT_DIR / "table-cards.docx")
@@ -441,8 +458,8 @@ def build_table_cards():
 def build_place_cards(tables):
     """One folded place card per person on the top table.
 
-    Printed on A5 portrait and folded in half across the middle, giving a
-    148 x 105mm tent card. Everything — border and name — sits in the BOTTOM
+    Printed on A6 portrait and folded in half across the middle, giving a
+    105 x 74mm tent card. Everything — border and name — sits in the BOTTOM
     half of the sheet, so once the top half is folded back it becomes the
     outward face. The top half is left completely blank: it becomes the back
     support, and anything printed there would show through on light stock.
@@ -450,184 +467,126 @@ def build_place_cards(tables):
     Fold at the halfway point; aligning the sheet's corners lands it exactly
     on the top edge of the border, so no printed fold guide is needed.
     """
-    top = next((people for name, people in tables
+    top = next((people for name, people in read_tables()
                 if name.strip().lower() == "top table"), [])
     if not top:
         print("  (no top table found — skipping place cards)")
         return []
 
-    PAGE_W, PAGE_H = 148.0, 210.0
-    HALF = PAGE_H / 2                     # 105mm — the fold line
+    PAGE_W, PAGE_H = 105.0, 148.0         # A6
+    HALF = PAGE_H / 2                     # 74mm — the fold line
 
     doc = new_doc(
         PAGE_W, PAGE_H,
-        margins=(16, HALF + 12, 16, 16),  # text lives in the lower panel only
+        margins=(13, HALF + 9, 13, 8),    # text lives in the lower panel only
         centre=True, did=61,
         panel=(0.0, HALF, PAGE_W, HALF),  # border on the bottom half only
     )
 
+    shown = []
     for idx, person in enumerate(top):
-        kicker = para(doc, "", font=FONT_DISPLAY, size=7.5, colour=PETROL,
-                      space_after=3)
+        label = PLACE_CARD_NAMES.get(person, person)
+        shown.append(label)
+
+        kicker = para(doc, "", font=FONT_DISPLAY, size=6, colour=PETROL,
+                      space_after=2)
         if idx:
             kicker.add_run().add_break(WD_BREAK.PAGE)
-        style_run(kicker.add_run("Top Table"), font=FONT_DISPLAY, size=7.5,
-                  colour=PETROL, spacing=2.4, caps=True)
+        style_run(kicker.add_run("Top Table"), font=FONT_DISPLAY, size=6,
+                  colour=PETROL, spacing=2.0, caps=True)
 
-        # Long names need to step down a size or they crowd the foliage.
-        size = 26 if len(person) <= 15 else (22 if len(person) <= 20 else 19)
-        para(doc, person, font=FONT_DISPLAY, size=size, colour=INK,
-             bold=True, space_after=3)
-        para(doc, "· · ·", font=FONT_DISPLAY, size=8, colour=PETROL,
-             spacing=2.4, space_after=0)
+        # A6 halves the panel, so long names have to step down or they run
+        # into the foliage. Measured against "Carole Blackshaw", the longest.
+        n = len(label)
+        size = 20 if n <= 11 else (17 if n <= 16 else 15)
+        para(doc, label, font=FONT_DISPLAY, size=size, colour=INK,
+             bold=True, space_after=2)
+        para(doc, "· · ·", font=FONT_DISPLAY, size=6.5, colour=PETROL,
+             spacing=2.0, space_after=0)
 
     doc.save(OUT_DIR / "place-cards.docx")
     return top
 
 
-def build_menu(menu):
-    """The food menu on a single A4 portrait page.
-
-    A5 was the original intent, but it does not survive contact with the
-    content: three courses and twenty-odd dishes with descriptions need about
-    168mm of column, and the watercolour border claims roughly a quarter of an
-    A5 sheet. Fitting it meant 6.9pt descriptions that still collided with the
-    foliage. A4 keeps the same border and the same layout at a size people can
-    actually read at a table.
-
-    Left-aligned rather than centred — a centred ragged list of dish names is
-    hard to scan.
-    """
-    # The border's corner blooms reach much further in than the middle of each
-    # edge, so the margins are asymmetric: wider top and bottom to clear the
-    # sunflowers, tighter left and right where only thin stems run.
-    doc = new_doc(210, 297, centre=False, did=51,
-                  margins=(38, 40, 38, 46))
-
-    para(doc, "Becki & Jase", font=FONT_DISPLAY, size=8, colour=PETROL,
-         spacing=2.4, caps=True, space_after=2)
-    para(doc, "Food on the Day", font=FONT_DISPLAY, size=22, colour=INK,
-         bold=True, space_after=2)
-    para(doc, "· · ·", font=FONT_DISPLAY, size=8.5, colour=PETROL,
-         spacing=2.6, space_after=7)
-
-    for bi, block in enumerate(menu.get("blocks", [])):
-        para(doc, block["heading"], font=FONT_DISPLAY, size=12.5, colour=INK,
-             bold=True, align=WD_ALIGN_PARAGRAPH.LEFT,
-             space_before=(8 if bi else 0), space_after=0)
-        if block.get("time"):
-            # Serving time echoes the website's timeline styling: small,
-            # letter-spaced, petrol.
-            para(doc, block["time"], font=FONT_BODY, size=8.5, colour=PETROL,
-                 italic=True, spacing=0.5, align=WD_ALIGN_PARAGRAPH.LEFT,
-                 space_after=4)
-
-        for group in block.get("groups", []):
-            if group.get("subheading"):
-                para(doc, group["subheading"], font=FONT_DISPLAY, size=7.5,
-                     colour=PETROL, spacing=1.8, caps=True,
-                     align=WD_ALIGN_PARAGRAPH.LEFT,
-                     space_before=4, space_after=2.5)
-            for item in group.get("items", []):
-                has_detail = bool(item.get("detail"))
-                # Gap goes on the name when there's no detail line. An empty
-                # spacer paragraph still costs a full line box, and across the
-                # eleven-item buffet that alone overflowed the page.
-                para(doc, item["name"], font=FONT_BODY, size=9.2, colour=INK,
-                     align=WD_ALIGN_PARAGRAPH.LEFT,
-                     space_after=(0 if has_detail else 2.0))
-                if has_detail:
-                    para(doc, item["detail"], font=FONT_BODY, size=7.8,
-                         colour=INK, italic=True,
-                         align=WD_ALIGN_PARAGRAPH.LEFT, space_after=2.5)
-
-    para(doc, "· · ·", font=FONT_DISPLAY, size=8.5, colour=PETROL,
-         spacing=2.6, space_before=7, space_after=4)
-    para(doc, menu.get("footnote", ""), font=FONT_BODY, size=7.8,
-         colour=PETROL, italic=True, align=WD_ALIGN_PARAGRAPH.LEFT,
-         space_after=0)
-    # No keep_with_next here: welding the closing rule to the last dish makes
-    # Word push the whole group to a second page rather than split it, which
-    # is the opposite of what a one-page menu needs.
-
-    doc.save(OUT_DIR / "menu.docx")
-
-
 def build_ring_blessing():
-    doc = new_doc(210, 297, margin_mm=34, centre=True, did=21)
-    para(doc, "For Becki & Jase", font=FONT_DISPLAY, size=10, colour=PETROL,
-         spacing=3.0, caps=True, space_after=10)
-    para(doc, "Ring Blessing", font=FONT_DISPLAY, size=34, colour=INK,
-         bold=True, space_after=6)
+    """A4 portrait. Wording and sizes as edited in the .docx."""
+    doc = new_doc(210, 297, centre=True, did=21, margins=(40, 44, 40, 44))
+    para(doc, "For Becki & Jase", font=FONT_DISPLAY, size=14, colour=PETROL,
+         spacing=3.0, caps=True, space_after=12)
+    para(doc, "Ring Blessing", font=FONT_DISPLAY, size=48, colour=INK,
+         bold=True, space_after=8)
     rule(doc)
-    for line in (
-        "These two rings will be exchanged today, and worn for a lifetime.",
-        "Before they are, we would love them to pass through your hands.",
-    ):
-        para(doc, line, font=FONT_BODY, size=15, colour=INK, space_after=8)
     para(doc,
-         "Hold them for a moment. Make a silent wish for the marriage — for "
-         "patience, for laughter, for many ordinary happy years — and then "
-         "pass them gently on.",
-         font=FONT_BODY, size=15, colour=INK, italic=True, space_before=4,
-         space_after=14)
-    para(doc, "By the time they reach the altar, they will be carrying "
-              "every good thing you wished into them.",
-         font=FONT_BODY, size=15, colour=INK, space_after=12)
+         "These two rings will be exchanged today and worn for a lifetime.",
+         font=FONT_BODY, size=18, colour=INK, space_after=12)
+    para(doc,
+         "Before they are, we would love you to take a moment to hold them "
+         "and make a silent wish for the marriage \u2013 for patience, for "
+         "laughter and for many happy years together.",
+         font=FONT_BODY, size=18, colour=INK, space_after=14)
     rule(doc)
-    para(doc, "Thank you", font=FONT_DISPLAY, size=13, colour=WAX,
+    para(doc, "Thank you", font=FONT_DISPLAY, size=18, colour=WAX,
          italic=True, space_after=0)
     doc.save(OUT_DIR / "ring-blessing.docx")
 
 
 def build_favours():
-    doc = new_doc(210, 297, margin_mm=34, centre=True, did=31)
-    para(doc, "With our thanks", font=FONT_DISPLAY, size=10, colour=PETROL,
-         spacing=3.0, caps=True, space_after=10)
-    para(doc, "A Little Something", font=FONT_DISPLAY, size=34, colour=INK,
-         bold=True, space_after=6)
+    """A5 portrait. Wording as edited in the .docx."""
+    doc = new_doc(148, 210, centre=True, did=31, margins=(26, 30, 26, 30))
+    para(doc, "With our thanks", font=FONT_DISPLAY, size=9, colour=PETROL,
+         spacing=2.6, caps=True, space_after=8)
+    para(doc, "A Little Something to remember the day",
+         font=FONT_DISPLAY, size=22, colour=INK, bold=True, space_after=6)
     rule(doc)
-    para(doc,
-         "Thank you for being here today. Having you with us is the part "
-         "we'll remember.",
-         font=FONT_BODY, size=15, colour=INK, space_after=10)
-    para(doc,
-         "Please take a cork from the jar on your way — each one is stamped "
-         "with today's date.",
-         font=FONT_BODY, size=15, colour=INK, space_after=10)
-    para(doc,
-         "A small thing, from a day of rather a lot of them. Keep it "
-         "somewhere you'll come across it by accident, and think of us.",
-         font=FONT_BODY, size=15, colour=INK, italic=True, space_after=14)
+    para(doc, "Please take one or two home!",
+         font=FONT_BODY, size=14, colour=INK, space_after=12)
     rule(doc)
-    para(doc, "Becki & Jase  ·  29 August 2026", font=FONT_DISPLAY, size=12,
-         colour=WAX, space_after=0)
+    para(doc, "Becki & Jase  \u00b7  29th of August 2026",
+         font=FONT_DISPLAY, size=11, colour=WAX, space_after=0)
     doc.save(OUT_DIR / "favours.docx")
 
 
 def build_gifts():
-    # 26mm: the rotated border reaches further in on the short edge of an A5
-    # portrait page than it does on a landscape one, and at 20mm the body copy
-    # was running into the foliage.
-    doc = new_doc(148, 210, margin_mm=26, centre=True, did=41)
-    para(doc, "Becki & Jase", font=FONT_DISPLAY, size=8.5, colour=PETROL,
-         spacing=2.4, caps=True, space_after=8)
-    para(doc, "Gifts", font=FONT_DISPLAY, size=30, colour=INK,
-         bold=True, space_after=4)
+    """A4 portrait. Wording as edited in the .docx."""
+    doc = new_doc(210, 297, centre=True, did=41, margins=(44, 46, 44, 46))
+    para(doc, "Becki & Jase", font=FONT_DISPLAY, size=11, colour=PETROL,
+         spacing=2.8, caps=True, space_after=10)
+    para(doc, "Gifts", font=FONT_DISPLAY, size=44, colour=INK,
+         bold=True, space_after=6)
     rule(doc)
-    # Tone lifted from index.html, section id="no-gifts".
     para(doc,
          "We have a house, we have stuff, and between the kids and the dogs "
          "there's barely room for anything else.",
-         font=FONT_BODY, size=12.5, colour=INK, space_after=8)
-    para(doc, "The greatest gift you can give us is being there.",
-         font=FONT_BODY, size=13.5, colour=INK, italic=True, space_after=8)
+         font=FONT_BODY, size=16, colour=INK, space_after=10)
+    para(doc, "The greatest gift you can give us is being here.",
+         font=FONT_BODY, size=17, colour=INK, italic=True, space_after=10)
     para(doc,
-         "But if you'd really like to do something, we're saving for our "
-         "honeymoon — any contribution, however small, means the world.",
-         font=FONT_BODY, size=12, colour=INK, space_after=4)
-    add_qr(doc, GOFUNDME_URL, "Scan for our honeymoon fund", size_in=1.0)
+         "But if you'd really like to give something, we're saving for our "
+         "honeymoon \u2014 any contribution, however small, means the world.",
+         font=FONT_BODY, size=16, colour=INK, space_after=6)
+    add_qr(doc, GOFUNDME_URL,
+           "Scan this QR code with your camera for our honeymoon fund",
+           size_in=1.35)
     doc.save(OUT_DIR / "gifts.docx")
+
+
+def build_pegging():
+    """A5 landscape sign for the clothes-peg game.
+
+    The heading carries the joke, so it is set as large as the border allows
+    and the instruction sits quietly underneath.
+    """
+    doc = new_doc(210, 148, landscape=True, centre=True, did=71,
+                  margins=(40, 26, 40, 26))
+    para(doc, "A game", font=FONT_DISPLAY, size=9, colour=PETROL,
+         spacing=2.6, caps=True, space_after=6)
+    para(doc, "How Good Are You at Pegging?",
+         font=FONT_DISPLAY, size=34, colour=INK, bold=True, space_after=6)
+    rule(doc)
+    para(doc,
+         "See how many of these pegs you can surreptitiously attach to guests.",
+         font=FONT_BODY, size=15, colour=INK, italic=True, space_after=0)
+    doc.save(OUT_DIR / "pegging.docx")
 
 
 def main():
@@ -637,25 +596,25 @@ def main():
         sys.exit(f"Can't find {MENU_PATH}")
     OUT_DIR.mkdir(exist_ok=True)
 
-    menu = read_menu()
+    # The menu is deliberately NOT printed — it lives on the website and on
+    # the agenda page the QR codes point at. js/menu.js is still the source
+    # for those, so nothing about the menu data has been removed.
     tables = build_table_cards()
     top = build_place_cards(tables)
-    build_menu(menu)
     build_ring_blessing()
     build_favours()
     build_gifts()
+    build_pegging()
 
-    dishes = sum(len(g.get("items", []))
-                 for b in menu["blocks"] for g in b.get("groups", []))
     print(f"Fonts: display={FONT_DISPLAY}, body={FONT_BODY}")
-    print(f"Menu: {len(menu['blocks'])} blocks, {dishes} items "
-          f"(read from js/menu.js)")
-    print(f"Table cards: {len(tables)}")
+    print(f"Table cards: {len(tables)} (top table excluded — they get "
+          f"individual place cards)")
     for name, people in tables:
         print(f"  {name:<12} {len(people):>2} — {', '.join(people)}")
     total = sum(len(p) for _, p in tables)
-    print(f"Total seated people: {total}")
+    print(f"Seated at numbered tables: {total}")
     print(f"Place cards (top table, one per person): {len(top)}")
+    print(f"  {', '.join(PLACE_CARD_NAMES.get(p, p) for p in top)}")
 
 
 if __name__ == "__main__":
