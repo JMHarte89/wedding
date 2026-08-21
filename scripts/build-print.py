@@ -557,7 +557,7 @@ def build_ring_blessing():
     doc = new_doc(210, 297, margin_mm=34, centre=True, did=21)
     para(doc, "For Becki & Jase", font=FONT_DISPLAY, size=10, colour=PETROL,
          spacing=3.0, caps=True, space_after=10)
-    para(doc, "Bless These Rings", font=FONT_DISPLAY, size=34, colour=INK,
+    para(doc, "Ring Blessing", font=FONT_DISPLAY, size=34, colour=INK,
          bold=True, space_after=6)
     rule(doc)
     for line in (
