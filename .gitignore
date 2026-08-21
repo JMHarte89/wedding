@@ -13,10 +13,6 @@ Photos/
 __pycache__/
 *.pyc
 
-# PDF proofs exported from the .docx print materials — regenerable, and only
-# the .docx source belongs in the repo
-print/*.pdf
-
 # Node / Staticrypt
 node_modules/
 encrypted/
