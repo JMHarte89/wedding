@@ -773,7 +773,10 @@ def build_place_cards(tables, doc=None, only=None):
     PAGE_W, PAGE_H = 210.0, 297.0
     QW, QH = PAGE_W / 2, PAGE_H / 2        # A6 quadrant, 105 x 148.5
     FOLD = QH / 2                          # each card folds across its middle
-    INSET_X, INSET_TOP, INSET_BOT = 13.0, 6.0, 6.0
+    # 22mm, not 13: the border's foliage reaches about 21mm into a
+    # 105mm card, so a narrower text box keeps every name clear of it
+    # instead of relying on the name being short enough.
+    INSET_X, INSET_TOP, INSET_BOT = 22.0, 9.0, 9.0
 
     doc, sec = open_section(doc)
     set_page(sec, PAGE_W, PAGE_H, margin_mm=0)
@@ -973,7 +976,7 @@ def build_combined():
 # Names that changed after the first print run. Kept as data so the
 # corrections sheet can be rebuilt, or emptied once everything is reprinted.
 CORRECTED_TABLES = ["Ash", "Magnolia", "Rowan"]
-CORRECTED_PEOPLE = ["Jojo Zhou", "Tony Zhou"]
+CORRECTED_PEOPLE = ["Jojo Zhou", "Tony Zhou", "Max Zhou"]
 
 
 def build_corrections():
