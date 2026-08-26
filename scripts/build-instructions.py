@@ -96,8 +96,8 @@ def build():
          colour=PETROL, after=2)
     para(doc, "Printing and framing instructions", font=DISPLAY, size=18,
          colour=INK, bold=True, after=3)
-    para(doc, "Six documents, 20 sheets, all on A4. Some sheets carry more "
-              "than one item and get cut up afterwards.",
+    para(doc, "One file, 20 sheets, all on A4. Print the lot in one go. Some "
+              "sheets carry more than one item and get cut up afterwards.",
          size=11, italic=True, colour=PETROL, after=7)
 
     # ------------------------------------------------------------ critical
@@ -114,19 +114,23 @@ def build():
 
     # --------------------------------------------------------------- table
     heading(doc, "What to print")
+    para(doc, "Everything is in one file: ALL-PRINT-MATERIALS.docx. "
+              "Pages 1–10 are landscape and 11–20 portrait; the printer "
+              "handles that itself, the paper goes in the same way "
+              "throughout.", size=10.5, after=5)
 
     rows = [
-        ("Document", "Sheets", "You get", "Then"),
-        ("table-cards", "9", "9 table cards", "Nothing — frame as they are"),
-        ("ring-blessing", "1", "1 sign", "Nothing — frame as it is"),
-        ("gifts", "1", "1 sign", "Nothing — frame as it is"),
-        ("favours", "1", "2 copies", "Cut in half, trim each"),
-        ("pegging", "1", "2 copies", "Cut in half, trim each"),
-        ("place-cards", "7", "26 place cards", "Quarter each sheet, then fold"),
+        ("Pages", "What", "You get", "Then"),
+        ("1–9", "Table cards", "9 table cards", "Nothing — frame as they are"),
+        ("10", "Favours", "2 copies", "Cut in half, trim each"),
+        ("11–17", "Place cards", "26 place cards", "Quarter each sheet, then fold"),
+        ("18", "Ring blessing", "1 sign", "Nothing — frame as it is"),
+        ("19", "Gifts", "1 sign", "Nothing — frame as it is"),
+        ("20", "Pegging", "2 copies", "Cut in half, trim each"),
     ]
     t = doc.add_table(rows=len(rows), cols=4)
     t.style = "Table Grid"
-    widths = (Mm(38), Mm(18), Mm(38), Mm(72))
+    widths = (Mm(20), Mm(34), Mm(38), Mm(74))
     for ri, row in enumerate(rows):
         for ci, val in enumerate(row):
             cell = t.cell(ri, ci)
@@ -145,7 +149,7 @@ def build():
          size=10.5, italic=True, colour=PETROL, before=4, after=4)
 
     # ----------------------------------------------------------- the cuts
-    heading(doc, "Favours and Pegging — two to a sheet")
+    heading(doc, "Favours and Pegging — pages 10 and 20")
     para(doc,
          "Each sheet carries two copies of the same sign. You only need one "
          "of each, so the second is a spare.",
@@ -168,13 +172,13 @@ def build():
          size=10.5, italic=True, colour=PETROL, before=2, after=2)
 
     # ------------------------------------------------------------ no cuts
-    heading(doc, "Table cards, Ring Blessing and Gifts")
+    heading(doc, "Table cards, Ring Blessing and Gifts — pages 1–9, 18, 19")
     para(doc,
          "One item per sheet, printed edge to edge. No line, nothing to trim "
          "— straight into the frame.", size=11, after=4)
 
     # --------------------------------------------------------- place cards
-    heading(doc, "Place cards — four to a sheet")
+    heading(doc, "Place cards — pages 11–17, four to a sheet")
     para(doc,
          "26 cards over 7 sheets, one per person on the top table. Not "
          "framed — each one folds into a little tent that stands on the table.",

@@ -34,7 +34,7 @@ from qrcode.constants import ERROR_CORRECT_Q
 from PIL import Image, ImageDraw
 
 from docx import Document
-from docx.enum.section import WD_ORIENT
+from docx.enum.section import WD_ORIENT, WD_SECTION
 from docx.enum.table import WD_ALIGN_VERTICAL, WD_TABLE_ALIGNMENT
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK
 from docx.enum.table import WD_ROW_HEIGHT_RULE
@@ -350,9 +350,30 @@ def corner_trim(section, did=1, panel=None, cut_inset_mm=None):
     add_panel(section, did, x_mm, y_mm, w_mm, h_mm, cut_inset_mm)
 
 
+def open_section(doc):
+    """First section of a new document, or a fresh one appended to `doc`.
+
+    This is what lets every piece live in one file: each gets its own section,
+    so it keeps its own page size, orientation, margins and header artwork.
+    Composing the separate files with docxcompose was tried first and flattens
+    them all into the first document's section — every portrait piece came out
+    landscape with the wrong border.
+    """
+    if doc is None:
+        doc = Document()
+        _default_font(doc)
+        return doc, doc.sections[0]
+
+    sec = doc.add_section(WD_SECTION.NEW_PAGE)
+    # Without this the new section shares the previous one's header, and every
+    # piece after the first would inherit the wrong border.
+    sec.header.is_linked_to_previous = False
+    return doc, sec
+
+
 def new_doc(width_mm, height_mm, *, landscape=False, margin_mm=18,
             centre=True, did=1, margins=None, panel=None, card=None,
-            inset=None):
+            inset=None, doc=None):
     """`card` is a (w_mm, h_mm) trim size, centred on the sheet.
 
     Used where the sheet is bigger than the piece that goes in the frame: the
@@ -360,22 +381,11 @@ def new_doc(width_mm, height_mm, *, landscape=False, margin_mm=18,
     edge, and `inset` gives the text margin measured from the TRIM edge rather
     than the paper edge, so the layout is unaffected by how much waste
     surrounds it.
-    """
-    doc = Document()
-    # Document-wide default so nothing falls back to Calibri.
-    normal = doc.styles["Normal"]
-    normal.font.name = FONT_BODY
-    normal.font.size = Pt(12)
-    normal.font.color.rgb = INK
-    rpr = normal.element.get_or_add_rPr()
-    rf = rpr.find(qn("w:rFonts"))
-    if rf is None:
-        rf = rpr.makeelement(qn("w:rFonts"), {})
-        rpr.insert(0, rf)
-    for attr in ("w:ascii", "w:hAnsi", "w:cs", "w:eastAsia"):
-        rf.set(qn(attr), FONT_BODY)
 
-    sec = doc.sections[0]
+    Pass `doc` to append this piece to an existing document as a new section
+    rather than starting a new file.
+    """
+    doc, sec = open_section(doc)
     set_page(sec, width_mm, height_mm, landscape=landscape, margin_mm=margin_mm)
 
     cut_inset = None
@@ -449,7 +459,7 @@ def _scratch_paragraphs(blocks):
     return xml
 
 
-def two_up(card, inset, did, *, side_by_side, blocks):
+def two_up(card, inset, did, *, side_by_side, blocks, doc=None):
     """An A4 sheet carrying two copies of the same card.
 
     Everything is printed on A4, so the A5 pieces go two to a sheet. The sheet
@@ -463,10 +473,7 @@ def two_up(card, inset, did, *, side_by_side, blocks):
     inside, and it never settles.
     """
     cw, ch = card
-    doc = Document()
-    _default_font(doc)
-
-    sec = doc.sections[0]
+    doc, sec = open_section(doc)
     set_page(sec, 210, 297, landscape=side_by_side, margin_mm=0)
 
     pw, ph = sec.page_width.mm, sec.page_height.mm
@@ -659,7 +666,7 @@ def save(doc, name):
     return True
 
 
-def build_table_cards():
+def build_table_cards(doc=None):
     """One A4 landscape card per table.
 
     No card for the top table: those guests get an individual folded place
@@ -668,11 +675,12 @@ def build_table_cards():
     Sizes follow the Elm card as hand-edited in the .docx — 48pt table name,
     18pt guest names, 11pt kicker, and no dot rule under the heading.
     """
+    standalone = doc is None
     tables = [(name, people) for name, people in read_tables()
               if name.strip().lower() != "top table"]
 
     doc = new_doc(297, 210, landscape=True, centre=True, did=11,
-                  margins=(46, 30, 46, 30))
+                  margins=(46, 30, 46, 30), doc=doc)
 
     for idx, (name, people) in enumerate(tables):
         kicker = para(doc, "", font=FONT_DISPLAY, size=11, colour=PETROL,
@@ -689,7 +697,9 @@ def build_table_cards():
         add_qr(doc, AGENDA_URL, "Scan for the order of the day", size_in=0.95)
 
     OUT_DIR.mkdir(exist_ok=True)
-    save(doc, "table-cards.docx")
+    if standalone:
+        save(doc, "table-cards.docx")
+    return doc
     return tables
 
 
@@ -734,7 +744,7 @@ def add_image_panel(section, did, x_mm, y_mm, w_mm, h_mm, stream):
     inline.getparent().replace(inline, parse_xml(xml))
 
 
-def build_place_cards(tables):
+def build_place_cards(tables, doc=None):
     """Folded place cards for the top table, four to an A4 sheet.
 
     Everything prints on A4, and A6 is exactly a quarter of it, so four cards
@@ -745,20 +755,19 @@ def build_place_cards(tables):
     The top half stays blank — it folds back to become the support, and
     anything printed there would show through on light stock.
     """
+    standalone = doc is None
     top = next((people for name, people in read_tables()
                 if name.strip().lower() == "top table"), [])
     if not top:
         print("  (no top table found — skipping place cards)")
-        return []
+        return [], doc
 
     PAGE_W, PAGE_H = 210.0, 297.0
     QW, QH = PAGE_W / 2, PAGE_H / 2        # A6 quadrant, 105 x 148.5
     FOLD = QH / 2                          # each card folds across its middle
     INSET_X, INSET_TOP, INSET_BOT = 13.0, 6.0, 6.0
 
-    doc = Document()
-    _default_font(doc)
-    sec = doc.sections[0]
+    doc, sec = open_section(doc)
     set_page(sec, PAGE_W, PAGE_H, margin_mm=0)
 
     quads = [(0.0, 0.0), (QW, 0.0), (0.0, QH), (QW, QH)]
@@ -806,13 +815,16 @@ def build_place_cards(tables):
             )
             host._element.addnext(parse_xml(tb))
 
-    save(doc, "place-cards.docx")
-    return top
+    if standalone:
+        save(doc, "place-cards.docx")
+    return top, doc
 
 
-def build_ring_blessing():
+def build_ring_blessing(doc=None):
     """A4 portrait. Wording and sizes as edited in the .docx."""
-    doc = new_doc(210, 297, centre=True, did=21, margins=(40, 44, 40, 44))
+    standalone = doc is None
+    doc = new_doc(210, 297, centre=True, did=21, margins=(40, 44, 40, 44),
+                  doc=doc)
     para(doc, "For Becki & Jase", font=FONT_DISPLAY, size=14, colour=PETROL,
          spacing=3.0, caps=True, space_after=12)
     para(doc, "Ring Blessing", font=FONT_DISPLAY, size=72, colour=INK,
@@ -829,10 +841,12 @@ def build_ring_blessing():
     rule(doc)
     para(doc, "Thank you", font=FONT_DISPLAY, size=18, colour=WAX,
          italic=True, space_after=0)
-    save(doc, "ring-blessing.docx")
+    if standalone:
+        save(doc, "ring-blessing.docx")
+    return doc
 
 
-def build_favours():
+def build_favours(doc=None):
     """Two copies on one A4 landscape sheet, side by side.
 
     Sizes are as hand-edited in the .docx — 10pt kicker, 34pt heading, 15pt
@@ -840,6 +854,7 @@ def build_favours():
     the trimmed card was smaller; that was wrong, because the margins came in
     at the same time and the text measure actually got wider.
     """
+    standalone = doc is None
     blocks = [
         dict(text="With our thanks", font=FONT_DISPLAY, size=10,
              colour=PETROL, spacing=2.6, caps=True, space_after=8),
@@ -855,15 +870,18 @@ def build_favours():
              font=FONT_DISPLAY, size=11, colour=WAX, space_after=0),
     ]
     doc = two_up(CARD_A5, (15, 18, 15, 18), did=31,
-                 side_by_side=True, blocks=blocks)
-    save(doc, "favours.docx")
+                 side_by_side=True, blocks=blocks, doc=doc)
+    if standalone:
+        save(doc, "favours.docx")
+    return doc
 
 
-def build_pegging():
+def build_pegging(doc=None):
     """Two copies on one A4 portrait sheet, stacked.
 
     The heading carries the joke, so it is set as large as the border allows.
     """
+    standalone = doc is None
     blocks = [
         dict(text="A game", font=FONT_DISPLAY, size=9, colour=PETROL,
              spacing=2.6, caps=True, space_after=6),
@@ -876,13 +894,17 @@ def build_pegging():
              font=FONT_BODY, size=15, colour=INK, italic=True, space_after=0),
     ]
     doc = two_up(CARD_A5_LAND, (18, 14, 18, 14), did=71,
-                 side_by_side=False, blocks=blocks)
-    save(doc, "pegging.docx")
+                 side_by_side=False, blocks=blocks, doc=doc)
+    if standalone:
+        save(doc, "pegging.docx")
+    return doc
 
 
-def build_gifts():
+def build_gifts(doc=None):
     """A4 portrait, full sheet — no trimming. Sizes as hand-edited in the .docx."""
-    doc = new_doc(210, 297, centre=True, did=41, margins=(44, 46, 44, 46))
+    standalone = doc is None
+    doc = new_doc(210, 297, centre=True, did=41, margins=(44, 46, 44, 46),
+                  doc=doc)
     para(doc, "Becki & Jase", font=FONT_DISPLAY, size=8.5, colour=PETROL,
          spacing=2.4, caps=True, space_after=10)
     para(doc, "Gifts", font=FONT_DISPLAY, size=30, colour=INK,
@@ -901,7 +923,43 @@ def build_gifts():
     add_qr(doc, GOFUNDME_URL,
            "Scan this QR code with your camera for our honeymoon fund",
            size_in=1.35, caption_pt=9)
-    save(doc, "gifts.docx")
+    if standalone:
+        save(doc, "gifts.docx")
+    return doc
+
+
+def build_combined():
+    """Every piece in one file, so it is a single print job.
+
+    Each piece becomes its own Word SECTION, which is what carries page size,
+    orientation, margins and header artwork. Landscape pieces go first so the
+    printer changes orientation once rather than four times.
+    """
+    tables = read_tables()
+    doc = None
+    plan = []
+
+    def note(label, orient):
+        plan.append((label, orient))
+
+    doc = build_table_cards(doc)                        # 9, landscape
+    note("Table cards", "A4 landscape")
+    doc = build_favours(doc)                            # 1, landscape
+    note("Favours (2 per sheet)", "A4 landscape")
+    _, doc = build_place_cards(tables, doc)             # 7, portrait
+    note("Place cards (4 per sheet)", "A4 portrait")
+    doc = build_ring_blessing(doc)                      # 1, portrait
+    note("Ring blessing", "A4 portrait")
+    doc = build_gifts(doc)                              # 1, portrait
+    note("Gifts", "A4 portrait")
+    doc = build_pegging(doc)                            # 1, portrait
+    note("Pegging", "A4 portrait")
+
+    if save(doc, "ALL-PRINT-MATERIALS.docx"):
+        print("\nALL-PRINT-MATERIALS.docx — one file, one print job")
+        for label, orient in plan:
+            print(f"   {label:<28}{orient}")
+    return doc
 
 
 def main():
@@ -914,12 +972,19 @@ def main():
     # The menu is deliberately NOT printed — it lives on the website and on
     # the agenda page the QR codes point at. js/menu.js is still the source
     # for those, so nothing about the menu data has been removed.
-    tables = build_table_cards()
-    top = build_place_cards(tables)
+    all_tables = read_tables()
+    tables = [(n, p) for n, p in all_tables
+              if n.strip().lower() != "top table"]
+
+    build_table_cards()
+    build_place_cards(all_tables)
     build_ring_blessing()
     build_favours()
     build_gifts()
     build_pegging()
+
+    top = next((p for n, p in all_tables
+                if n.strip().lower() == "top table"), [])
 
     print(f"Fonts: display={FONT_DISPLAY}, body={FONT_BODY}")
     print(f"Table cards: {len(tables)} (top table excluded — they get "
@@ -930,6 +995,8 @@ def main():
     print(f"Seated at numbered tables: {total}")
     print(f"Place cards (top table, one per person): {len(top)}")
     print(f"  {', '.join(PLACE_CARD_NAMES.get(p, p) for p in top)}")
+
+    build_combined()
 
 
 if __name__ == "__main__":
