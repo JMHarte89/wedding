@@ -31,7 +31,7 @@ from pathlib import Path
 
 import qrcode
 from qrcode.constants import ERROR_CORRECT_Q
-from PIL import Image
+from PIL import Image, ImageDraw
 
 from docx import Document
 from docx.enum.section import WD_ORIENT
@@ -72,6 +72,21 @@ FONT_BODY = "Garamond"
 # Members that are placeholders rather than people.
 PLACEHOLDERS = {"plus-one", "plus one", "+1", "daughter", "son", "child", "tbc"}
 
+# Framed pieces are trimmed to fit inside the frame's visible aperture with a
+# few millimetres of overlap, so the border isn't swallowed by the rebate.
+#
+#   frame aperture   A5 118 x 169mm     A4 198 x 289mm   (measured)
+#   trim to          A5 130 x 180mm     A4 210 x 297mm
+#
+# The A5 pieces are printed on A5 and cut down, so they carry a faint cut line.
+#
+# The A4 pieces are NOT cut. 210 x 300 was asked for, but A4 paper is only
+# 297mm tall, so 300 cannot be printed on it. A full A4 sheet already overlaps
+# the A4 aperture by 6mm at the sides and 4mm top and bottom, which is what the
+# 300 was reaching for anyway — so those print full-bleed with no trimming.
+CARD_A5 = (130.0, 180.0)
+CARD_A5_LAND = (180.0, 130.0)
+
 # Table-card type sizes. The table name follows the Elm card as hand-edited in
 # the .docx; the guest names are set as large as the widest name on any card
 # allows, so the block fills the space rather than floating in it.
@@ -106,7 +121,7 @@ def _quad(p0, p1, p2, steps=48):
     return out
 
 
-def page_ornament(w_mm, h_mm):
+def page_ornament(w_mm, h_mm, cut_line=False):
     """The full-page trim: the watercolour sunflower-and-foliage border.
 
     Sourced from print/sunflower.jpg and prepared by scripts/extract-border.py,
@@ -125,8 +140,20 @@ def page_ornament(w_mm, h_mm):
     src = BORDER_LANDSCAPE if w_mm >= h_mm else BORDER_PORTRAIT
     if not src.exists():
         sys.exit(f"Missing {src} — run: python scripts/extract-border.py")
+    img = Image.open(src).convert("RGBA")
+
+    if cut_line:
+        # A hairline right on the artwork's edge. Because the border is placed
+        # exactly on the trim rectangle, its own perimeter IS the cut line —
+        # follow it with the blade and the line goes with the offcut.
+        d = ImageDraw.Draw(img)
+        w, h = img.size
+        px = max(1, round(min(w, h) * 0.0012))          # ~0.15mm at print size
+        d.rectangle([0, 0, w - 1, h - 1],
+                    outline=PETROL_RGB + (90,), width=px)
+
     buf = io.BytesIO()
-    Image.open(src).convert("RGBA").save(buf, format="PNG")
+    img.save(buf, format="PNG")
     buf.seek(0)
     return buf
 
@@ -236,7 +263,7 @@ _ANCHOR = (
 )
 
 
-def corner_trim(section, did=1, panel=None):
+def corner_trim(section, did=1, panel=None, cut_line=False):
     """Lay the page trim behind the text, pinned to the page itself.
 
     The image is placed as a floating anchor at an exact page offset, so its
@@ -254,7 +281,7 @@ def corner_trim(section, did=1, panel=None):
     else:
         x_mm, y_mm, w_mm, h_mm = panel
 
-    stream = page_ornament(w_mm, h_mm)
+    stream = page_ornament(w_mm, h_mm, cut_line=cut_line)
 
     p = section.header.paragraphs[0]
     p.alignment = WD_ALIGN_PARAGRAPH.LEFT
@@ -278,7 +305,16 @@ def corner_trim(section, did=1, panel=None):
 
 
 def new_doc(width_mm, height_mm, *, landscape=False, margin_mm=18,
-            centre=True, did=1, margins=None, panel=None):
+            centre=True, did=1, margins=None, panel=None, card=None,
+            inset=None):
+    """`card` is a (w_mm, h_mm) trim size, centred on the sheet.
+
+    Used where the sheet is bigger than the piece that goes in the frame: the
+    border is drawn only on the trim rectangle, a faint cut line marks its
+    edge, and `inset` gives the text margin measured from the TRIM edge rather
+    than the paper edge, so the layout is unaffected by how much waste
+    surrounds it.
+    """
     doc = Document()
     # Document-wide default so nothing falls back to Calibri.
     normal = doc.styles["Normal"]
@@ -295,11 +331,23 @@ def new_doc(width_mm, height_mm, *, landscape=False, margin_mm=18,
 
     sec = doc.sections[0]
     set_page(sec, width_mm, height_mm, landscape=landscape, margin_mm=margin_mm)
+
+    cut = False
+    if card:
+        pw, ph = sec.page_width.mm, sec.page_height.mm
+        cw, ch = card
+        ox, oy = (pw - cw) / 2.0, (ph - ch) / 2.0     # waste each side
+        panel = (ox, oy, cw, ch)
+        cut = True
+        if inset:
+            il, it, ir, ib = inset
+            margins = (ox + il, oy + it, ox + ir, oy + ib)
+
     if margins:                           # (left, top, right, bottom) in mm
         l, t, r, b = margins
         sec.left_margin, sec.top_margin = Mm(l), Mm(t)
         sec.right_margin, sec.bottom_margin = Mm(r), Mm(b)
-    corner_trim(sec, did=did, panel=panel)
+    corner_trim(sec, did=did, panel=panel, cut_line=cut)
     if centre:
         vertically_centre(sec)
     return doc
@@ -454,7 +502,7 @@ def build_table_cards():
         add_qr(doc, AGENDA_URL, "Scan for the order of the day", size_in=0.95)
 
     OUT_DIR.mkdir(exist_ok=True)
-    doc.save(OUT_DIR / "table-cards.docx")
+    save(doc, "table-cards.docx")
     return tables
 
 
@@ -507,7 +555,7 @@ def build_place_cards(tables):
         para(doc, "· · ·", font=FONT_DISPLAY, size=6.5, colour=PETROL,
              spacing=2.0, space_after=0)
 
-    doc.save(OUT_DIR / "place-cards.docx")
+    save(doc, "place-cards.docx")
     return top
 
 
@@ -530,23 +578,26 @@ def build_ring_blessing():
     rule(doc)
     para(doc, "Thank you", font=FONT_DISPLAY, size=18, colour=WAX,
          italic=True, space_after=0)
-    doc.save(OUT_DIR / "ring-blessing.docx")
+    save(doc, "ring-blessing.docx")
 
 
 def build_favours():
-    """A5 portrait. Wording as edited in the .docx."""
-    doc = new_doc(148, 210, centre=True, did=31, margins=(26, 30, 26, 30))
-    para(doc, "With our thanks", font=FONT_DISPLAY, size=9, colour=PETROL,
-         spacing=2.6, caps=True, space_after=8)
+    """Printed on A5, trimmed to CARD_A5 to fit the frame. Wording as edited
+    in the .docx. Type steps down with the smaller card so the proportions
+    match the A4 signs."""
+    doc = new_doc(148, 210, centre=True, did=31,
+                  card=CARD_A5, inset=(15, 20, 15, 20))
+    para(doc, "With our thanks", font=FONT_DISPLAY, size=8, colour=PETROL,
+         spacing=2.4, caps=True, space_after=7)
     para(doc, "A Little Something to remember the day",
-         font=FONT_DISPLAY, size=22, colour=INK, bold=True, space_after=6)
+         font=FONT_DISPLAY, size=19, colour=INK, bold=True, space_after=5)
     rule(doc)
     para(doc, "Please take one or two home!",
-         font=FONT_BODY, size=14, colour=INK, space_after=12)
+         font=FONT_BODY, size=12.5, colour=INK, space_after=10)
     rule(doc)
     para(doc, "Becki & Jase  \u00b7  29th of August 2026",
-         font=FONT_DISPLAY, size=11, colour=WAX, space_after=0)
-    doc.save(OUT_DIR / "favours.docx")
+         font=FONT_DISPLAY, size=10, colour=WAX, space_after=0)
+    save(doc, "favours.docx")
 
 
 def build_gifts():
@@ -570,7 +621,7 @@ def build_gifts():
     add_qr(doc, GOFUNDME_URL,
            "Scan this QR code with your camera for our honeymoon fund",
            size_in=1.35)
-    doc.save(OUT_DIR / "gifts.docx")
+    save(doc, "gifts.docx")
 
 
 def build_pegging():
@@ -580,16 +631,31 @@ def build_pegging():
     and the instruction sits quietly underneath.
     """
     doc = new_doc(210, 148, landscape=True, centre=True, did=71,
-                  margins=(40, 26, 40, 26))
-    para(doc, "A game", font=FONT_DISPLAY, size=9, colour=PETROL,
-         spacing=2.6, caps=True, space_after=6)
+                  card=CARD_A5_LAND, inset=(18, 13, 18, 13))
+    para(doc, "A game", font=FONT_DISPLAY, size=8, colour=PETROL,
+         spacing=2.4, caps=True, space_after=5)
     para(doc, "How Good Are You at Pegging?",
-         font=FONT_DISPLAY, size=34, colour=INK, bold=True, space_after=6)
+         font=FONT_DISPLAY, size=29, colour=INK, bold=True, space_after=5)
     rule(doc)
     para(doc,
          "See how many of these pegs you can surreptitiously attach to guests.",
-         font=FONT_BODY, size=15, colour=INK, italic=True, space_after=0)
-    doc.save(OUT_DIR / "pegging.docx")
+         font=FONT_BODY, size=13, colour=INK, italic=True, space_after=0)
+    save(doc, "pegging.docx")
+
+
+def save(doc, name):
+    """Save, but say something useful if the file is open in Word.
+
+    Word holds an exclusive lock on an open .docx, and the resulting
+    PermissionError is otherwise an opaque traceback halfway through a build.
+    """
+    path = OUT_DIR / name
+    try:
+        doc.save(path)
+    except PermissionError:
+        print(f"  !! {name} is open in Word — skipped. Close it and re-run.")
+        return False
+    return True
 
 
 def main():
