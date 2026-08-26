@@ -8,6 +8,8 @@ alongside the artwork.
 Deliberately plain. This one is a working document for whoever is at the
 printer, not a piece of the wedding stationery, so no border and no
 decoration — just legible type and headings you can skim on a phone.
+
+Everything prints on A4. Nothing needs A5 or A6 stock.
 """
 
 from pathlib import Path
@@ -38,9 +40,8 @@ def _font(run, name):
 
 
 def para(doc, text="", *, font=BODY, size=11, colour=INK, bold=False,
-         italic=False, align=WD_ALIGN_PARAGRAPH.LEFT, before=0, after=4,
-         style=None):
-    p = doc.add_paragraph(style=style)
+         italic=False, align=WD_ALIGN_PARAGRAPH.LEFT, before=0, after=4):
+    p = doc.add_paragraph()
     p.alignment = align
     p.paragraph_format.space_before = Pt(before)
     p.paragraph_format.space_after = Pt(after)
@@ -56,18 +57,18 @@ def para(doc, text="", *, font=BODY, size=11, colour=INK, bold=False,
 
 def heading(doc, text, size=14, before=9):
     return para(doc, text, font=DISPLAY, size=size, colour=PETROL,
-                bold=True, before=before, after=6)
+                bold=True, before=before, after=5)
 
 
-def bullet(doc, text, bold_lead=None):
+def bullet(doc, text, bold_lead=None, size=11):
     p = doc.add_paragraph(style="List Bullet")
     p.paragraph_format.space_after = Pt(2)
     if bold_lead:
         r = p.add_run(bold_lead)
-        r.font.size = Pt(11); r.font.color.rgb = INK; r.bold = True
+        r.font.size = Pt(size); r.font.color.rgb = INK; r.bold = True
         _font(r, BODY)
     r = p.add_run(text)
-    r.font.size = Pt(11); r.font.color.rgb = INK
+    r.font.size = Pt(size); r.font.color.rgb = INK
     _font(r, BODY)
     return p
 
@@ -77,8 +78,6 @@ def build():
     normal = doc.styles["Normal"]
     normal.font.name = BODY
     normal.font.size = Pt(11)
-    # Set the style's rFonts directly, or Word falls back to Calibri for
-    # anything we don't style run-by-run (bullets, table cells).
     rpr = normal.element.get_or_add_rPr()
     rf = rpr.find(qn("w:rFonts"))
     if rf is None:
@@ -89,8 +88,7 @@ def build():
 
     sec = doc.sections[0]
     sec.page_width, sec.page_height = Mm(210), Mm(297)
-    for m in ("left_margin", "right_margin"):
-        setattr(sec, m, Mm(20))
+    sec.left_margin = sec.right_margin = Mm(20)
     sec.top_margin, sec.bottom_margin = Mm(15), Mm(14)
 
     # ---------------------------------------------------------------- head
@@ -98,40 +96,37 @@ def build():
          colour=PETROL, after=2)
     para(doc, "Printing and framing instructions", font=DISPLAY, size=18,
          colour=INK, bold=True, after=3)
-    para(doc, "Six documents, 39 sheets in total. Two of them need trimming; "
-              "the rest print and go straight into a frame.",
+    para(doc, "Six documents, 20 sheets, all on A4. Some sheets carry more "
+              "than one item and get cut up afterwards.",
          size=11, italic=True, colour=PETROL, after=7)
 
     # ------------------------------------------------------------ critical
     heading(doc, "First — print at actual size", before=4)
-    para(doc,
-         "In the print dialog, set scaling to 100%, \"Actual size\" or "
-         "\"No scaling\".",
-         size=11, after=4)
+    para(doc, "In the print dialog, set scaling to 100%, \"Actual size\" or "
+              "\"No scaling\".", size=11, after=4)
     para(doc,
          "Do NOT use \"Fit to page\", \"Shrink to fit\" or \"Scale to paper "
          "size\". Those change the dimensions by a few per cent, which is "
          "enough that the trimmed cards no longer fit the frames.",
-         size=11, bold=True, colour=WAX, after=6)
-    para(doc,
-         "Print one sheet first and measure it before running the rest.",
+         size=11, bold=True, colour=WAX, after=5)
+    para(doc, "Print one sheet first and measure it before running the rest.",
          size=10.5, italic=True, colour=PETROL, after=2)
 
     # --------------------------------------------------------------- table
     heading(doc, "What to print")
 
     rows = [
-        ("Document", "Sheets", "Paper", "Cut?"),
-        ("table-cards", "9", "A4, landscape", "No"),
-        ("ring-blessing", "1", "A4, portrait", "No"),
-        ("gifts", "1", "A4, portrait", "No"),
-        ("favours", "1", "A5, portrait", "Yes — see below"),
-        ("pegging", "1", "A5, landscape", "Yes — see below"),
-        ("place-cards", "26", "A6, portrait", "No — folded"),
+        ("Document", "Sheets", "You get", "Then"),
+        ("table-cards", "9", "9 table cards", "Nothing — frame as they are"),
+        ("ring-blessing", "1", "1 sign", "Nothing — frame as it is"),
+        ("gifts", "1", "1 sign", "Nothing — frame as it is"),
+        ("favours", "1", "2 copies", "Cut in half, trim each"),
+        ("pegging", "1", "2 copies", "Cut in half, trim each"),
+        ("place-cards", "7", "26 place cards", "Quarter each sheet, then fold"),
     ]
     t = doc.add_table(rows=len(rows), cols=4)
     t.style = "Table Grid"
-    widths = (Mm(52), Mm(20), Mm(40), Mm(54))
+    widths = (Mm(38), Mm(18), Mm(38), Mm(72))
     for ri, row in enumerate(rows):
         for ci, val in enumerate(row):
             cell = t.cell(ri, ci)
@@ -145,61 +140,54 @@ def build():
             r.bold = ri == 0
             _font(r, BODY)
 
-    para(doc, "Designed for coloured paper — no background fill anywhere, so "
-              "the stock shows through.",
+    para(doc, "All A4. Designed for coloured paper — no background fill "
+              "anywhere, so the stock shows through.",
          size=10.5, italic=True, colour=PETROL, before=4, after=4)
 
     # ----------------------------------------------------------- the cuts
-    heading(doc, "The two that need cutting")
+    heading(doc, "Favours and Pegging — two to a sheet")
     para(doc,
-         "These print onto A5 but end up smaller, so they sit properly inside "
-         "the frame instead of being swallowed by its edge.",
+         "Each sheet carries two copies of the same sign. You only need one "
+         "of each, so the second is a spare.",
          size=11, after=4)
-
-    bullet(doc, "Follow the faint grey line printed near the edge. Cut along "
-                "it — the line itself comes away with the offcut, so nothing "
-                "shows on the finished card.", "Cut along the line. ")
-    bullet(doc, "The flowers deliberately carry on past the line. That is "
-                "there so a slightly wandering cut still has colour running "
-                "to the edge. You are not meant to cut around them.",
-           "Ignore the artwork beyond it. ")
-    bullet(doc, "Anywhere within a few millimetres of the line is fine. It "
-                "does not need to be exact.", "Close enough is fine. ")
-
-    para(doc, "Finished sizes after cutting:", size=11, bold=True,
-         before=4, after=3)
-    bullet(doc, "130mm wide × 180mm tall", "Favours — ")
-    bullet(doc, "180mm wide × 130mm tall", "Pegging — ")
+    bullet(doc, "Cut the sheet in half, between the two copies.",
+           "1.  ")
+    bullet(doc, "On each half, cut along the faint grey line near the edge. "
+                "The line comes away with the offcut, so nothing shows on the "
+                "finished card.", "2.  ")
+    bullet(doc, "The flowers deliberately carry on past that line, so a "
+                "slightly wandering cut still has colour running to the edge. "
+                "Do not try to cut around them.", "Note:  ")
+    para(doc, "Finished sizes: Favours 130 × 180mm, Pegging 180 × 130mm. "
+              "Anywhere within a few millimetres of the line is fine.",
+         size=10.5, italic=True, colour=PETROL, before=3, after=2)
     para(doc,
          "The A5 frames only show 118 × 169mm, so a 130 × 180mm card is held "
-         "by the frame instead of dropping through. A4 frames show "
+         "by the frame instead of dropping through. The A4 frames show "
          "198 × 289mm and take a full sheet, which is why those aren't cut.",
-         size=10.5, italic=True, colour=PETROL, before=3, after=2)
+         size=10.5, italic=True, colour=PETROL, before=2, after=2)
 
     # ------------------------------------------------------------ no cuts
-    heading(doc, "The ones that don't need cutting")
+    heading(doc, "Table cards, Ring Blessing and Gifts")
     para(doc,
-         "Table cards, Ring Blessing and Gifts print onto a full sheet and go "
-         "straight into the frame. No line, nothing to trim.",
-         size=11, after=4)
+         "One item per sheet, printed edge to edge. No line, nothing to trim "
+         "— straight into the frame.", size=11, after=4)
 
-    heading(doc, "Place cards")
+    # --------------------------------------------------------- place cards
+    heading(doc, "Place cards — four to a sheet")
     para(doc,
-         "26 cards, one per person on the top table. Not framed — each folds "
-         "in half across the middle so it stands up.",
+         "26 cards over 7 sheets, one per person on the top table. Not "
+         "framed — each one folds into a little tent that stands on the table.",
          size=11, after=3)
-    bullet(doc, "The design sits on the bottom half of the sheet. The top "
-                "half is blank on purpose — it becomes the back.")
-    bullet(doc, "Fold across the middle, with the blank half folding "
-                "backwards. Lining the corners up puts the fold in the right "
-                "place.")
-    bullet(doc, "If your printer won't take A6, print four to an A4 sheet at "
-                "100% and cut into quarters — but check the first one "
-                "measures 105mm across before doing the rest.")
-
-    # The frame openings used to be a section of their own down here, but they
-    # read better as a footnote beside the trim sizes they explain — and it
-    # keeps the whole sheet on one page.
+    bullet(doc, "Cut each sheet into quarters, following the faint lines down "
+                "the middle.", "1.  ")
+    bullet(doc, "Fold each card in half across the middle, with the blank "
+                "half folding backwards. Lining the corners up puts the fold "
+                "in the right place.", "2.  ")
+    bullet(doc, "The blank half is meant to be blank — it becomes the back "
+                "support once folded.", "Note:  ")
+    para(doc, "The last sheet has two cards on it, not four.",
+         size=10.5, italic=True, colour=PETROL, before=3, after=0)
 
     OUT.parent.mkdir(exist_ok=True)
     doc.save(OUT)
