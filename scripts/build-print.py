@@ -587,15 +587,26 @@ def read_tables():
 
 
 def names_block(doc, names):
-    """Lay the names out in 1–3 borderless columns depending on how many.
+    """Lay the names out in a borderless grid, filled left to right.
 
-    Size is fixed at NAME_SIZE_PT rather than shrinking to fit: the cards are
-    A4 landscape and no table now exceeds twelve people, so there is room to
-    keep every card typographically identical.
+    Two columns, filled ROW by row rather than column by column. The guest
+    list keeps households together, so reading across pairs couples up on a
+    line — Gill and Tim Bennett land side by side instead of being split
+    between the foot of one column and the head of the next.
+
+    An odd name at the end gets the whole last row to itself and sits centred
+    under the pair above, rather than leaving a hole in the bottom corner.
+
+    Three columns is deliberately not used: at 26pt the longest names
+    ("Kathleen Humphries" is 76mm) overflow a 68mm column and wrap.
+
+    Size is fixed at NAME_SIZE_PT rather than shrinking to fit, so every card
+    is typographically identical.
     """
     n = len(names)
-    cols = 1 if n <= 5 else (2 if n <= 12 else 3)
+    cols = 1 if n <= 5 else 2
     rows = -(-n // cols)
+    odd_tail = cols == 2 and n % 2 == 1
     size, lead = NAME_SIZE_PT, NAME_LEAD_PT
     table = doc.add_table(rows=rows, cols=cols)
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
@@ -612,8 +623,15 @@ def names_block(doc, names):
         borders.append(e)
     tbl_pr.append(borders)
 
+    # Merge the final row first, so the odd name spans the full width and
+    # centres beneath the pair above it.
+    if odd_tail:
+        table.cell(rows - 1, 0).merge(table.cell(rows - 1, cols - 1))
+
     for i, name in enumerate(names):
-        cell = table.cell(i % rows, i // rows)
+        r, c = divmod(i, cols)                 # row-major
+        cell = table.cell(r, 0) if (odd_tail and r == rows - 1) \
+            else table.cell(r, c)
         p = cell.paragraphs[0]
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         p.paragraph_format.space_before = Pt(lead)

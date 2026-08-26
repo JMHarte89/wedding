@@ -259,14 +259,17 @@
   },
   {
     "code": "KHumphries",
-    "greeting": "Kathleen",
+    "greeting": "Kathleen & Jackie",
     "members": [
       "Kathleen Humphries",
-      "Plus-one"
+      "Jackie Webb"
     ],
     "day": true,
     "evening": true,
-    "notes": "Surname uncertain; +1 name unknown",
+    "notes": "Surname uncertain",
+    "aliases": [
+      "JWebb"
+    ],
     "table": "Rowan"
   },
   {
@@ -333,15 +336,15 @@
   },
   {
     "code": "HThompson",
-    "greeting": "Hannah, Luke & their daughter",
+    "greeting": "Hannah, Luke & Nancy",
     "members": [
       "Hannah Lovatt-Thompson",
       "Luke Lovatt-Thompson",
-      "daughter"
+      "Nancy Lovatt-Thompson"
     ],
     "day": true,
     "evening": true,
-    "notes": "Daughter's name TBC",
+    "notes": "",
     "aliases": [
       "HLovattThompson",
       "HLovatt-Thompson",
@@ -349,7 +352,11 @@
       "LLovattThompson",
       "LLovatt-Thompson",
       "LLovatt",
-      "LThompson"
+      "LThompson",
+      "NLovattThompson",
+      "NLovatt-Thompson",
+      "NLovatt",
+      "NThompson"
     ],
     "table": "Magnolia"
   },
@@ -404,14 +411,16 @@
   },
   {
     "code": "TPorter",
-    "greeting": "Thomas",
+    "greeting": "Thomas & guest",
     "members": [
-      "Thomas Porter",
-      "Plus-one"
+      "Thomas Porter + guest"
     ],
     "day": true,
     "evening": true,
-    "notes": "Dawn's son; +1 name unknown",
+    "notes": "Dawn's son; bringing a guest, name not known",
+    "aliases": [
+      "Tguest"
+    ],
     "table": "Ash"
   },
   {
