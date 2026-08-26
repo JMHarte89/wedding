@@ -87,6 +87,13 @@ PLACEHOLDERS = {"plus-one", "plus one", "+1", "daughter", "son", "child", "tbc"}
 CARD_A5 = (130.0, 180.0)
 CARD_A5_LAND = (180.0, 130.0)
 
+# Bleed. The artwork is drawn this much larger than the trim on every side and
+# the cut line sits inside it, so cutting a millimetre off the line still
+# leaves foliage running to the card edge instead of clipping a leaf or
+# leaving a white sliver. 4mm rather than the usual 3, because this is being
+# cut by hand with scissors rather than on a guillotine.
+BLEED_MM = 4.0
+
 # Table-card type sizes. The table name follows the Elm card as hand-edited in
 # the .docx; the guest names are set as large as the widest name on any card
 # allows, so the block fills the space rather than floating in it.
@@ -121,7 +128,7 @@ def _quad(p0, p1, p2, steps=48):
     return out
 
 
-def page_ornament(w_mm, h_mm, cut_line=False):
+def page_ornament(w_mm, h_mm, cut_inset_mm=None):
     """The full-page trim: the watercolour sunflower-and-foliage border.
 
     Sourced from print/sunflower.jpg and prepared by scripts/extract-border.py,
@@ -142,15 +149,19 @@ def page_ornament(w_mm, h_mm, cut_line=False):
         sys.exit(f"Missing {src} — run: python scripts/extract-border.py")
     img = Image.open(src).convert("RGBA")
 
-    if cut_line:
-        # A hairline right on the artwork's edge. Because the border is placed
-        # exactly on the trim rectangle, its own perimeter IS the cut line —
-        # follow it with the blade and the line goes with the offcut.
+    if cut_inset_mm:
+        # The cut line sits INSIDE the artwork by the bleed distance, so the
+        # foliage carries on past where the blade goes. Cutting a millimetre
+        # either side of the line still leaves leaves running to the edge —
+        # whereas a line drawn at the artwork's own edge means any wobble
+        # either clips the leaf tips or leaves a white sliver.
         d = ImageDraw.Draw(img)
         w, h = img.size
+        inset_x = round(w * cut_inset_mm / w_mm)
+        inset_y = round(h * cut_inset_mm / h_mm)
         px = max(1, round(min(w, h) * 0.0012))          # ~0.15mm at print size
-        d.rectangle([0, 0, w - 1, h - 1],
-                    outline=PETROL_RGB + (90,), width=px)
+        d.rectangle([inset_x, inset_y, w - 1 - inset_x, h - 1 - inset_y],
+                    outline=PETROL_RGB + (110,), width=px)
 
     buf = io.BytesIO()
     img.save(buf, format="PNG")
@@ -263,7 +274,7 @@ _ANCHOR = (
 )
 
 
-def corner_trim(section, did=1, panel=None, cut_line=False):
+def corner_trim(section, did=1, panel=None, cut_inset_mm=None):
     """Lay the page trim behind the text, pinned to the page itself.
 
     The image is placed as a floating anchor at an exact page offset, so its
@@ -281,7 +292,7 @@ def corner_trim(section, did=1, panel=None, cut_line=False):
     else:
         x_mm, y_mm, w_mm, h_mm = panel
 
-    stream = page_ornament(w_mm, h_mm, cut_line=cut_line)
+    stream = page_ornament(w_mm, h_mm, cut_inset_mm=cut_inset_mm)
 
     p = section.header.paragraphs[0]
     p.alignment = WD_ALIGN_PARAGRAPH.LEFT
@@ -332,14 +343,18 @@ def new_doc(width_mm, height_mm, *, landscape=False, margin_mm=18,
     sec = doc.sections[0]
     set_page(sec, width_mm, height_mm, landscape=landscape, margin_mm=margin_mm)
 
-    cut = False
+    cut_inset = None
     if card:
         pw, ph = sec.page_width.mm, sec.page_height.mm
         cw, ch = card
-        ox, oy = (pw - cw) / 2.0, (ph - ch) / 2.0     # waste each side
-        panel = (ox, oy, cw, ch)
-        cut = True
+        # Artwork is drawn BLEED_MM larger than the trim on every side, so the
+        # foliage runs past the blade. The cut line is then drawn that same
+        # distance inside the artwork, landing exactly on the trim size.
+        bw, bh = cw + 2 * BLEED_MM, ch + 2 * BLEED_MM
+        panel = ((pw - bw) / 2.0, (ph - bh) / 2.0, bw, bh)
+        cut_inset = BLEED_MM
         if inset:
+            ox, oy = (pw - cw) / 2.0, (ph - ch) / 2.0
             il, it, ir, ib = inset
             margins = (ox + il, oy + it, ox + ir, oy + ib)
 
@@ -347,7 +362,7 @@ def new_doc(width_mm, height_mm, *, landscape=False, margin_mm=18,
         l, t, r, b = margins
         sec.left_margin, sec.top_margin = Mm(l), Mm(t)
         sec.right_margin, sec.bottom_margin = Mm(r), Mm(b)
-    corner_trim(sec, did=did, panel=panel, cut_line=cut)
+    corner_trim(sec, did=did, panel=panel, cut_inset_mm=cut_inset)
     if centre:
         vertically_centre(sec)
     return doc
