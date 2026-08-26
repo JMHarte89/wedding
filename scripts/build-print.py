@@ -666,7 +666,7 @@ def save(doc, name):
     return True
 
 
-def build_table_cards(doc=None):
+def build_table_cards(doc=None, only=None):
     """One A4 landscape card per table.
 
     No card for the top table: those guests get an individual folded place
@@ -678,6 +678,9 @@ def build_table_cards(doc=None):
     standalone = doc is None
     tables = [(name, people) for name, people in read_tables()
               if name.strip().lower() != "top table"]
+    if only:
+        want = {o.strip().lower() for o in only}
+        tables = [(n, p) for n, p in tables if n.strip().lower() in want]
 
     doc = new_doc(297, 210, landscape=True, centre=True, did=11,
                   margins=(46, 30, 46, 30), doc=doc)
@@ -744,7 +747,7 @@ def add_image_panel(section, did, x_mm, y_mm, w_mm, h_mm, stream):
     inline.getparent().replace(inline, parse_xml(xml))
 
 
-def build_place_cards(tables, doc=None):
+def build_place_cards(tables, doc=None, only=None):
     """Folded place cards for the top table, four to an A4 sheet.
 
     Everything prints on A4, and A6 is exactly a quarter of it, so four cards
@@ -758,6 +761,11 @@ def build_place_cards(tables, doc=None):
     standalone = doc is None
     top = next((people for name, people in read_tables()
                 if name.strip().lower() == "top table"), [])
+    if only:
+        want = {o.strip().lower() for o in only}
+        top = [t for t in top
+               if PLACE_CARD_NAMES.get(t, t).strip().lower() in want
+               or t.strip().lower() in want]
     if not top:
         print("  (no top table found — skipping place cards)")
         return [], doc
@@ -962,6 +970,32 @@ def build_combined():
     return doc
 
 
+# Names that changed after the first print run. Kept as data so the
+# corrections sheet can be rebuilt, or emptied once everything is reprinted.
+CORRECTED_TABLES = ["Ash", "Magnolia", "Rowan"]
+CORRECTED_PEOPLE = ["Jojo Zhou", "Tony Zhou"]
+
+
+def build_corrections():
+    """Only the pages whose names changed, so nothing correct gets reprinted.
+
+    Ash gained "+ guest", Magnolia gained Nancy, Rowan gained Jackie, and two
+    place cards became Zhou. Everything else is unchanged and is deliberately
+    left out — the point is that Rob prints four pages, not twenty.
+    """
+    tables = read_tables()
+    doc = build_table_cards(None, only=CORRECTED_TABLES)
+    people, doc = build_place_cards(tables, doc, only=CORRECTED_PEOPLE)
+
+    if save(doc, "CORRECTIONS.docx"):
+        print("\nCORRECTIONS.docx — reprint these pages only")
+        for i, t in enumerate(CORRECTED_TABLES, 1):
+            print(f"   page {i}  table card: {t}")
+        print(f"   page {len(CORRECTED_TABLES) + 1}  place cards: "
+              f"{', '.join(people)}")
+    return doc
+
+
 def main():
     if not CSV_PATH.exists():
         sys.exit(f"Can't find {CSV_PATH}")
@@ -997,6 +1031,7 @@ def main():
     print(f"  {', '.join(PLACE_CARD_NAMES.get(p, p) for p in top)}")
 
     build_combined()
+    build_corrections()
 
 
 if __name__ == "__main__":
