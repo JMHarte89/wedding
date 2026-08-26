@@ -35,8 +35,9 @@ from PIL import Image, ImageDraw
 
 from docx import Document
 from docx.enum.section import WD_ORIENT
-from docx.enum.table import WD_TABLE_ALIGNMENT
+from docx.enum.table import WD_ALIGN_VERTICAL, WD_TABLE_ALIGNMENT
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK
+from docx.enum.table import WD_ROW_HEIGHT_RULE
 from docx.oxml import parse_xml
 from docx.oxml.ns import qn
 from docx.shared import Inches, Mm, Pt, RGBColor
@@ -233,6 +234,32 @@ def para(container, text="", *, align=WD_ALIGN_PARAGRAPH.CENTER,
     return p
 
 
+def _default_font(doc):
+    """Document-wide default, so nothing falls back to Calibri."""
+    normal = doc.styles["Normal"]
+    normal.font.name = FONT_BODY
+    normal.font.size = Pt(12)
+    normal.font.color.rgb = INK
+    rpr = normal.element.get_or_add_rPr()
+    rf = rpr.find(qn("w:rFonts"))
+    if rf is None:
+        rf = rpr.makeelement(qn("w:rFonts"), {})
+        rpr.insert(0, rf)
+    for attr in ("w:ascii", "w:hAnsi", "w:cs", "w:eastAsia"):
+        rf.set(qn(attr), FONT_BODY)
+
+
+def _strip_borders(table):
+    """No lines, ever. Table cells are used only for geometry here."""
+    tbl_pr = table._tbl.tblPr
+    borders = tbl_pr.makeelement(qn("w:tblBorders"), {})
+    for edge in ("top", "left", "bottom", "right", "insideH", "insideV"):
+        borders.append(borders.makeelement(
+            qn("w:" + edge), {qn("w:val"): "none", qn("w:sz"): "0",
+                              qn("w:space"): "0"}))
+    tbl_pr.append(borders)
+
+
 def set_page(section, width_mm, height_mm, *, landscape=False, margin_mm=18):
     if landscape:
         section.orientation = WD_ORIENT.LANDSCAPE
@@ -274,6 +301,34 @@ _ANCHOR = (
 )
 
 
+def add_panel(section, did, x_mm, y_mm, w_mm, h_mm, cut_inset_mm=None):
+    """Anchor one border image at an exact position on the page.
+
+    Separate from corner_trim so a sheet can carry more than one — the two-up
+    A5 layouts put two independent cards on a single A4 sheet.
+    """
+    stream = page_ornament(w_mm, h_mm, cut_inset_mm=cut_inset_mm)
+
+    p = section.header.paragraphs[0]
+    p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    p.paragraph_format.space_before = Pt(0)
+    p.paragraph_format.space_after = Pt(0)
+    p.paragraph_format.line_spacing = Pt(1)
+    run = p.add_run()
+    run.font.size = Pt(1)                 # keep the header line height at nil
+    run.add_picture(stream, width=Mm(w_mm), height=Mm(h_mm))
+
+    inline = run._element.find(qn("w:drawing")).find(qn("wp:inline"))
+    graphic = inline.find(qn("a:graphic"))
+    extent = inline.find(qn("wp:extent"))
+    xml = _ANCHOR.format(
+        cx=extent.get("cx"), cy=extent.get("cy"), did=did,
+        x=int(Mm(x_mm)), y=int(Mm(y_mm)),
+        graphic=etree.tostring(graphic).decode("utf-8"),
+    )
+    inline.getparent().replace(inline, parse_xml(xml))
+
+
 def corner_trim(section, did=1, panel=None, cut_inset_mm=None):
     """Lay the page trim behind the text, pinned to the page itself.
 
@@ -292,27 +347,7 @@ def corner_trim(section, did=1, panel=None, cut_inset_mm=None):
     else:
         x_mm, y_mm, w_mm, h_mm = panel
 
-    stream = page_ornament(w_mm, h_mm, cut_inset_mm=cut_inset_mm)
-
-    p = section.header.paragraphs[0]
-    p.alignment = WD_ALIGN_PARAGRAPH.LEFT
-    p.paragraph_format.space_before = Pt(0)
-    p.paragraph_format.space_after = Pt(0)
-    p.paragraph_format.line_spacing = Pt(1)
-    run = p.add_run()
-    run.font.size = Pt(1)                 # keep the header line height at nil
-    run.add_picture(stream, width=Mm(w_mm), height=Mm(h_mm))
-
-    # Convert the inline drawing python-docx just made into a page anchor.
-    inline = run._element.find(qn("w:drawing")).find(qn("wp:inline"))
-    graphic = inline.find(qn("a:graphic"))
-    extent = inline.find(qn("wp:extent"))
-    xml = _ANCHOR.format(
-        cx=extent.get("cx"), cy=extent.get("cy"), did=did,
-        x=int(Mm(x_mm)), y=int(Mm(y_mm)),
-        graphic=etree.tostring(graphic).decode("utf-8"),
-    )
-    inline.getparent().replace(inline, parse_xml(xml))
+    add_panel(section, did, x_mm, y_mm, w_mm, h_mm, cut_inset_mm)
 
 
 def new_doc(width_mm, height_mm, *, landscape=False, margin_mm=18,
@@ -368,19 +403,123 @@ def new_doc(width_mm, height_mm, *, landscape=False, margin_mm=18,
     return doc
 
 
+_TEXTBOX = (
+    '<w:p xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+    '<w:pPr><w:spacing w:before="0" w:after="0" w:line="20" '
+    'w:lineRule="exact"/></w:pPr>'
+    '<w:r><w:rPr><w:sz w:val="2"/><w:noProof/></w:rPr>'
+    '<w:drawing xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/'
+    'wordprocessingDrawing">'
+    '<wp:anchor distT="0" distB="0" distL="0" distR="0" simplePos="0" '
+    'relativeHeight="{z}" behindDoc="0" locked="0" layoutInCell="0" '
+    'allowOverlap="1">'
+    '<wp:simplePos x="0" y="0"/>'
+    '<wp:positionH relativeFrom="page"><wp:posOffset>{x}</wp:posOffset></wp:positionH>'
+    '<wp:positionV relativeFrom="page"><wp:posOffset>{y}</wp:posOffset></wp:positionV>'
+    '<wp:extent cx="{cx}" cy="{cy}"/>'
+    '<wp:effectExtent l="0" t="0" r="0" b="0"/><wp:wrapNone/>'
+    '<wp:docPr id="{did}" name="Card {did}"/><wp:cNvGraphicFramePr/>'
+    '<a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">'
+    '<a:graphicData uri="http://schemas.microsoft.com/office/word/2010/'
+    'wordprocessingShape">'
+    '<wps:wsp xmlns:wps="http://schemas.microsoft.com/office/word/2010/'
+    'wordprocessingShape">'
+    '<wps:cNvSpPr txBox="1"/>'
+    '<wps:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="{cx}" cy="{cy}"/></a:xfrm>'
+    '<a:prstGeom prst="rect"><a:avLst/></a:prstGeom>'
+    '<a:noFill/><a:ln><a:noFill/></a:ln></wps:spPr>'
+    '<wps:txbx><w:txbxContent>{body}</w:txbxContent></wps:txbx>'
+    '<wps:bodyPr rot="0" spcFirstLastPara="0" vert="horz" wrap="square" '
+    'lIns="0" tIns="0" rIns="0" bIns="0" numCol="1" anchor="ctr" '
+    'anchorCtr="0" upright="0"><a:noAutofit/></wps:bodyPr>'
+    '</wps:wsp></a:graphicData></a:graphic></wp:anchor></w:drawing></w:r></w:p>'
+)
+
+
+def _scratch_paragraphs(blocks):
+    """Render blocks into detached paragraph XML for a text box."""
+    tmp = Document()
+    _default_font(tmp)
+    for b in blocks:
+        kw = dict(b)
+        text = kw.pop("text", "")
+        para(tmp, text, align=WD_ALIGN_PARAGRAPH.CENTER, **kw)
+    xml = "".join(etree.tostring(p._element).decode("utf-8")
+                  for p in tmp.paragraphs if p.text.strip() or True)
+    return xml
+
+
+def two_up(card, inset, did, *, side_by_side, blocks):
+    """An A4 sheet carrying two copies of the same card.
+
+    Everything is printed on A4, so the A5 pieces go two to a sheet. The sheet
+    divides into two halves; each card is centred in its half with its own
+    bleed and its own cut line, so cutting the sheet down the middle gives two
+    A5 pieces, each of which then trims to the card.
+
+    Both the border and the text are anchored to the page rather than flowed.
+    An earlier attempt laid the text out in a full-bleed table and Word hung
+    on it — with no page margins there is nothing for a flowed table to fit
+    inside, and it never settles.
+    """
+    cw, ch = card
+    doc = Document()
+    _default_font(doc)
+
+    sec = doc.sections[0]
+    set_page(sec, 210, 297, landscape=side_by_side, margin_mm=0)
+
+    pw, ph = sec.page_width.mm, sec.page_height.mm
+    half_w = pw / 2 if side_by_side else pw
+    half_h = ph if side_by_side else ph / 2
+    il, it, ir, ib = inset
+
+    # A one-line host paragraph for the anchors to hang off. The boxes are
+    # positioned against the page, so this paragraph's own position is
+    # irrelevant — it just has to exist and take up no height.
+    host = doc.add_paragraph()
+    host.paragraph_format.space_before = Pt(0)
+    host.paragraph_format.space_after = Pt(0)
+    host.paragraph_format.line_spacing = Pt(1)
+
+    body_xml = _scratch_paragraphs(blocks)
+
+    for i in range(2):
+        ox = i * half_w if side_by_side else 0.0
+        oy = 0.0 if side_by_side else i * half_h
+        cx = ox + (half_w - cw) / 2.0          # card centred in its half
+        cy = oy + (half_h - ch) / 2.0
+
+        add_panel(sec, did + i,
+                  cx - BLEED_MM, cy - BLEED_MM,
+                  cw + 2 * BLEED_MM, ch + 2 * BLEED_MM,
+                  cut_inset_mm=BLEED_MM)
+
+        tb = _TEXTBOX.format(
+            z=10 + i, did=did + 100 + i,
+            x=int(Mm(cx + il)), y=int(Mm(cy + it)),
+            cx=int(Mm(cw - il - ir)), cy=int(Mm(ch - it - ib)),
+            body=body_xml,
+        )
+        host._element.addnext(parse_xml(tb))
+
+    return doc
+
+
 def rule(container):
     """A small centred ornament rule — three petrol dots, understated."""
     return para(container, "· · ·", font=FONT_DISPLAY, size=12, colour=PETROL,
                 spacing=3.0, space_before=4, space_after=10)
 
 
-def add_qr(container, url, caption, *, size_in=0.95, colour=INK_RGB):
+def add_qr(container, url, caption, *, size_in=0.95, colour=INK_RGB,
+           caption_pt=8.5):
     p = container.add_paragraph()
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p.paragraph_format.space_before = Pt(10)
     p.paragraph_format.space_after = Pt(2)
     p.add_run().add_picture(qr_png(url, colour), width=Inches(size_in))
-    para(container, caption, font=FONT_BODY, size=8.5, colour=PETROL,
+    para(container, caption, font=FONT_BODY, size=caption_pt, colour=PETROL,
          italic=True, space_after=0)
 
 
@@ -487,6 +626,21 @@ def names_block(doc, names):
 # The four documents
 # ----------------------------------------------------------------------
 
+def save(doc, name):
+    """Save, but say something useful if the file is open in Word.
+
+    Word holds an exclusive lock on an open .docx, and the resulting
+    PermissionError is otherwise an opaque traceback halfway through a build.
+    """
+    path = OUT_DIR / name
+    try:
+        doc.save(path)
+    except PermissionError:
+        print(f"  !! {name} is open in Word — skipped. Close it and re-run.")
+        return False
+    return True
+
+
 def build_table_cards():
     """One A4 landscape card per table.
 
@@ -521,17 +675,57 @@ def build_table_cards():
     return tables
 
 
+def cut_grid_png(w_mm, h_mm, xs, ys, dpi=200):
+    """A transparent sheet carrying only faint guide lines at xs / ys (mm)."""
+    mmpx = dpi / 25.4
+    W, H = int(w_mm * mmpx), int(h_mm * mmpx)
+    img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    px = max(1, round(0.15 * mmpx))
+    col = PETROL_RGB + (110,)
+    for x in xs:
+        cx = int(x * mmpx)
+        d.line([(cx, 0), (cx, H)], fill=col, width=px)
+    for y in ys:
+        cy = int(y * mmpx)
+        d.line([(0, cy), (W, cy)], fill=col, width=px)
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    buf.seek(0)
+    return buf
+
+
+def add_image_panel(section, did, x_mm, y_mm, w_mm, h_mm, stream):
+    """Anchor an already-made image at an exact page position."""
+    p = section.header.paragraphs[0]
+    p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    p.paragraph_format.space_before = Pt(0)
+    p.paragraph_format.space_after = Pt(0)
+    p.paragraph_format.line_spacing = Pt(1)
+    run = p.add_run()
+    run.font.size = Pt(1)
+    run.add_picture(stream, width=Mm(w_mm), height=Mm(h_mm))
+    inline = run._element.find(qn("w:drawing")).find(qn("wp:inline"))
+    graphic = inline.find(qn("a:graphic"))
+    extent = inline.find(qn("wp:extent"))
+    xml = _ANCHOR.format(
+        cx=extent.get("cx"), cy=extent.get("cy"), did=did,
+        x=int(Mm(x_mm)), y=int(Mm(y_mm)),
+        graphic=etree.tostring(graphic).decode("utf-8"),
+    )
+    inline.getparent().replace(inline, parse_xml(xml))
+
+
 def build_place_cards(tables):
-    """One folded place card per person on the top table.
+    """Folded place cards for the top table, four to an A4 sheet.
 
-    Printed on A6 portrait and folded in half across the middle, giving a
-    105 x 74mm tent card. Everything — border and name — sits in the BOTTOM
-    half of the sheet, so once the top half is folded back it becomes the
-    outward face. The top half is left completely blank: it becomes the back
-    support, and anything printed there would show through on light stock.
+    Everything prints on A4, and A6 is exactly a quarter of it, so four cards
+    fit per sheet with no scaling: quarter the sheet, then fold each card
+    across its own middle into a tent.
 
-    Fold at the halfway point; aligning the sheet's corners lands it exactly
-    on the top edge of the border, so no printed fold guide is needed.
+    As before, the border and the name sit in the BOTTOM half of each card.
+    The top half stays blank — it folds back to become the support, and
+    anything printed there would show through on light stock.
     """
     top = next((people for name, people in read_tables()
                 if name.strip().lower() == "top table"), [])
@@ -539,36 +733,60 @@ def build_place_cards(tables):
         print("  (no top table found — skipping place cards)")
         return []
 
-    PAGE_W, PAGE_H = 105.0, 148.0         # A6
-    HALF = PAGE_H / 2                     # 74mm — the fold line
+    PAGE_W, PAGE_H = 210.0, 297.0
+    QW, QH = PAGE_W / 2, PAGE_H / 2        # A6 quadrant, 105 x 148.5
+    FOLD = QH / 2                          # each card folds across its middle
+    INSET_X, INSET_TOP, INSET_BOT = 13.0, 6.0, 6.0
 
-    doc = new_doc(
-        PAGE_W, PAGE_H,
-        margins=(13, HALF + 9, 13, 8),    # text lives in the lower panel only
-        centre=True, did=61,
-        panel=(0.0, HALF, PAGE_W, HALF),  # border on the bottom half only
-    )
+    doc = Document()
+    _default_font(doc)
+    sec = doc.sections[0]
+    set_page(sec, PAGE_W, PAGE_H, margin_mm=0)
+
+    quads = [(0.0, 0.0), (QW, 0.0), (0.0, QH), (QW, QH)]
+
+    # Borders live in the header, so the same four appear on every sheet.
+    for i, (qx, qy) in enumerate(quads):
+        add_panel(sec, 61 + i, qx, qy + FOLD, QW, FOLD)
+
+    # Faint lines down the middle of the sheet, to quarter it.
+    add_image_panel(sec, 69, 0, 0, PAGE_W, PAGE_H,
+                    cut_grid_png(PAGE_W, PAGE_H, [QW], [QH]))
 
     shown = []
-    for idx, person in enumerate(top):
-        label = PLACE_CARD_NAMES.get(person, person)
-        shown.append(label)
+    for page_start in range(0, len(top), 4):
+        batch = top[page_start:page_start + 4]
+        host = doc.add_paragraph()
+        host.paragraph_format.space_before = Pt(0)
+        host.paragraph_format.space_after = Pt(0)
+        host.paragraph_format.line_spacing = Pt(1)
+        if page_start:
+            host.add_run().add_break(WD_BREAK.PAGE)
 
-        kicker = para(doc, "", font=FONT_DISPLAY, size=6, colour=PETROL,
-                      space_after=2)
-        if idx:
-            kicker.add_run().add_break(WD_BREAK.PAGE)
-        style_run(kicker.add_run("Top Table"), font=FONT_DISPLAY, size=6,
-                  colour=PETROL, spacing=2.0, caps=True)
+        for i, person in enumerate(batch):
+            label = PLACE_CARD_NAMES.get(person, person)
+            shown.append(label)
+            qx, qy = quads[i]
 
-        # A6 halves the panel, so long names have to step down or they run
-        # into the foliage. Measured against "Carole Blackshaw", the longest.
-        n = len(label)
-        size = 20 if n <= 11 else (17 if n <= 16 else 15)
-        para(doc, label, font=FONT_DISPLAY, size=size, colour=INK,
-             bold=True, space_after=2)
-        para(doc, "· · ·", font=FONT_DISPLAY, size=6.5, colour=PETROL,
-             spacing=2.0, space_after=0)
+            n = len(label)
+            size = 20 if n <= 11 else (17 if n <= 16 else 15)
+            blocks = [
+                dict(text="Top Table", font=FONT_DISPLAY, size=6,
+                     colour=PETROL, spacing=2.0, caps=True, space_after=2),
+                dict(text=label, font=FONT_DISPLAY, size=size, colour=INK,
+                     bold=True, space_after=2),
+                dict(text="\u00b7 \u00b7 \u00b7", font=FONT_DISPLAY, size=6.5,
+                     colour=PETROL, spacing=2.0, space_after=0),
+            ]
+            tb = _TEXTBOX.format(
+                z=20 + i, did=200 + page_start + i,
+                x=int(Mm(qx + INSET_X)),
+                y=int(Mm(qy + FOLD + INSET_TOP)),
+                cx=int(Mm(QW - 2 * INSET_X)),
+                cy=int(Mm(FOLD - INSET_TOP - INSET_BOT)),
+                body=_scratch_paragraphs(blocks),
+            )
+            host._element.addnext(parse_xml(tb))
 
     save(doc, "place-cards.docx")
     return top
@@ -579,7 +797,7 @@ def build_ring_blessing():
     doc = new_doc(210, 297, centre=True, did=21, margins=(40, 44, 40, 44))
     para(doc, "For Becki & Jase", font=FONT_DISPLAY, size=14, colour=PETROL,
          spacing=3.0, caps=True, space_after=12)
-    para(doc, "Ring Blessing", font=FONT_DISPLAY, size=48, colour=INK,
+    para(doc, "Ring Blessing", font=FONT_DISPLAY, size=72, colour=INK,
          bold=True, space_after=8)
     rule(doc)
     para(doc,
@@ -597,80 +815,75 @@ def build_ring_blessing():
 
 
 def build_favours():
-    """Printed on A5, trimmed to CARD_A5 to fit the frame. Wording as edited
-    in the .docx. Type steps down with the smaller card so the proportions
-    match the A4 signs."""
-    doc = new_doc(148, 210, centre=True, did=31,
-                  card=CARD_A5, inset=(15, 20, 15, 20))
-    para(doc, "With our thanks", font=FONT_DISPLAY, size=8, colour=PETROL,
-         spacing=2.4, caps=True, space_after=7)
-    para(doc, "A Little Something to remember the day",
-         font=FONT_DISPLAY, size=19, colour=INK, bold=True, space_after=5)
-    rule(doc)
-    para(doc, "Please take one or two home!",
-         font=FONT_BODY, size=12.5, colour=INK, space_after=10)
-    rule(doc)
-    para(doc, "Becki & Jase  \u00b7  29th of August 2026",
-         font=FONT_DISPLAY, size=10, colour=WAX, space_after=0)
+    """Two copies on one A4 landscape sheet, side by side.
+
+    Sizes are as hand-edited in the .docx — 10pt kicker, 34pt heading, 15pt
+    body, 11pt footer. An earlier version shrank these on the reasoning that
+    the trimmed card was smaller; that was wrong, because the margins came in
+    at the same time and the text measure actually got wider.
+    """
+    blocks = [
+        dict(text="With our thanks", font=FONT_DISPLAY, size=10,
+             colour=PETROL, spacing=2.6, caps=True, space_after=8),
+        dict(text="A Little Something to remember the day",
+             font=FONT_DISPLAY, size=34, colour=INK, bold=True, space_after=6),
+        dict(text="· · ·", font=FONT_DISPLAY, size=12, colour=PETROL,
+             spacing=3.0, space_before=4, space_after=10),
+        dict(text="Please take one or two home!", font=FONT_BODY, size=15,
+             colour=INK, space_after=12),
+        dict(text="· · ·", font=FONT_DISPLAY, size=12, colour=PETROL,
+             spacing=3.0, space_before=4, space_after=10),
+        dict(text="Becki & Jase  ·  29th of August 2026",
+             font=FONT_DISPLAY, size=11, colour=WAX, space_after=0),
+    ]
+    doc = two_up(CARD_A5, (15, 18, 15, 18), did=31,
+                 side_by_side=True, blocks=blocks)
     save(doc, "favours.docx")
 
 
+def build_pegging():
+    """Two copies on one A4 portrait sheet, stacked.
+
+    The heading carries the joke, so it is set as large as the border allows.
+    """
+    blocks = [
+        dict(text="A game", font=FONT_DISPLAY, size=9, colour=PETROL,
+             spacing=2.6, caps=True, space_after=6),
+        dict(text="How Good Are You at Pegging?", font=FONT_DISPLAY, size=34,
+             colour=INK, bold=True, space_after=6),
+        dict(text="· · ·", font=FONT_DISPLAY, size=12, colour=PETROL,
+             spacing=3.0, space_before=4, space_after=10),
+        dict(text="See how many of these pegs you can surreptitiously attach "
+                  "to guests.",
+             font=FONT_BODY, size=15, colour=INK, italic=True, space_after=0),
+    ]
+    doc = two_up(CARD_A5_LAND, (18, 14, 18, 14), did=71,
+                 side_by_side=False, blocks=blocks)
+    save(doc, "pegging.docx")
+
+
 def build_gifts():
-    """A4 portrait. Wording as edited in the .docx."""
+    """A4 portrait, full sheet — no trimming. Sizes as hand-edited in the .docx."""
     doc = new_doc(210, 297, centre=True, did=41, margins=(44, 46, 44, 46))
-    para(doc, "Becki & Jase", font=FONT_DISPLAY, size=11, colour=PETROL,
-         spacing=2.8, caps=True, space_after=10)
-    para(doc, "Gifts", font=FONT_DISPLAY, size=44, colour=INK,
+    para(doc, "Becki & Jase", font=FONT_DISPLAY, size=8.5, colour=PETROL,
+         spacing=2.4, caps=True, space_after=10)
+    para(doc, "Gifts", font=FONT_DISPLAY, size=30, colour=INK,
          bold=True, space_after=6)
     rule(doc)
     para(doc,
          "We have a house, we have stuff, and between the kids and the dogs "
          "there's barely room for anything else.",
-         font=FONT_BODY, size=16, colour=INK, space_after=10)
+         font=FONT_BODY, size=14, colour=INK, space_after=10)
     para(doc, "The greatest gift you can give us is being here.",
-         font=FONT_BODY, size=17, colour=INK, italic=True, space_after=10)
+         font=FONT_BODY, size=14, colour=INK, italic=True, space_after=10)
     para(doc,
          "But if you'd really like to give something, we're saving for our "
-         "honeymoon \u2014 any contribution, however small, means the world.",
-         font=FONT_BODY, size=16, colour=INK, space_after=6)
+         "honeymoon — any contribution, however small, means the world.",
+         font=FONT_BODY, size=14, colour=INK, space_after=6)
     add_qr(doc, GOFUNDME_URL,
            "Scan this QR code with your camera for our honeymoon fund",
-           size_in=1.35)
+           size_in=1.35, caption_pt=9)
     save(doc, "gifts.docx")
-
-
-def build_pegging():
-    """A5 landscape sign for the clothes-peg game.
-
-    The heading carries the joke, so it is set as large as the border allows
-    and the instruction sits quietly underneath.
-    """
-    doc = new_doc(210, 148, landscape=True, centre=True, did=71,
-                  card=CARD_A5_LAND, inset=(18, 13, 18, 13))
-    para(doc, "A game", font=FONT_DISPLAY, size=8, colour=PETROL,
-         spacing=2.4, caps=True, space_after=5)
-    para(doc, "How Good Are You at Pegging?",
-         font=FONT_DISPLAY, size=29, colour=INK, bold=True, space_after=5)
-    rule(doc)
-    para(doc,
-         "See how many of these pegs you can surreptitiously attach to guests.",
-         font=FONT_BODY, size=13, colour=INK, italic=True, space_after=0)
-    save(doc, "pegging.docx")
-
-
-def save(doc, name):
-    """Save, but say something useful if the file is open in Word.
-
-    Word holds an exclusive lock on an open .docx, and the resulting
-    PermissionError is otherwise an opaque traceback halfway through a build.
-    """
-    path = OUT_DIR / name
-    try:
-        doc.save(path)
-    except PermissionError:
-        print(f"  !! {name} is open in Word — skipped. Close it and re-run.")
-        return False
-    return True
 
 
 def main():
