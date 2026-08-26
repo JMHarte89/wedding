@@ -319,18 +319,20 @@
     "table": "Top Table"
   },
   {
-    "code": "JTzu",
+    "code": "JZhou",
     "greeting": "Jojo, Tony & Max",
     "members": [
-      "Jojo Tzu",
-      "Tony Tzu",
+      "Jojo Zhou",
+      "Tony Zhou",
       "Max (2)"
     ],
     "day": true,
     "evening": true,
-    "notes": "",
+    "notes": "Family name corrected from Tzu to Zhou; old codes JTzu / TTzu still work",
     "aliases": [
-      "TTzu"
+      "JTzu",
+      "TTzu",
+      "TZhou"
     ],
     "table": "Top Table"
   },
